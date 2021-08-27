@@ -18,7 +18,8 @@ source /usr/local/opt/powerlevel10k/powerlevel10k.zsh-theme
 
 
 # 2 >>> aliases
-alias ll='ls -l' 
+	# always use ls with -G color flag. -F show slashes for directory and @ for symlinks
+alias ls='ls -GF' 
 alias v='mvim'
 
 

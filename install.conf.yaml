@@ -1,8 +1,18 @@
+- defaults:
+    link:
+      relink: true
+      force: true
+      create: true
+
+
 - clean: ['~']
 
 - link:
     ~/.gitconfig: gitconfig
     ~/.vimrc: vimrc
     ~/.zshrc: zshrc
+    ~/.p10k.zsh:
+    /usr/local/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.zsh:
 
-
+- shell:
+  - [git submodule update --init --recursive, Installing submodules]
