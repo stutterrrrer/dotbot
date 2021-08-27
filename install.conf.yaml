@@ -13,6 +13,7 @@
     ~/.zshrc: zshrc
     ~/.p10k.zsh:
     /usr/local/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.zsh:
+    ~/.tmux.conf:
 
 - shell:
     -
