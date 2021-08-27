@@ -1,0 +1,10 @@
+[user]
+	name = ian
+	email = 38461291+stutterrrrer@users.noreply.github.com
+[mergetool "mvimdiff"]
+	cmd = mvim -f -d -c \"winc J\" \"$MERGED\" \"$LOCAL\" \"$BASE\" \"$REMOTE\"
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
