@@ -15,4 +15,7 @@
     /usr/local/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.zsh:
 
 - shell:
-  - [git submodule update --init --recursive, Installing submodules]
+    -
+      command: ./setup_homebrew.zsh
+      stdout: true
+      stderr: true
