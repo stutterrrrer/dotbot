@@ -88,3 +88,8 @@ inoremap <Right> <ESC>:echoe "Use l"<CR>
 inoremap <Up>    <ESC>:echoe "Use k"<CR>
 inoremap <Down>  <ESC>:echoe "Use j"<CR>
 
+
+
+" Setup cursor change on insert mode ( for native vim; Mac Vim seems to do this by default.)
+let &t_SI="\033[5 q" " start insert mode, vertical cursor
+let &t_EI="\033[1 q" " end insert mode, blinking block
