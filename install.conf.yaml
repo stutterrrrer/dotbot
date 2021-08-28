@@ -4,6 +4,11 @@
       force: true
       create: true
 
+- shell:
+    -
+      command: ./setup_homebrew.zsh
+      stdout: true
+      stderr: true
 
 - clean: ['~']
 
@@ -12,11 +17,6 @@
     ~/.vimrc: vimrc
     ~/.zshrc: zshrc
     ~/.p10k.zsh:
-    /usr/local/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.zsh:
     ~/.tmux.conf:
+    $(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.zsh:
 
-- shell:
-    -
-      command: ./setup_homebrew.zsh
-      stdout: true
-      stderr: true
