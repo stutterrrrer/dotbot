@@ -272,7 +272,7 @@ fi
 
 # Set the line init mode (empty will keep the last mode)
 # you can also set it to others, such as $ZVM_MODE_INSERT.
-: ${ZVM_LINE_INIT_MODE:=$ZVM_MODE_LAST}
+: ${ZVM_LINE_INIT_MODE:=$ZVM_MODE_INSERT}
 
 : ${ZVM_VI_INSERT_MODE_LEGACY_UNDO:=false}
 : ${ZVM_VI_SURROUND_BINDKEY:=classic}
@@ -2263,7 +2263,6 @@ function zvm_switch_number {
   local word=$1
   local increase=${2:-true}
   local result= bpos= epos=
-
   # Hexadecimal
   if [[ $word =~ [^0-9]?(0[xX][0-9a-fA-F]*) ]]; then
     local number=${match[1]}
