@@ -1,7 +1,8 @@
 " ian's own customization
-inoremap jj <Esc>
 inoremap jk <Esc>
 inoremap kj <Esc>
+cnoremap jk <C-C>
+cnoremap kj <C-C>
 
 colorscheme murphy
 

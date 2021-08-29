@@ -32,7 +32,7 @@ ZVM_VI_INSERT_ESCAPE_BINDKEY=jk
 # the vi escape key of insert mode (default is $ZVM_VI_ESCAPE_BINDKEY), you
 # can set it to whatever, such as `jj`, `jk` and so on.
 #
-# ZVM_VI_VISUAL_ESCAPE_BINDKEY
+ZVM_VI_VISUAL_ESCAPE_BINDKEY=v
 # the vi escape key of visual mode (default is $ZVM_VI_ESCAPE_BINDKEY), you
 # can set it to whatever, such as `jj`, `jk` and so on.
 #
@@ -3214,7 +3214,7 @@ function zvm_init() {
   zvm_bindkey visual 'U' zvm_vi_up_case
   zvm_bindkey visual 'u' zvm_vi_down_case
   zvm_bindkey visual '~' zvm_vi_opp_case
-  zvm_bindkey visual 'v' zvm_vi_edit_command_line
+  zvm_bindkey visual 'e' zvm_vi_edit_command_line
   zvm_bindkey vicmd  '.' zvm_repeat_change
 
   zvm_bindkey vicmd '^A' zvm_switch_keyword
