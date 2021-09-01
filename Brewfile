@@ -29,3 +29,5 @@ brew "zsh-syntax-highlighting"
 brew "zsh-vi-mode"
 # A Zsh Theme
 brew "romkatv/powerlevel10k/powerlevel10k"
+# Open-source keystroke visualizer
+cask "keycastr"

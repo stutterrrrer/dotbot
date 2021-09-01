@@ -26,7 +26,7 @@ alias v='mvim'
 
 # 3 >>> environment variables
 export ICLOUD=/Users/ian/Library/Mobile\ Documents/com~apple~CloudDocs
-export EDITOR=mvim
+export EDITOR=vim
 	# ClashX - Copy shell command; so that terminal can be routed through ClashX VPN as well.
 export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890
 
