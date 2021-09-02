@@ -5,6 +5,8 @@ cnoremap jk <C-C>
 cnoremap kj <C-C>
 
 colorscheme murphy
+" to pair up with control W / U / H, and also stay consistent with Mac's default forward delete:
+inoremap <C-d> <Del>
 
 " below is imported from MIT's recommended settings
 
