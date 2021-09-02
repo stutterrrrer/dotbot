@@ -40,7 +40,7 @@
 # source ~/zsh-vi-mode.zsh
 # ```
 #
-# ZVM_INIT_MODE
+ZVM_INIT_MODE=$ZVM_MODE_INSERT
 # the pugin initial mode (default is doing the initialization when the first
 # new command line is starting. For doing the initialization instantly, you
 # can set it to `sourcing`.
@@ -49,11 +49,11 @@
 # the vi escape key for all modes (default is ^[ => <ESC>), you can set it
 # to whatever you like, such as `jj`, `jk` and so on.
 #
-# ZVM_VI_INSERT_ESCAPE_BINDKEY
+ZVM_VI_INSERT_ESCAPE_BINDKEY=jk
 # the vi escape key of insert mode (default is $ZVM_VI_ESCAPE_BINDKEY), you
 # can set it to whatever, such as `jj`, `jk` and so on.
 #
-# ZVM_VI_VISUAL_ESCAPE_BINDKEY
+ZVM_VI_VISUAL_ESCAPE_BINDKEY=v
 # the vi escape key of visual mode (default is $ZVM_VI_ESCAPE_BINDKEY), you
 # can set it to whatever, such as `jj`, `jk` and so on.
 #
@@ -304,7 +304,7 @@ fi
 
 # Set the line init mode (empty will keep the last mode)
 # you can also set it to others, such as $ZVM_MODE_INSERT.
-: ${ZVM_LINE_INIT_MODE:=$ZVM_MODE_LAST}
+: ${ZVM_LINE_INIT_MODE:=$ZVM_MODE_INSERT}
 
 : ${ZVM_VI_INSERT_MODE_LEGACY_UNDO:=false}
 : ${ZVM_VI_SURROUND_BINDKEY:=classic}
@@ -3304,7 +3304,7 @@ function zvm_init() {
   zvm_bindkey visual 'U' zvm_vi_up_case
   zvm_bindkey visual 'u' zvm_vi_down_case
   zvm_bindkey visual '~' zvm_vi_opp_case
-  zvm_bindkey visual 'v' zvm_vi_edit_command_line
+  zvm_bindkey visual 'e' zvm_vi_edit_command_line
   zvm_bindkey vicmd  '.' zvm_repeat_change
 
   zvm_bindkey vicmd '^A' zvm_switch_keyword
