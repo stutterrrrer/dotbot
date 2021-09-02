@@ -24,15 +24,36 @@
 # All Settings
 # Some of these variables should be set before sourcing this file.
 #
+# ZVM_CONFIG_FUNC
+# the config function (default is `zvm_config`), if this config function
+# exists, it will be called automatically, you can do some configurations
+# in this aspect before you source this plugin.
+#
+# For example:
+#
+# ```zsh
+# function zvm_config() {
+#   ZVM_LINE_INIT_MODE=$ZVM_MODE_INSERT
+#   ZVM_VI_INSERT_ESCAPE_BINDKEY=jk
+# }
+#
+# source ~/zsh-vi-mode.zsh
+# ```
+#
+# ZVM_INIT_MODE
+# the pugin initial mode (default is doing the initialization when the first
+# new command line is starting. For doing the initialization instantly, you
+# can set it to `sourcing`.
+#
 # ZVM_VI_ESCAPE_BINDKEY
 # the vi escape key for all modes (default is ^[ => <ESC>), you can set it
 # to whatever you like, such as `jj`, `jk` and so on.
 #
-ZVM_VI_INSERT_ESCAPE_BINDKEY=jk
+# ZVM_VI_INSERT_ESCAPE_BINDKEY
 # the vi escape key of insert mode (default is $ZVM_VI_ESCAPE_BINDKEY), you
 # can set it to whatever, such as `jj`, `jk` and so on.
 #
-ZVM_VI_VISUAL_ESCAPE_BINDKEY=v
+# ZVM_VI_VISUAL_ESCAPE_BINDKEY
 # the vi escape key of visual mode (default is $ZVM_VI_ESCAPE_BINDKEY), you
 # can set it to whatever, such as `jj`, `jk` and so on.
 #
@@ -106,7 +127,7 @@ ZVM_VI_VISUAL_ESCAPE_BINDKEY=v
 # an escape character (default is 0.03 seconds), and this option is just
 # available for the NEX readkey engine
 #
-ZVM_LINE_INIT_MODE=$ZVM_MODE_INSERT
+# ZVM_LINE_INIT_MODE
 # the setting for init mode of command line (default is empty), empty will
 # keep the last command mode, for the first command line it will be insert
 # mode, you can also set it to a specific vi mode to alway keep the mode
@@ -174,8 +195,11 @@ typeset -gr ZVM_VERSION='0.8.4'
 # Plugin initial status
 ZVM_INIT_DONE=false
 
-# Disable reset prompt (i.e. disable the widget `reset-prompt`)
-ZVM_RESET_PROMPT_DISABLED=false
+# Postpone reset prompt (i.e. postpone the widget `reset-prompt`)
+# empty (No postponing)
+# true (Enter postponing)
+# false (Trigger reset prompt)
+ZVM_POSTPONE_RESET_PROMPT=
 
 # Operator pending mode
 ZVM_OPPEND_MODE=false
@@ -234,6 +258,14 @@ ZVM_REPEAT_COMMANDS=($ZVM_MODE_NORMAL i)
 ##########################################
 # Initial all default settings
 
+# Default config function
+: ${ZVM_CONFIG_FUNC:='zvm_config'}
+
+# Load config by calling the config function
+if command -v "$ZVM_CONFIG_FUNC" >/dev/null; then
+  $ZVM_CONFIG_FUNC
+fi
+
 # Set the readkey engine (default is NEX engine)
 : ${ZVM_READKEY_ENGINE:=$ZVM_READKEY_ENGINE_DEFAULT}
 
@@ -272,7 +304,7 @@ fi
 
 # Set the line init mode (empty will keep the last mode)
 # you can also set it to others, such as $ZVM_MODE_INSERT.
-: ${ZVM_LINE_INIT_MODE:=$ZVM_MODE_INSERT}
+: ${ZVM_LINE_INIT_MODE:=$ZVM_MODE_LAST}
 
 : ${ZVM_VI_INSERT_MODE_LEGACY_UNDO:=false}
 : ${ZVM_VI_SURROUND_BINDKEY:=classic}
@@ -455,7 +487,7 @@ function zvm_readkeys() {
 
   while :; do
     # Keep reading key for escape character
-    if [[ "$key" == '' ]]; then
+    if [[ "$key" == $'\e' ]]; then
       while :; do
         local k=
         read -t $ZVM_ESCAPE_KEYTIMEOUT -k 1 k || break
@@ -494,7 +526,7 @@ function zvm_readkeys() {
 
     # Evaluate the readkey timeout
     # Special timeout for the escape sequence
-    if [[ "${keys}" ==  ]]; then
+    if [[ "${keys}" == $'\e' ]]; then
       timeout=$ZVM_ESCAPE_KEYTIMEOUT
       # Check if there is any one custom escape sequence
       for ((i=1; i<=${#result[@]}; i=i+2)); do
@@ -728,12 +760,14 @@ function zvm_vi_replace() {
     zvm_select_vi_mode $ZVM_MODE_REPLACE
 
     while :; do
+      # Read a character for replacing
+      zvm_update_cursor
+
       # Redisplay the command line, this is to be called from within
       # a user-defined widget to allow changes to become visible
       zle -R
+      zle redisplay
 
-      # Read a character for replacing
-      zvm_update_cursor
       read -k 1 key
 
       # Escape key will break the replacing process, and enter key
@@ -812,7 +846,14 @@ function zvm_vi_replace_chars() {
 
   # Read a character for replacing
   zvm_enter_oppend_mode
+
+  # Redisplay the command line, this is to be called from within
+  # a user-defined widget to allow changes to become visible
+  zle -R
+  zle redisplay
+
   read -k 1 key
+
   zvm_exit_oppend_mode
 
   # Escape key will break the replacing process
@@ -1233,6 +1274,10 @@ function zvm_default_handler() {
       if [[ "${keys:0:1}" =~ [a-zA-Z0-9\ ] ]]; then
         zvm_self_insert "${keys:0:1}"
         zle redisplay
+        ZVM_KEYS="${keys:1}${extra_keys}"
+        return
+      elif [[ "${keys:0:1}" == $'\e' ]]; then
+        zvm_exit_insert_mode
         ZVM_KEYS="${keys:1}${extra_keys}"
         return
       fi
@@ -1901,7 +1946,7 @@ function zvm_change_surround() {
 
   # Check if it is ESCAPE key (<ESC> or ZVM_VI_ESCAPE_BINDKEY)
   case "$key" in
-    ''|"${ZVM_VI_ESCAPE_BINDKEY//\^\[/}")
+    $'\e'|"${ZVM_VI_ESCAPE_BINDKEY//\^\[/$'\e'}")
       zvm_highlight clear
       return
   esac
@@ -2263,6 +2308,7 @@ function zvm_switch_number {
   local word=$1
   local increase=${2:-true}
   local result= bpos= epos=
+
   # Hexadecimal
   if [[ $word =~ [^0-9]?(0[xX][0-9a-fA-F]*) ]]; then
     local number=${match[1]}
@@ -2834,8 +2880,8 @@ function zvm_select_vi_mode() {
   zvm_exec_commands 'before_select_vi_mode'
 
   # Some plugins would reset the prompt when we select the
-  # keymap, so here we disable the reset-prompt temporarily.
-  ZVM_RESET_PROMPT_DISABLED=true
+  # keymap, so here we postpone executing reset-prompt.
+  zvm_postpone_reset_prompt true
 
   # Exit operator pending mode
   if $ZVM_OPPEND_MODE; then
@@ -2873,10 +2919,8 @@ function zvm_select_vi_mode() {
   # update the cursor, prompt and so on.
   zvm_exec_commands 'after_select_vi_mode'
 
-  # Enable reset-prompt
-  ZVM_RESET_PROMPT_DISABLED=false
-
-  $reset_prompt && zle reset-prompt
+  # Stop and trigger reset-prompt
+  zvm_postpone_reset_prompt false true
 
   # Start the lazy keybindings when the first time entering the
   # normal mode, when the mode is the same as last mode, we get
@@ -2898,15 +2942,38 @@ function zvm_select_vi_mode() {
   fi
 }
 
+# Postpone reset prompt
+function zvm_postpone_reset_prompt() {
+  local toggle=$1
+  local force=$2
+
+  if $toggle; then
+    ZVM_POSTPONE_RESET_PROMPT=true
+  else
+    if [[ $ZVM_POSTPONE_RESET_PROMPT == false || $force ]]; then
+      ZVM_POSTPONE_RESET_PROMPT=
+      $reset_prompt && zle reset-prompt
+    else
+      ZVM_POSTPONE_RESET_PROMPT=
+    fi
+  fi
+}
+
 # Reset prompt
 function zvm_reset_prompt() {
-  $ZVM_RESET_PROMPT_DISABLED && return
+  # Return if postponing is enabled
+  if [[ -n $ZVM_POSTPONE_RESET_PROMPT ]]; then
+    ZVM_POSTPONE_RESET_PROMPT=false
+    return
+  fi
+
   local -i retval
   if [[ -z "$rawfunc" ]]; then
     zle .reset-prompt -- "$@"
   else
     $rawfunc -- "$@"
   fi
+
   return retval
 }
 
@@ -2961,6 +3028,21 @@ function zvm_cursor_style() {
       ;;
     *) style='\e[0 q';;
   esac
+
+  # Restore default cursor color
+  if [[ $style == '\e[0 q' ]]; then
+    local old_style=
+
+    case $ZVM_MODE in
+      $ZVM_MODE_INSERT) old_style=$ZVM_INSERT_MODE_CURSOR;;
+      $ZVM_MODE_NORMAL) old_style=$ZVM_NORMAL_MODE_CURSOR;;
+      $ZVM_MODE_OPPEND) old_style=$ZVM_OPPEND_MODE_CURSOR;;
+    esac
+
+    if [[ $old_style =~ '\e\][0-9]+;.+\a' ]]; then
+      style=$style'\e\e]112\a'
+    fi
+  fi
 
   echo $style
 }
@@ -3063,7 +3145,7 @@ function zvm_zle-line-pre-redraw() {
   # there are one more panel in the same window, the program
   # in other panel could change the cursor shape, we need to
   # update cursor style when line is redrawing.
-  zvm_update_cursor
+  [[ -n $TMUX ]] && zvm_update_cursor
   zvm_update_highlight
   zvm_update_repeat_commands
 }
@@ -3099,6 +3181,14 @@ function zvm_zle-line-finish() {
 
 # Initialize vi-mode for widgets, keybindings, etc.
 function zvm_init() {
+  # Check if it has been initalized
+  if $ZVM_INIT_DONE; then
+    return;
+  fi
+
+  # Mark plugin initial status
+  ZVM_INIT_DONE=true
+
   zvm_exec_commands 'before_init'
 
   # Correct the readkey engine
@@ -3214,7 +3304,7 @@ function zvm_init() {
   zvm_bindkey visual 'U' zvm_vi_up_case
   zvm_bindkey visual 'u' zvm_vi_down_case
   zvm_bindkey visual '~' zvm_vi_opp_case
-  zvm_bindkey visual 'e' zvm_vi_edit_command_line
+  zvm_bindkey visual 'v' zvm_vi_edit_command_line
   zvm_bindkey vicmd  '.' zvm_repeat_change
 
   zvm_bindkey vicmd '^A' zvm_switch_keyword
@@ -3320,15 +3410,6 @@ function zvm_init() {
   zvm_exec_commands 'after_init'
 }
 
-# Precmd function
-function zvm_precmd_function() {
-  # Init zsh vi mode  when starting new command line at first time
-  if ! $ZVM_INIT_DONE; then
-    ZVM_INIT_DONE=true
-    zvm_init
-  fi
-}
-
 # Check if a command is existed
 function zvm_exist_command() {
   command -v "$1" >/dev/null
@@ -3353,6 +3434,9 @@ function zvm_exec_commands() {
   done
 }
 
-# Initialize the plugin when starting new command line
-precmd_functions+=(zvm_precmd_function)
+# Initialize this plugin according to the mode
+case $ZVM_INIT_MODE in
+  sourcing) zvm_init;;
+  *) precmd_functions+=(zvm_init);;
+esac
 
