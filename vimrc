@@ -1,12 +1,22 @@
-" ian's own customization
 inoremap jk <Esc>
-inoremap kj <Esc>
 cnoremap jk <C-C>
-cnoremap kj <C-C>
+let &t_SI="\033[5 q" " start insert mode, vertical cursor
+let &t_EI="\033[1 q" " end insert mode, blinking block
 
 colorscheme murphy
+
 " to pair up with control W / U / H, and also stay consistent with Mac's default forward delete:
 inoremap <C-d> <Del>
+
+" disable hotkeys that require too much finger extension to deter bad habits
+inoremap <Esc> <C-[>:echoe "Use jk"<CR>
+vnoremap <Esc> :echoe "Use v"<CR>
+cnoremap <Esc> :echoe "Use jk"<CR>
+onoremap <Esc> :echoe "Use C-["<CR>
+inoremap <BS> <C-[>:echoe "Use C-h"<CR>
+inoremap <A-BS> <C-[>:echoe "Use C-w"<CR>
+" D for command seems to only work for MacVim, not terminal Vim
+inoremap <D-BS> <C-[>:echoe "Use C-u"<CR>
 
 " below is imported from MIT's recommended settings
 
@@ -93,6 +103,3 @@ inoremap <Down>  <ESC>:echoe "Use j"<CR>
 
 
 
-" Setup cursor change on insert mode ( for native vim; Mac Vim seems to do this by default.)
-let &t_SI="\033[5 q" " start insert mode, vertical cursor
-let &t_EI="\033[1 q" " end insert mode, blinking block
