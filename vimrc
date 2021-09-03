@@ -13,7 +13,10 @@ inoremap <Esc> <C-[>:echoe "Use jk"<CR>
 vnoremap <Esc> :echoe "Use v"<CR>
 cnoremap <Esc> :echoe "Use jk"<CR>
 onoremap <Esc> :echoe "Use C-["<CR>
-inoremap <BS> <C-[>:echoe "Use C-h"<CR>
+" this line doesn't make sense because <C-[> is globally equivalent to esc. so if it's uncommented,
+" you would also get the 'Use C-[' even when you press 'C-['.
+" instead, <Esc> is globally disabled by me with BetterTouchTool.
+"inoremap <BS> <C-[>:echoe '"Use C-h"'<CR>
 inoremap <A-BS> <C-[>:echoe "Use C-w"<CR>
 " D for command seems to only work for MacVim, not terminal Vim
 inoremap <D-BS> <C-[>:echoe "Use C-u"<CR>
