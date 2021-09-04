@@ -61,5 +61,11 @@ n ()
     fi
 }
 
+	# open a folder / directory with IntelliJ IDEA app.
+idea()
+{
+	open -na "IntelliJ IDEA.app" --args "$@"	
+}
+
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
