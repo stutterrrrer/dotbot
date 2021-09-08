@@ -1,3 +1,60 @@
+set nocompatible              " be iMproved, required
+filetype off                  " required
+
+" set the runtime path to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+" alternatively, pass a path where Vundle should install plugins
+"call vundle#begin('~/some/path/here')
+
+" let Vundle manage Vundle, required
+Plugin 'VundleVim/Vundle.vim'
+
+" The following are examples of different formats supported.
+" Keep Plugin commands between vundle#begin/end.
+" plugin on GitHub repo
+" Plugin 'tpope/vim-fugitive'
+" plugin from http://vim-scripts.org/vim/scripts.html
+" Plugin 'L9'
+" Git plugin not hosted on GitHub
+" Plugin 'git://git.wincent.com/command-t.git'
+" git repos on your local machine (i.e. when working on your own plugin)
+" Plugin 'file:///home/gmarik/path/to/plugin'
+" The sparkup vim script is in a subdirectory of this repo called vim.
+" Pass the path to set the runtimepath properly.
+" Plugin 'rstacruz/sparkup', {'rtp': 'vim/'}
+" Install L9 and avoid a Naming conflict if you've already installed a
+" different version somewhere else.
+" Plugin 'ascenator/L9', {'name': 'newL9'}
+
+Plugin 'godlygeek/tabular'
+Plugin 'plasticboy/vim-markdown'
+Plugin 'instant-markdown/vim-instant-markdown'
+
+" All of your Plugins must be added before the following line
+call vundle#end()            " required
+filetype plugin indent on    " required
+" To ignore plugin indent changes, instead use:
+"filetype plugin on
+"
+" Brief help
+" :PluginList       - lists configured plugins
+" :PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate
+" :PluginSearch foo - searches for foo; append `!` to refresh local cache
+" :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
+"
+" see :h vundle for more details or wiki for FAQ
+" Put your non-Plugin stuff after this line
+
+" use markdown as default file type for vim-anywhere temp buffers
+augroup ft_vim_anywhere
+  au!
+  au BufNewFile,BufRead **/vim-anywhere/doc-** setl ft=markdown
+augroup END
+
+
+
+
 inoremap jk <Esc>
 cnoremap jk <C-C>
 let &t_SI="\033[5 q" " start insert mode, vertical cursor
@@ -7,19 +64,6 @@ colorscheme murphy
 
 " to pair up with control W / U / H, and also stay consistent with Mac's default forward delete:
 inoremap <C-d> <Del>
-
-" disable hotkeys that require too much finger extension to deter bad habits
-inoremap <Esc> <C-[>:echoe "Use jk"<CR>
-vnoremap <Esc> :echoe "Use v"<CR>
-cnoremap <Esc> :echoe "Use jk"<CR>
-onoremap <Esc> :echoe "Use C-["<CR>
-" this line doesn't make sense because <C-[> is globally equivalent to esc. so if it's uncommented,
-" you would also get the 'Use C-[' even when you press 'C-['.
-" instead, <Esc> is globally disabled by me with BetterTouchTool.
-"inoremap <BS> <C-[>:echoe '"Use C-h"'<CR>
-inoremap <A-BS> <C-[>:echoe "Use C-w"<CR>
-" D for command seems to only work for MacVim, not terminal Vim
-inoremap <D-BS> <C-[>:echoe "Use C-u"<CR>
 
 " below is imported from MIT's recommended settings
 
