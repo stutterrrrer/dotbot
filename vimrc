@@ -53,8 +53,9 @@ augroup focus_notion_markdown
 augroup END
 
 " set the o register, o for obliterate. meant to be used for one-off markdown
-" documents before being transferred to notion:
-let @o = 'ggVG"+x:wq'
+" documents before being transferred to notion: the current file
+" in the current directory, then quit the (non-existent) buffer
+let @o = 'ggVG"+x:!rm %:q!'
 
 inoremap jk <Esc>
 cnoremap jk <C-C>
