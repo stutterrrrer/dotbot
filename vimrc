@@ -52,8 +52,9 @@ augroup ft_vim_anywhere
   au BufNewFile,BufRead **/vim-anywhere/doc-** setl ft=markdown
 augroup END
 
-
-
+" set the o register, o for obliterate. meant to be used for one-off markdown
+" documents before being transferred to notion:
+let @o = 'ggVG"+x:wq'
 
 inoremap jk <Esc>
 cnoremap jk <C-C>
