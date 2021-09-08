@@ -46,10 +46,10 @@ filetype plugin indent on    " required
 " see :h vundle for more details or wiki for FAQ
 " Put your non-Plugin stuff after this line
 
-" use markdown as default file type for vim-anywhere temp buffers
-augroup ft_vim_anywhere
+" refocus on Notion after openning a markdown file.
+augroup focus_notion_markdown
   au!
-  au BufNewFile,BufRead **/vim-anywhere/doc-** setl ft=markdown
+  au BufNewFile,BufRead **.md** autocmd VimLeave * :!open -a Notion\ Enhanced
 augroup END
 
 " set the o register, o for obliterate. meant to be used for one-off markdown
