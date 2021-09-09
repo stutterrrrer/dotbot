@@ -56,6 +56,8 @@ augroup END
 " documents before being transferred to notion: the current file
 " in the current directory, then quit the (non-existent) buffer
 let @o = 'ggVG"+x:!rm %:q!'
+" set the l register, l for line break. see notion -set macro register page
+let @l = ':g/.\n\n\@!/norm o'
 
 inoremap jk <Esc>
 cnoremap jk <C-C>

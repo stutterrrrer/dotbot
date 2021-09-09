@@ -30,7 +30,8 @@ export EDITOR=vim
 	# ClashX - Copy shell command; so that terminal can be routed through ClashX VPN as well.
 export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890
 
-
+	# rbenv - manage ruby version - just for vim golf
+eval "$(rbenv init -)"
 
 # z >>> functions:
 	# nnn plugin: run with command "n" to enable cd when quitting nnn. 
