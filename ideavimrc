@@ -1,1 +1,5 @@
 source ~/.vimrc
+" because Vim's change-list is not supported by IntelliJ's IdeaVim:
+" add these mappings to make vim's default 'jump to last/next change' work.
+nnoremap g; :action JumpToLastChange<Enter>
+nnoremap g, :action JumpToNextChange<Enter>
