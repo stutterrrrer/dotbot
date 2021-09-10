@@ -15,6 +15,8 @@ brew "python@3.9"
 brew "macvim"
 # Tiny, lightning fast, feature-packed file manager
 brew "nnn"
+# Ruby version manager
+brew "rbenv"
 # Static analysis and lint tool, for (ba)sh scripts
 brew "shellcheck"
 # Simplified and community-driven man pages
@@ -29,5 +31,7 @@ brew "zsh-syntax-highlighting"
 brew "zsh-vi-mode"
 # A Zsh Theme
 brew "romkatv/powerlevel10k/powerlevel10k"
+# Productivity app
+cask "dropzone"
 # Open-source keystroke visualizer
 cask "keycastr"
