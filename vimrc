@@ -59,6 +59,8 @@ let @o = 'ggVG"+x:!rm %:q!'
 " set the l register, l for line break. see notion -set macro register page
 let @l = ':g/.\n\n\@!/norm o'
 
+" set tab size to 4; but don't change 1 tab character to 4 space characters.
+set tabstop=4
 inoremap jk <Esc>
 cnoremap jk <C-C>
 let &t_SI="\033[5 q" " start insert mode, vertical cursor
