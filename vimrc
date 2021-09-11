@@ -59,8 +59,16 @@ let @o = 'ggVG"+x:!rm %:q!'
 " set the l register, l for line break. see notion -set macro register page
 let @l = ':g/.\n\n\@!/norm o'
 
-" set tab size to 4; but don't change 1 tab character to 4 space characters.
+" set tab size to 4;
+" meaning that 1 `\t` character will be displayed as 4 columns on the screen.
+" so that's what you get when pressisng the tab key in insert mode
 set tabstop=4
+" set shift size to 4 too;
+" meaning the indent level will be 4 columns wide.
+" so that's what you get when you do '>>' in normal mode.
+" but there's no `\t` character when you do this. right?
+set shiftwidth=4
+
 inoremap jk <Esc>
 cnoremap jk <C-C>
 let &t_SI="\033[5 q" " start insert mode, vertical cursor
