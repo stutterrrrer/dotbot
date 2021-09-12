@@ -76,6 +76,10 @@ let &t_EI="\033[1 q" " end insert mode, blinking block
 
 colorscheme murphy
 
+" set the default font and line space in vim:
+set guifont=MesloLGS-NF-Regular:h12
+set linespace=3
+
 " to pair up with control W / U / H, and also stay consistent with Mac's default forward delete:
 inoremap <C-d> <Del>
 
