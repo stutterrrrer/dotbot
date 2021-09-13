@@ -76,16 +76,20 @@ inoremap <Up>    <ESC>:echoe "Use k"<CR>
 inoremap <Down>  <ESC>:echoe "Use j"<CR>
 
 " ############################ ian's own additions ############################
-" refocus on Notion after openning a markdown file.
-augroup focus_notion_markdown
-  au!
-  au BufNewFile,BufRead **.md** autocmd VimLeave * :!open -a Notion\ Enhanced
-augroup END
-
-" o register, o for obliterate. meant to be used for one-off markdown with notion
-let @o = 'ggVG"+x:!rm %:q!'
-" set the l register, l for line break. see notion -set macro register page
-let @l = ':g/.\n\n\@!/norm o'
+" markdown files setup: 
+function SetUpMarkdown()
+	" to retain indentation on empty lines:
+	inoremap  x
+	nnoremap o ox
+	nnoremap O Ox
+	"o register, o for obliterate; l register, l for line-break
+	let @o = 'ggVG"+x:!rm %:q!'
+	let @l = ':g/.\n\n\@!/norm o'
+	" upon quitting: unset o and l register; refocus on notion
+	autocmd VimLeavePre * let @o = '' | let @l = ''
+	autocmd VimLeave * :!open -a Notion\ Enhanced
+endfunction
+autocmd FileType markdown call SetUpMarkdown()
 
 " set tab size to 4;
 " meaning that 1 `\t` character will be displayed as 4 columns on the screen.
@@ -106,8 +110,14 @@ let &t_SI="\033[5 q" " start insert mode, vertical cursor
 let &t_EI="\033[1 q" " end insert mode, blinking block
 
 "transparency variable only works for MacVim
-colorscheme murphy
-set transparency=12
+if has("gui_running")
+	" MacVim is a GUI I guess; sets the theme for MacVim
+	colorscheme murphy
+else
+	" sets the theme for terminal vim
+	colorscheme zellner
+endif
+set transparency=13
 " disable terminal Vim's background, effectively making it transparent if you have the terminal background set as transparent.
 hi Normal guibg=NONE ctermbg=NONE
 
