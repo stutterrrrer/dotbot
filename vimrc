@@ -1,4 +1,4 @@
-" ########### 76+ = ian's addition #############
+" ########### 78+ = ian's addition #############
 
 " ############################ vundle plugin, line 1-30  ############################
 set nocompatible              " be iMproved, required
@@ -102,9 +102,11 @@ cnoremap jk <C-C>
 let &t_SI="\033[5 q" " start insert mode, vertical cursor
 let &t_EI="\033[1 q" " end insert mode, blinking block
 
-"transparency only works for MacVim
+"transparency variable only works for MacVim
 colorscheme murphy
 set transparency=12
+" disable terminal Vim's background, effectively making it transparent if you have the terminal background set as transparent.
+hi Normal guibg=NONE ctermbg=NONE
 
 set guifont=MesloLGS-NF-Regular:h12
 set linespace=3
