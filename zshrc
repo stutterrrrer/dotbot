@@ -34,6 +34,16 @@ export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_pr
 eval "$(rbenv init -)"
 
 # z >>> functions:
+	# for java: compile into .class byte-code, execute, then delete compiled:
+javar ()
+{
+	# compile all .java files in current directory into a temp classes directory, execute, then delete the temp directory.
+	tempDir=compiled_classes_temp
+	javac *.java -d $tempDir
+	java -classpath $tempDir "$@"
+	rm -rf $tempDir
+}
+
 	# nnn plugin: run with command "n" to enable cd when quitting nnn. 
 n ()
 {
