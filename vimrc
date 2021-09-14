@@ -77,19 +77,23 @@ inoremap <Down>  <ESC>:echoe "Use j"<CR>
 
 " ############################ ian's own additions ############################
 " markdown files setup: 
+filetype on
 function SetUpMarkdown()
+	" paste, change to tab indentation, insert line break (need code block exception)
+	normal "+p
+	:retab!
+	:g/.\n\n\@!/norm ox
 	" to retain indentation on empty lines:
+	" the remap only takes effect for the buffer it was defined in.
 	inoremap  x
 	nnoremap o ox
 	nnoremap O Ox
-	"o register, o for obliterate; l register, l for line-break
-	let @o = 'ggVG"+x:!rm %:q!'
-	let @l = ':g/.\n\n\@!/norm o'
-	" upon quitting: unset o and l register; refocus on notion
-	autocmd VimLeavePre * let @o = '' | let @l = ''
-	autocmd VimLeave * :!open -a Notion\ Enhanced
 endfunction
 autocmd FileType markdown call SetUpMarkdown()
+" l register, l for line break; o register, o for obliterate;
+autocmd BufEnter *.markdown let @o = 'ggVG"+x:!rm %:q!' | let @l = 'ox'
+autocmd BufLeave *.markdown let @o = '' | let @l = ''
+autocmd BufWinLeave *.markdown let @o = '' | let @l = ''| :!open -a Notion\ Enhanced
 
 " set tab size to 4;
 " meaning that 1 `\t` character will be displayed as 4 columns on the screen.
@@ -113,15 +117,15 @@ let &t_EI="\033[1 q" " end insert mode, blinking block
 if has("gui_running")
 	" MacVim is a GUI I guess; sets the theme for MacVim
 	colorscheme murphy
+	set transparency=18
 else
 	" sets the theme for terminal vim
 	colorscheme zellner
 endif
-set transparency=13
 " disable terminal Vim's background, effectively making it transparent if you have the terminal background set as transparent.
 hi Normal guibg=NONE ctermbg=NONE
 
-set guifont=MesloLGS-NF-Regular:h12
+set guifont=MesloLGS-NF-Regular:h14
 set linespace=3
 
 " to pair up with control W / U / H, and also stay consistent with Mac's default forward delete:

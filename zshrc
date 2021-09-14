@@ -30,11 +30,16 @@ export EDITOR=vim
 	# ClashX - Copy shell command; so that terminal can be routed through ClashX VPN as well.
 export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890
 
+	# use MacVim's manpager
+export PAGER="/bin/sh -c \"unset PAGER;col -b -x | \
+    mvim -R -c 'set ft=man nomod nolist' -c 'map q :q<CR>' \
+    -c 'map <SPACE> <C-D>' -c 'map b <C-U>' \
+    -c 'nmap K :Man <C-R>=expand(\\\"<cword>\\\")<CR><CR>' -\""
+
 	# rbenv - manage ruby version - just for vim golf
 eval "$(rbenv init -)"
 
 # z >>> functions:
-	# for java: compile into .class byte-code, execute, then delete compiled:
 javar ()
 {
 	# compile all .java files in current directory into a temp classes directory, execute, then delete the temp directory.
@@ -44,7 +49,6 @@ javar ()
 	rm -rf $tempDir
 }
 
-	# nnn plugin: run with command "n" to enable cd when quitting nnn. 
 n ()
 {
     # Block nesting of nnn in subshells
