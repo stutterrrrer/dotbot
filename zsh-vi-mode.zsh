@@ -628,7 +628,7 @@ function zvm_escape_non_printed_characters() {
       str="${str}^${c}"
     elif [[ "$c" == '' ]]; then
       str="${str}^?"
-    elif [[ "$c" == ' ' ]]; then
+    elif [[ "$c" == '' ]]; then
       str="${str}^@"
     else
       str="${str}${c}"
@@ -2270,7 +2270,7 @@ function zvm_switch_keyword() {
   local word=${BUFFER:$bpos:$((epos-bpos))}
   local keys=$(zvm_keys)
 
-  if [[ $keys == '' ]]; then
+  if [[ $keys == '' ]]; then
     local increase=true
   else
     local increase=false
@@ -3111,15 +3111,15 @@ function zvm_update_repeat_commands() {
   local char=$KEYS
 
   # If current key is an arrow key, we should do something
-  if [[ "$KEYS" =~ '\[[ABCD]' ]]; then
+  if [[ "$KEYS" =~ '\[[ABCD]' ]]; then
     # If last key is also an arrow key, we just replace it
-    if [[ ${ZVM_REPEAT_COMMANDS[-1]} =~ '\[[ABCD]' ]]; then
+    if [[ ${ZVM_REPEAT_COMMANDS[-1]} =~ '\[[ABCD]' ]]; then
       ZVM_REPEAT_COMMANDS=(${ZVM_REPEAT_COMMANDS[@]:0:-1})
     fi
   else
     # If last command is arrow key movement, we should reset
     # the repeat commands with i(nsert) command
-    if [[ ${ZVM_REPEAT_COMMANDS[-1]} =~ '\[[ABCD]' ]]; then
+    if [[ ${ZVM_REPEAT_COMMANDS[-1]} =~ '\[[ABCD]' ]]; then
       zvm_reset_repeat_commands $ZVM_MODE_NORMAL i
     fi
     char=${BUFFER[$CURSOR]}
@@ -3145,7 +3145,11 @@ function zvm_zle-line-pre-redraw() {
   # there are one more panel in the same window, the program
   # in other panel could change the cursor shape, we need to
   # update cursor style when line is redrawing.
-  [[ -n $TMUX ]] && zvm_update_cursor
+  if [[ -n $TMUX ]]; then
+    zvm_update_cursor
+    # Fix display is not updated in the terminal of InteliJ IDE
+    zle redisplay
+  fi
   zvm_update_highlight
   zvm_update_repeat_commands
 }

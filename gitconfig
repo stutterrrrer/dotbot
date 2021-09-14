@@ -1,7 +1,8 @@
 [user]
 	name = ian
 	email = 38461291+stutterrrrer@users.noreply.github.com
-[mergetool "mvimdiff"]
+[mergetool "mvimMerge"]
+	# this is unnecessary and can be deleted; git provided gvimdiff tool already does the exact thing: mvim is a gvim (graphical vim)
 	cmd = mvim -f -d -c \"winc J\" \"$MERGED\" \"$LOCAL\" \"$BASE\" \"$REMOTE\"
 [filter "lfs"]
 	clean = git-lfs clean -- %f
