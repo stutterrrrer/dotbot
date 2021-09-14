@@ -23,18 +23,11 @@ alias ls='ls -GF'
 alias v='mvim'
 
 
-
 # 3 >>> environment variables
 export ICLOUD=/Users/ian/Library/Mobile\ Documents/com~apple~CloudDocs
 export EDITOR=vim
 	# ClashX - Copy shell command; so that terminal can be routed through ClashX VPN as well.
 export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890
-
-	# use MacVim's manpager
-export PAGER="/bin/sh -c \"unset PAGER;col -b -x | \
-    mvim -R -c 'set ft=man nomod nolist' -c 'map q :q<CR>' \
-    -c 'map <SPACE> <C-D>' -c 'map b <C-U>' \
-    -c 'nmap K :Man <C-R>=expand(\\\"<cword>\\\")<CR><CR>' -\""
 
 	# rbenv - manage ruby version - just for vim golf
 eval "$(rbenv init -)"
@@ -47,6 +40,16 @@ javar ()
 	javac *.java -d $tempDir
 	java -classpath $tempDir "$@"
 	rm -rf $tempDir
+}
+
+vman ()
+{
+	if [[ $# -eq 1 ]]
+	then
+		man $1 | mvim +MANPAGER -
+	else
+		$@ | mvim +MANPAGER -
+	fi
 }
 
 n ()
