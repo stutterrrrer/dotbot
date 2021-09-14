@@ -125,7 +125,7 @@ endif
 " disable terminal Vim's background, effectively making it transparent if you have the terminal background set as transparent.
 hi Normal guibg=NONE ctermbg=NONE
 
-set guifont=MesloLGS-NF-Regular:h14
+set guifont=MesloLGS-NF-Regular:h13
 set linespace=3
 
 " to pair up with control W / U / H, and also stay consistent with Mac's default forward delete:
