@@ -77,7 +77,6 @@ inoremap <Down>  <ESC>:echoe "Use j"<CR>
 
 " ############################ ian's own additions ############################
 " markdown files setup: 
-filetype on
 function SetUpMarkdown()
 	" paste, change to tab indentation, insert line break (need code block exception)
 	normal "+p
