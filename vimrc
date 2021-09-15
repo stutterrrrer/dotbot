@@ -89,10 +89,10 @@ function SetUpMarkdown()
 	nnoremap O Ox
 endfunction
 autocmd FileType markdown call SetUpMarkdown()
-" l register, l for line break; o register, o for obliterate;
-autocmd BufEnter *.markdown let @o = 'ggVG"+x:!rm %:q!' | let @l = 'ox'
-autocmd BufLeave *.markdown let @o = '' | let @l = ''
-autocmd BufWinLeave *.markdown let @o = '' | let @l = ''| :!open -a Notion\ Enhanced
+" l register, l for line break; o register, o for obliterate; c register, c for code block
+autocmd BufEnter *.markdown let @o = 'ggVG"+x:!rm %:q!' | let @l = 'ox' | let @c = ':g/^\s*$/d'
+autocmd BufLeave *.markdown let @o = '' | let @l = '' | let @c = ''
+autocmd BufWinLeave *.markdown let @o = '' | let @l = '' | let @c = '' | :!open -a Notion\ Enhanced
 
 " set tab size to 4;
 " meaning that 1 `\t` character will be displayed as 4 columns on the screen.
