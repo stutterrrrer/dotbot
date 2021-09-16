@@ -110,10 +110,6 @@ set shiftwidth=4
 set listchars=tab:\|\ 
 set list
 
-inoremap jk <Esc>
-inoremap kj <Esc>
-cnoremap jk <C-C>
-cnoremap kj <C-C>
 let &t_SI="\033[5 q" " start insert mode, vertical cursor
 let &t_EI="\033[1 q" " end insert mode, blinking block
 
@@ -134,5 +130,18 @@ hi Normal guibg=NONE ctermbg=NONE
 set guifont=MesloLGS-NF-Regular:h13
 set linespace=3
 
+" ############################ ian's own keymaps ############################
 " to pair up with control W / U / H, and also stay consistent with Mac's default forward delete:
 inoremap <C-d> <Del>
+" escapes
+inoremap jk <Esc>
+inoremap kj <Esc>
+cnoremap jk <C-C>
+cnoremap kj <C-C>
+" always start search with `very magic` setting enabled: consistent regex
+nnoremap / /\v
+vnoremap / /\v
+cnoremap %s/ %smagic/
+cnoremap \>s/ \>smagic/
+nnoremap :g/ :g/\v
+nnoremap :g// :g//
