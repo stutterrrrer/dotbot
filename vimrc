@@ -12,9 +12,8 @@ call vundle#begin()
 " let Vundle manage Vundle, required
 Plugin 'VundleVim/Vundle.vim'
 "plugin list
-Plugin 'godlygeek/tabular'
-Plugin 'plasticboy/vim-markdown'
 Plugin 'instant-markdown/vim-instant-markdown'
+Plugin 'kshenoy/vim-signature'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -77,8 +76,12 @@ inoremap <Down>  <ESC>:echoe "Use j"<CR>
 
 " ############################ ian's own additions ############################
 " markdown files setup: 
+" auto-indent tells vim to apply the indentation of the current line to the next
+set autoindent
+set smartindent
 function SetUpMarkdown()
 	" paste, change to tab indentation, insert line break (need code block exception)
+	set guifont=MesloLGS-NF-Regular:h15
 	normal "+p
 	:retab!
 	:g/.\n\n\@!/norm ox
@@ -108,20 +111,24 @@ set listchars=tab:\|\
 set list
 
 inoremap jk <Esc>
+inoremap kj <Esc>
 cnoremap jk <C-C>
+cnoremap kj <C-C>
 let &t_SI="\033[5 q" " start insert mode, vertical cursor
 let &t_EI="\033[1 q" " end insert mode, blinking block
 
 "transparency variable only works for MacVim
 if has("gui_running")
 	" MacVim is a GUI I guess; sets the theme for MacVim
-	colorscheme murphy
+	" colorscheme murphy
+	" colorscheme desert
+	colo evening
 	set transparency=18
 else
 	" sets the theme for terminal vim
 	colorscheme zellner
 endif
-" disable terminal Vim's background, effectively making it transparent if you have the terminal background set as transparent.
+" hide terminal Vim's background, effectively making it transparent if you have the terminal background set as transparent.
 hi Normal guibg=NONE ctermbg=NONE
 
 set guifont=MesloLGS-NF-Regular:h13
