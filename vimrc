@@ -76,16 +76,22 @@ inoremap <Down>  <ESC>:echoe "Use j"<CR>
 
 " ############################ ian's own additions ############################
 " markdown files setup: 
-" auto-indent tells vim to apply the indentation of the current line to the next
-set autoindent
-set smartindent
 function SetUpMarkdown()
-	" paste, change to tab indentation, insert line break (need code block exception)
 	set guifont=MesloLGS-NF-Regular:h15
+	" paste, change to tab indentation
 	normal "+p
 	:retab!
+	" convert mooc.fi's in-line code to code fence
+	:g/\v^`.+\{$/norm :s/`/O```c#
+	:g/\v^\}`$/norm :s/`/o```
+	" match and select whole code block, then sub out all new line characters
+	" (technically the `\S` in the first pattern can be changed to `c#`
+	:g/\v^\s*```\S\_.{-}```/,/\v^\s*```$/s/\n/NEWLINE
+	" insert new lines between every 2 non-empty lines while retaining indentation
 	:g/.\n\n\@!/norm ox
-	" to retain indentation on empty lines:
+	" sub the 1-line code fences back to what they should be
+	:g/\v^\s*```(\s|\S)+```/s/NEWLINE//g
+	" map line insertions to retain indentation on empty lines:
 	" the remap only takes effect for the buffer it was defined in.
 	inoremap  x
 	nnoremap o ox
@@ -97,6 +103,11 @@ autocmd BufEnter *.markdown let @o = 'ggVG"+x:!rm %:q!' | let @l = 'ox' | 
 autocmd BufLeave *.markdown let @o = '' | let @l = '' | let @c = ''
 autocmd BufWinLeave *.markdown let @o = '' | let @l = '' | let @c = '' | :!open -a Notion\ Enhanced
 
+
+" ############################ other stuff ############################
+" auto-indent tells vim to apply the indentation of the current line to the next
+set autoindent
+set smartindent
 " set tab size to 4;
 " meaning that 1 `\t` character will be displayed as 4 columns on the screen.
 " so that's what you get when pressisng the tab key in insert mode

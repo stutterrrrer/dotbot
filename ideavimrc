@@ -3,3 +3,5 @@ source ~/.vimrc
 " add these mappings to make vim's default 'jump to last/next change' work.
 nnoremap g; :action JumpToLastChange<Enter>
 nnoremap g, :action JumpToNextChange<Enter>
+nnoremap ]` :action GotoNextBookmark<Enter>
+nnoremap [` :action GotoPreviousBookmark<Enter>
