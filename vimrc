@@ -44,6 +44,8 @@ function SetUpMarkdown()
 	:g!/\v(^\s*$)|(\n\s*\n)/norm ox
 	" sub the 1-line code fences back to what they should be
 	:g/\v^\s*```(\s|\S)+```/s/NEWLINE//g
+	" remove the last newline after the end of each code fence: with the join `:j` command
+	:g/\v^```$/j 
 	" map line insertions to retain indentation on empty lines:
 	" the remap only takes effect for the buffer it was defined in.
 	inoremap  x
