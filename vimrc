@@ -1,4 +1,4 @@
-" ########### 30+ = ian's addition #############
+" ########### marks: `R` = this vimrc file; `d` = markdown, `o` = other, `k` = keymaps, `e` = emoji (and other) abbreviataions #############
 
 " ############################ vundle plugin, line 1-30  ############################
 set nocompatible              " be iMproved, required
@@ -162,3 +162,15 @@ inoremap <D-Left> <ESC>:echo "use jkI"<CR>
 inoremap <D-Right> <ESC>:echo "use jkA"<CR>
 inoremap <M-Left> <ESC>:echo "use jkbi"<CR>
 inoremap <M-Right> <ESC>:echo "use jkea"<CR>
+
+" ############################ emoji (and other) abbreviataions ############################
+" ia means abbreviataion but only in insert mode
+" sod: small orange diamond; lbd: large blue diamond; cd:crystal diamond
+ia :star: ⭐️
+ia :pin: 📌
+ia :sod: 🔸
+ia :sbd: 🔹
+ia :lod: 🔶
+ia :lbd: 🔷
+ia :rd: ♦️
+ia :cd: 💠
