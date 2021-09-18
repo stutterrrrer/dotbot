@@ -1,4 +1,4 @@
-" ########### 78+ = ian's addition #############
+" ########### 30+ = ian's addition #############
 
 " ############################ vundle plugin, line 1-30  ############################
 set nocompatible              " be iMproved, required
@@ -28,7 +28,39 @@ filetype plugin indent on    " required
 " see :h vundle for more details or wiki for FAQ
 " ############################  non-plugin stuff after this line ############################
 
-" ############################ MIT's recommended setting line 31 - 75 ###########################
+" ############################ markdown setup ############################
+function SetUpMarkdown()
+	set guifont=MesloLGS-NF-Regular:h15
+	" paste, change to tab indentation
+	normal "+p
+	:retab!
+	" convert mooc.fi's in-line code to code fence
+	:g/\v^`.+\{$/norm :s/`/O```c#
+	:g/\v^\}`$/norm :s/`/o```
+	" match and select whole code block, then sub out all new line characters
+	" `\S` in the first pattern can't be changed to `c#`: cases where notion's java block is pasted in
+	:g/\v^\s*```\S\_.{-}```/,/\v^\s*```$/s/\n/NEWLINE
+	" insert lines after, exclude (empty or white-space only lines), or those that already have a (empty or white-space only line) below.
+	:g!/\v(^\s*$)|(\n\s*\n)/norm ox
+	" sub the 1-line code fences back to what they should be
+	:g/\v^\s*```(\s|\S)+```/s/NEWLINE//g
+	" map line insertions to retain indentation on empty lines:
+	" the remap only takes effect for the buffer it was defined in.
+	inoremap  x
+	nnoremap o ox
+	nnoremap O Ox
+endfunction
+autocmd FileType markdown call SetUpMarkdown()
+" l register, l for line break; o register, o for obliterate;
+autocmd BufEnter *.markdown let @o = 'ggVG"+x:!rm %:q!' | let @l = 'ox'
+autocmd BufLeave *.markdown let @o = '' | let @l = ''
+autocmd BufWinLeave *.markdown let @o = '' | let @l = '' | :!open -a Notion\ Enhanced
+
+
+" ############################ other stuff ############################
+" (uncomment to) Enable mouse support. You should avoid relying on this too much, but it can
+" sometimes be convenient.
+" set mouse+=a
 " Turn on syntax highlighting.
 syntax on
 " Disable the default Vim startup message.
@@ -36,11 +68,8 @@ set shortmess+=I
 " Show line numbers.
 set number
 set relativenumber
-" Always show the status line at the bottom, even if you only have one window open.
+" Always show status line at the bottom, even if you only have one window open.
 set laststatus=2
-" The backspace key has slightly unintuitive behavior by default. For example,
-" by default, you can't backspace before the insertion point set with 'i'.
-" This configuration makes backspace behave more reasonably, in that you can
 " backspace over anything.
 set backspace=indent,eol,start
 " See `:help hidden` for more information on this. (uncomment to disable
@@ -51,60 +80,15 @@ set backspace=indent,eol,start
 " search becomes case-sensitive if it contains any capital letters.
 set ignorecase
 set smartcase
+" enable highlight search to show all matches, `:noh` to turn off the
+" hilighting until next search
+set hlsearch
 " Enable searching as you type, rather than waiting till you press enter.
 set incsearch
 " Unbind some useless/annoying default key bindings.
 nmap Q <Nop> " 'Q' in normal mode enters Ex mode. You almost never want this.
 " Disable audible bell because it's annoying.
 set noerrorbells visualbell t_vb=
-
-" (uncomment to) Enable mouse support. You should avoid relying on this too much, but it can
-" sometimes be convenient.
-" set mouse+=a
-
-" Try to prevent bad habits like using the arrow keys for movement.
-" Do this in normal mode...
-nnoremap <Left>  :echoe "Use h"<CR>
-nnoremap <Right> :echoe "Use l"<CR>
-nnoremap <Up>    :echoe "Use k"<CR>
-nnoremap <Down>  :echoe "Use j"<CR>
-" ...and in insert mode
-inoremap <Left>  <ESC>:echoe "Use h"<CR>
-inoremap <Right> <ESC>:echoe "Use l"<CR>
-inoremap <Up>    <ESC>:echoe "Use k"<CR>
-inoremap <Down>  <ESC>:echoe "Use j"<CR>
-
-" ############################ ian's own additions ############################
-" markdown files setup: 
-function SetUpMarkdown()
-	set guifont=MesloLGS-NF-Regular:h15
-	" paste, change to tab indentation
-	normal "+p
-	:retab!
-	" convert mooc.fi's in-line code to code fence
-	:g/\v^`.+\{$/norm :s/`/O```c#
-	:g/\v^\}`$/norm :s/`/o```
-	" match and select whole code block, then sub out all new line characters
-	" (technically the `\S` in the first pattern can be changed to `c#`
-	:g/\v^\s*```\S\_.{-}```/,/\v^\s*```$/s/\n/NEWLINE
-	" insert new lines between every 2 non-empty lines while retaining indentation
-	:g/.\n\n\@!/norm ox
-	" sub the 1-line code fences back to what they should be
-	:g/\v^\s*```(\s|\S)+```/s/NEWLINE//g
-	" map line insertions to retain indentation on empty lines:
-	" the remap only takes effect for the buffer it was defined in.
-	inoremap  x
-	nnoremap o ox
-	nnoremap O Ox
-endfunction
-autocmd FileType markdown call SetUpMarkdown()
-" l register, l for line break; o register, o for obliterate; c register, c for code block
-autocmd BufEnter *.markdown let @o = 'ggVG"+x:!rm %:q!' | let @l = 'ox' | let @c = ':g/^\s*$/d'
-autocmd BufLeave *.markdown let @o = '' | let @l = '' | let @c = ''
-autocmd BufWinLeave *.markdown let @o = '' | let @l = '' | let @c = '' | :!open -a Notion\ Enhanced
-
-
-" ############################ other stuff ############################
 " auto-indent tells vim to apply the indentation of the current line to the next
 set autoindent
 set smartindent
@@ -149,10 +133,32 @@ inoremap jk <Esc>
 inoremap kj <Esc>
 cnoremap jk <C-C>
 cnoremap kj <C-C>
-" always start search with `very magic` setting enabled: consistent regex
+" uncomment to always start (ex-command) search with `very magic` setting enabled: consistent regex (disabled now because it causes the input dialog to show up with a significant delay
 nnoremap / /\v
 vnoremap / /\v
-cnoremap %s/ %smagic/
-cnoremap \>s/ \>smagic/
-nnoremap :g/ :g/\v
-nnoremap :g// :g//
+" cnoremap %s/ %smagic/
+" cnoremap \>s/ \>smagic/
+" nnoremap :g/ :g/\v
+ 
+" Try to prevent bad habits like using the arrow keys for movement.
+" use `echo` instead of `echoe` for compatibility issues with intelliJ
+" Do this in normal mode...
+nnoremap <Left>  :echo "Use h"<CR>
+nnoremap <Right> :echo "Use l"<CR>
+nnoremap <Up>    :echo "Use k"<CR>
+nnoremap <Down>  :echo "Use j"<CR>
+
+nnoremap <D-Left> <ESC>:echo "use 0"<CR>
+nnoremap <D-Right> <ESC>:echo "use $"<CR>
+nnoremap <M-Left> <ESC>:echo "use B"<CR>
+nnoremap <M-Right> <ESC>:echo "use W"<CR>
+" ...and in insert mode
+inoremap <Left>  <ESC>:echo "Use ^O-h"<CR>
+inoremap <Right> <ESC>:echo "Use ^O-l"<CR>
+inoremap <Up>    <ESC>:echo "Use ^O-k"<CR>
+inoremap <Down>  <ESC>:echo "Use ^O-j"<CR>
+
+inoremap <D-Left> <ESC>:echo "use jkI"<CR>
+inoremap <D-Right> <ESC>:echo "use jkA"<CR>
+inoremap <M-Left> <ESC>:echo "use jkbi"<CR>
+inoremap <M-Right> <ESC>:echo "use jkea"<CR>
