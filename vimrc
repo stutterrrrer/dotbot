@@ -1,4 +1,4 @@
-" ########### marks: `R` = this vimrc file; `d` = markdown, `o` = other, `k` = keymaps, `e` = emoji (and other) abbreviataions #############
+" ########### marks: `R` = this vimrc file; `d` = markdown, `o` = other, `k` = keymaps, `e` = emoji (and other) abbreviataions; note that these marks need to be set separately in the symlinked ~/.vimrc file and in the original ~/.dotbot/vimrc file #############
 
 " ############################ vundle plugin, line 1-30  ############################
 set nocompatible              " be iMproved, required
@@ -37,6 +37,8 @@ function SetUpMarkdown()
 	" convert mooc.fi's in-line code to code fence
 	:g/\v^`.+\{$/norm :s/`/O```c#
 	:g/\v^\}`$/norm :s/`/o```
+	" when pasted in from notion: change java fences to c# fences to avoid the unpredictable markdown anchor disabling code highlight.
+	:g/\v^\s*```java$/s/java/c#
 	" match and select whole code block, then sub out all new line characters
 	" `\S` in the first pattern can't be changed to `c#`: cases where notion's java block is pasted in
 	:g/\v^\s*```\S\_.{-}```/,/\v^\s*```$/s/\n/NEWLINE
@@ -45,7 +47,7 @@ function SetUpMarkdown()
 	" sub the 1-line code fences back to what they should be
 	:g/\v^\s*```(\s|\S)+```/s/NEWLINE//g
 	" remove the last newline after the end of each code fence: with the join `:j` command
-	:g/\v^```$/j 
+	:g/\v^\s*```$/j 
 	" map line insertions to retain indentation on empty lines:
 	" the remap only takes effect for the buffer it was defined in.
 	inoremap  x
@@ -166,13 +168,15 @@ inoremap <M-Left> <ESC>:echo "use jkbi"<CR>
 inoremap <M-Right> <ESC>:echo "use jkea"<CR>
 
 " ############################ emoji (and other) abbreviataions ############################
-" ia means abbreviataion but only in insert mode
+" inoreabbrev means abbreviataion but only in insert mode, and no recursion
 " sod: small orange diamond; lbd: large blue diamond; cd:crystal diamond
-ia :star: ⭐️
-ia :pin: 📌
-ia :sod: 🔸
-ia :sbd: 🔹
-ia :lod: 🔶
-ia :lbd: 🔷
-ia :rd: ♦️
-ia :cd: 💠
+inoreabbrev :star: ⭐️
+inoreabbrev :pin: 📌
+inoreabbrev :sod: 🔸
+inoreabbrev :sbd: 🔹
+inoreabbrev :lod: 🔶
+inoreabbrev :lbd: 🔷
+inoreabbrev :rd: ♦️
+inoreabbrev :cd: 💠
+
+" see ideavimrc for example of setting abbreviation for ex-commands
