@@ -2,8 +2,11 @@ source ~/.vimrc
 " try to replicate the unsupported commands here:
 nnoremap g; :action JumpToLastChange<Enter>
 nnoremap g, :action JumpToNextChange<Enter>
-nnoremap ]` :action GotoNextBookmark<Enter>
-nnoremap [` :action GotoPreviousBookmark<Enter>
+" note that doing :action GotoNextBookmark<Enter> in IntelliJ won't set the automatic mark ` where you're jumping from, 
+" so you can't do `` to go back after doing ]` like you can in vim, if you just did GoTo... 
+" and that m` in normal mode won't override the automatic ` -- but the ex-command `:mark <>` can.
+nnoremap ]` :mark` \| :action GotoNextBookmark<Enter>
+nnoremap [` :mark` \| :action GotoPreviousBookmark<Enter>
 nnoremap <C-w>T :action Unsplit<Enter>
 
 ##### regarding abbreviataion, convert indents ######
