@@ -21,6 +21,8 @@ source $(brew --prefix)/opt/powerlevel10k/powerlevel10k.zsh-theme
 	# always use ls with -G color flag. -F show slashes for directory and @ for symlinks
 alias ls='ls -GF' 
 alias v='mvim'
+	# to easier attach to sessions, especially in intelliJ's emulated terminal
+alias ta='tmux attach-session -t'
 
 
 # 3 >>> environment variables
