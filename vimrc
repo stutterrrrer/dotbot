@@ -35,7 +35,7 @@ function SetUpMarkdown()
 	normal "+p
 	:retab!
 	" convert mooc.fi's in-line code to code fence
-	:g/\v^`.+\{$/norm :s/`/O```c#
+	:g/\v^`(\/[/*]|.+[{;]$)/norm :s/`/O```c#
 	:g/\v^\}`$/norm :s/`/o```
 	" when pasted in from notion: change java fences to c# fences to avoid the unpredictable markdown anchor disabling code highlight.
 	:g/\v^\s*```java$/s/java/c#

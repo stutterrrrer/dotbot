@@ -1016,6 +1016,8 @@ function zvm_yank() {
     CUTBUFFER=${CUTBUFFER}$'\n'
   fi
   CURSOR=$bpos MARK=$epos
+  # yank to system clipboard: https://github.com/jeffreytse/zsh-vi-mode/issues/19 -- doesn't seem to work
+  echo ${CUTBUFFER} | pbcopy
 }
 
 # Up case of the visual selection
