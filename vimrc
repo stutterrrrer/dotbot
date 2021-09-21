@@ -28,38 +28,50 @@ filetype plugin indent on    " required
 " see :h vundle for more details or wiki for FAQ
 " ############################  non-plugin stuff after this line ############################
 
-" ############################ markdown setup ############################
-function SetUpMarkdown()
-	set guifont=MesloLGS-NF-Regular:h15
-	" paste, change to tab indentation
-	normal "+p
-	:retab!
-	" convert mooc.fi's in-line code to code fence
-	:g/\v^`(\/[/*]|.+[{;]$)/norm :s/`/O```c#
-	:g/\v^\}`$/norm :s/`/o```
-	" when pasted in from notion: change java fences to c# fences to avoid the unpredictable markdown anchor disabling code highlight.
-	:g/\v^\s*```java$/s/java/c#
-	" match and select whole code block, then sub out all new line characters
-	" `\S` in the first pattern can't be changed to `c#`: cases where notion's java block is pasted in
-	:g/\v^\s*```\S\_.{-}```/,/\v^\s*```$/s/\n/NEWLINE
-	" insert lines after, exclude (empty or white-space only lines), or those that already have a (empty or white-space only line) below.
-	:g!/\v(^\s*$)|(\n\s*\n)/norm ox
-	" sub the 1-line code fences back to what they should be
-	:g/\v^\s*```(\s|\S)+```/s/NEWLINE//g
-	" remove the last newline after the end of each code fence: with the join `:j` command
-	:g/\v^\s*```$/j 
-	" map line insertions to retain indentation on empty lines:
-	" the remap only takes effect for the buffer it was defined in.
-	inoremap  x
-	nnoremap o ox
-	nnoremap O Ox
-endfunction
-autocmd FileType markdown call SetUpMarkdown()
-" l register, l for line break; o register, o for obliterate;
-autocmd BufEnter *.markdown let @o = 'ggVG"+x:!rm %:q!' | let @l = 'ox'
-autocmd BufLeave *.markdown let @o = '' | let @l = ''
-autocmd BufWinLeave *.markdown let @o = '' | let @l = '' | :!open -a Notion\ Enhanced
+" ############################ ian's own keymaps ############################
+" Unbind some useless/annoying default key bindings.
+nmap Q <Nop> " 'Q' in normal mode enters Ex mode. You almost never want this.
+" to pair up with control W / U / H, and also stay consistent with Mac's default forward delete:
+inoremap <C-d> <Del>
+" escapes
+inoremap jk <Esc>
+inoremap kj <Esc>
+cnoremap jk <C-C>
+cnoremap kj <C-C>
+" uncomment to always start (ex-command) search with `very magic` setting enabled: consistent regex 
+" (disabled now because it causes the ex-command line input dialog to show up with a significant delay)
+nnoremap / /\v
+vnoremap / /\v
+" cnoremap %s/ %smagic/
+" cnoremap \>s/ \>smagic/
+" nnoremap :g/ :g/\v
+ 
+" Try to prevent bad habits like using the arrow keys for movement.
+" use `echo` instead of `echoe` for compatibility issues with intelliJ
 
+nnoremap <Left>  :echo "Use h"<CR>
+nnoremap <Right> :echo "Use l"<CR>
+nnoremap <Up>    :echo "Use k"<CR>
+nnoremap <Down>  :echo "Use j"<CR>
+
+inoremap <Left>  <ESC>:echo "Use ^O-h"<CR>
+inoremap <Right> <ESC>:echo "Use ^O-l"<CR>
+inoremap <Up>    <ESC>:echo "Use ^O-k"<CR>
+inoremap <Down>  <ESC>:echo "Use ^O-j"<CR>
+" note: only macvim recognizes D and M as command and option key;terminal vim doesn't 
+" also these mappings just won't happen automatically so needs to be called as a function; see notion map keys page for the MacVim GitHub open issue.
+function MapMacModifierShortcuts()
+	inoremap <D-Left> <ESC>:echo "use jkI"<CR>
+	inoremap <D-Right> <ESC>:echo "use jkA"<CR>
+	inoremap <M-Left> <ESC>:echo "use jkbi"<CR>
+	inoremap <M-Right> <ESC>:echo "use jkea"<CR>
+
+	nnoremap <D-Left> <ESC>:echo "use 0"<CR>
+	nnoremap <D-Right> <ESC>:echo "use $"<CR>
+	nnoremap <M-Left> <ESC>:echo "use B"<CR>
+	nnoremap <M-Right> <ESC>:echo "use W"<CR>
+endfunction
+autocmd VimEnter * call MapMacModifierShortcuts()
 
 " ############################ other stuff ############################
 " (uncomment to) Enable mouse support. You should avoid relying on this too much, but it can
@@ -72,7 +84,7 @@ set shortmess+=I
 " Show line numbers.
 set number
 set relativenumber
-" Always show status line at the bottom, even if you only have one window open.
+" status line at the bottom, even if you only have one window open.
 set laststatus=2
 " backspace over anything.
 set backspace=indent,eol,start
@@ -84,13 +96,10 @@ set backspace=indent,eol,start
 " search becomes case-sensitive if it contains any capital letters.
 set ignorecase
 set smartcase
-" enable highlight search to show all matches, `:noh` to turn off the
-" hilighting until next search
-set hlsearch
+" enable highlight search to show all matches, `:noh` to turn off the hilighting until next search (but a hassle if you want to use search to navigate within a line)
+" set hlsearch
 " Enable searching as you type, rather than waiting till you press enter.
 set incsearch
-" Unbind some useless/annoying default key bindings.
-nmap Q <Nop> " 'Q' in normal mode enters Ex mode. You almost never want this.
 " Disable audible bell because it's annoying.
 set noerrorbells visualbell t_vb=
 " auto-indent tells vim to apply the indentation of the current line to the next
@@ -129,43 +138,47 @@ hi Normal guibg=NONE ctermbg=NONE
 set guifont=MesloLGS-NF-Regular:h13
 set linespace=3
 
-" ############################ ian's own keymaps ############################
-" to pair up with control W / U / H, and also stay consistent with Mac's default forward delete:
-inoremap <C-d> <Del>
-" escapes
-inoremap jk <Esc>
-inoremap kj <Esc>
-cnoremap jk <C-C>
-cnoremap kj <C-C>
-" uncomment to always start (ex-command) search with `very magic` setting enabled: consistent regex (disabled now because it causes the input dialog to show up with a significant delay
-nnoremap / /\v
-vnoremap / /\v
-" cnoremap %s/ %smagic/
-" cnoremap \>s/ \>smagic/
-" nnoremap :g/ :g/\v
- 
-" Try to prevent bad habits like using the arrow keys for movement.
-" use `echo` instead of `echoe` for compatibility issues with intelliJ
-" Do this in normal mode...
-nnoremap <Left>  :echo "Use h"<CR>
-nnoremap <Right> :echo "Use l"<CR>
-nnoremap <Up>    :echo "Use k"<CR>
-nnoremap <Down>  :echo "Use j"<CR>
+"default split position:
+set splitbelow
+set splitright
 
-nnoremap <D-Left> <ESC>:echo "use 0"<CR>
-nnoremap <D-Right> <ESC>:echo "use $"<CR>
-nnoremap <M-Left> <ESC>:echo "use B"<CR>
-nnoremap <M-Right> <ESC>:echo "use W"<CR>
-" ...and in insert mode
-inoremap <Left>  <ESC>:echo "Use ^O-h"<CR>
-inoremap <Right> <ESC>:echo "Use ^O-l"<CR>
-inoremap <Up>    <ESC>:echo "Use ^O-k"<CR>
-inoremap <Down>  <ESC>:echo "Use ^O-j"<CR>
+" customize tab completion behavior - to like zsh ( practical vim tip 32 )
+" provides a navigatable list of suggestions. ( tab, C-n, right  to scroll forward
+set wildmenu
+set wildmode=full
 
-inoremap <D-Left> <ESC>:echo "use jkI"<CR>
-inoremap <D-Right> <ESC>:echo "use jkA"<CR>
-inoremap <M-Left> <ESC>:echo "use jkbi"<CR>
-inoremap <M-Right> <ESC>:echo "use jkea"<CR>
+" ############################ markdown setup ############################
+function SetUpMarkdown()
+	set guifont=MesloLGS-NF-Regular:h15
+	" paste, change to tab indentation
+	normal "+p
+	:retab!
+	" convert mooc.fi's in-line code to code fence
+	" the back-slash is unnecessary within the [\/*] bracket, but without it the syntax highlighting would be thrown off, so
+	:g/\v^`(\/[\/*]|.+[{;]$)/norm :s/`/O```c#
+	:g/\v(^}`$|;`$)/norm :s/`/o```
+	" when pasted in from notion: change java fences to c# fences to avoid the unpredictable markdown anchor disabling code highlight.
+	:g/\v^\s*```java$/s/java/c#
+	" match and select whole code block, then sub out all new line characters
+	" `\S` in the first pattern can't be changed to `c#`: cases where notion's java block is pasted in
+	:g/\v^\s*```\S\_.{-}```/,/\v^\s*```$/s/\n/NEWLINE
+	" insert lines after, exclude (empty or white-space only lines), or those that already have a (empty or white-space only line) below.
+	:g!/\v(^\s*$)|(\n\s*\n)/norm ox
+	" sub the 1-line code fences back to what they should be
+	:g/\v^\s*```(\s|\S)+```/s/NEWLINE//g
+	" remove the last newline after the end of each code fence: with the join `:j` command
+	:g/\v^\s*```$/j 
+	" map line insertions to retain indentation on empty lines:
+	" the remap only takes effect for the buffer it was defined in.
+	inoremap  x
+	nnoremap o ox
+	nnoremap O Ox
+endfunction
+autocmd FileType markdown call SetUpMarkdown()
+" l register, l for line break; o register, o for obliterate;
+autocmd BufEnter *.markdown let @o = 'ggVG"+x:!rm %:q!' | let @l = 'ox'
+autocmd BufLeave *.markdown let @o = '' | let @l = ''
+autocmd BufWinLeave *.markdown let @o = '' | let @l = '' | :!open -a Notion\ Enhanced
 
 " ############################ emoji (and other) abbreviataions ############################
 " inoreabbrev means abbreviataion but only in insert mode, and no recursion
@@ -178,5 +191,4 @@ inoreabbrev :lod: 🔶
 inoreabbrev :lbd: 🔷
 inoreabbrev :rd: ♦️
 inoreabbrev :cd: 💠
-
-" see ideavimrc for example of setting abbreviation for ex-commands
+inoreabbrev :cross: ❌
