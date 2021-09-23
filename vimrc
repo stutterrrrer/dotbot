@@ -46,6 +46,10 @@ vnoremap / /\v
 " cnoremap \>s/ \>smagic/
 " nnoremap :g/ :g/\v
  
+" map space and shift-space(only works for MacVim, not terminal Vim) to traverse change-list
+nnoremap <Space> g;
+nnoremap <S-space> g,
+
 " Try to prevent bad habits like using the arrow keys for movement.
 " use `echo` instead of `echoe` for compatibility issues with intelliJ
 
@@ -72,7 +76,7 @@ function MapMacModifierShortcuts()
 	nnoremap <M-Right> <ESC>:echo "use W"<CR>
 endfunction
 autocmd VimEnter * call MapMacModifierShortcuts()
-
+" 
 " ############################ other stuff ############################
 " (uncomment to) Enable mouse support. You should avoid relying on this too much, but it can
 " sometimes be convenient.
@@ -147,6 +151,8 @@ set splitright
 set wildmenu
 set wildmode=full
 
+"ideaVim ignore 
+" ideavim can't parse function and emojis
 " ############################ markdown setup ############################
 function SetUpMarkdown()
 	set guifont=MesloLGS-NF-Regular:h15
@@ -175,10 +181,10 @@ function SetUpMarkdown()
 	nnoremap O Ox
 endfunction
 autocmd FileType markdown call SetUpMarkdown()
-" l register, l for line break; o register, o for obliterate;
-autocmd BufEnter *.markdown let @o = 'ggVG"+x:!rm %:q!' | let @l = 'ox'
-autocmd BufLeave *.markdown let @o = '' | let @l = ''
-autocmd BufWinLeave *.markdown let @o = '' | let @l = '' | :!open -a Notion\ Enhanced
+" o register, o for obliterate;
+autocmd BufEnter *.markdown let @o = 'ggVG"+x:!rm %:q!'
+autocmd BufLeave *.markdown let @o = ''
+autocmd BufWinLeave *.markdown let @o = ''
 
 " ############################ emoji (and other) abbreviataions ############################
 " inoreabbrev means abbreviataion but only in insert mode, and no recursion
@@ -192,3 +198,4 @@ inoreabbrev :lbd: 🔷
 inoreabbrev :rd: ♦️
 inoreabbrev :cd: 💠
 inoreabbrev :cross: ❌
+"ideaVim ignore end

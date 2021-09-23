@@ -1,19 +1,24 @@
+" when vimrc source fails on some wonky updates:
+" source ~/.dotfiles/ideavim_temporary_source.vim
 source ~/.vimrc
+
 " try to replicate the unsupported commands here:
 nnoremap g; :action JumpToLastChange<Enter>
 nnoremap g, :action JumpToNextChange<Enter>
-" note that doing :action GotoNextBookmark<Enter> in IntelliJ won't set the automatic mark ` where you're jumping from, 
+nnoremap <Space> :action JumpToLastChange<Enter>
+nnoremap <S-Space> :action JumpToNextChange<Enter>
+" note that doing :action GotoNextBookmark<Enter> in IntelliJ won't set the automatic mark ` where you're jumping from,
 " so you can't do `` to go back after doing ]` like you can in vim, if you just did GoTo... 
 " and that m` in normal mode won't override the automatic ` -- but the ex-command `:mark <>` can.
 nnoremap ]` :mark` \| :action GotoNextBookmark<Enter>
 nnoremap [` :mark` \| :action GotoPreviousBookmark<Enter>
 nnoremap <C-w>T :action Unsplit<Enter>
 
-##### regarding abbreviataion, convert indents ######
+" regarding abbreviataion, convert indents
 " abbreviations are not yet supported by ideaVim.
 " cnoreabbrev retab! action ConvertIndentsToTabs
 " cnoreabbrev retab action ConvertIndentsToSpaces
 " for some reason ! in ex-command mode is not recognized by ideavim
 " cnoremap ret! action ConvertIndentsToTabs
-##### but hey! that's all right. once you set the default indentation to using tabs for Java in IntelliJ, 
-##### doing command option L to reformat will automatically convert all space indents to tab indents. ######## 
+" but hey! that's all right. once you set the default indentation to using tabs for Java in IntelliJ,
+" doing command option L to reformat will automatically convert all space indents to tab indents.
