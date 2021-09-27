@@ -42,6 +42,7 @@ cnoremap kj <C-C>
 " (disabled now because it causes the ex-command line input dialog to show up with a significant delay)
 nnoremap / /\v
 vnoremap / /\v
+onoremap / /\v
 " cnoremap %s/ %smagic/
 " cnoremap \>s/ \>smagic/
 " nnoremap :g/ :g/\v
@@ -184,18 +185,24 @@ autocmd FileType markdown call SetUpMarkdown()
 " o register, o for obliterate;
 autocmd BufEnter *.markdown let @o = 'ggVG"+x:!rm %:q!'
 autocmd BufLeave *.markdown let @o = ''
-autocmd BufWinLeave *.markdown let @o = ''
+autocmd BufWinLeave *.markdown let @o = '' | :!open -a Notion\ Enhanced
 
 " ############################ emoji (and other) abbreviataions ############################
 " inoreabbrev means abbreviataion but only in insert mode, and no recursion
-" sod: small orange diamond; lbd: large blue diamond; cd:crystal diamond
+" od: orange diamond; cd:crystal diamond
 inoreabbrev :star: ⭐️
 inoreabbrev :pin: 📌
-inoreabbrev :sod: 🔸
-inoreabbrev :sbd: 🔹
-inoreabbrev :lod: 🔶
-inoreabbrev :lbd: 🔷
+inoreabbrev :od: 🔶
+inoreabbrev :bd: 🔷
 inoreabbrev :rd: ♦️
 inoreabbrev :cd: 💠
 inoreabbrev :cross: ❌
+" add to command line mode too for substitutions.
+cnoreabbrev :star: ⭐️
+cnoreabbrev :pin: 📌
+cnoreabbrev :od: 🔶
+cnoreabbrev :bd: 🔷
+cnoreabbrev :rd: ♦️
+cnoreabbrev :cd: 💠
+cnoreabbrev :cross: ❌
 "ideaVim ignore end
