@@ -160,6 +160,15 @@ function SetUpMarkdown()
 	" paste, change to tab indentation
 	normal "+p
 	:retab!
+	" map line insertions to retain indentation on empty lines:
+	" the remap only takes effect for the buffer it was defined in.
+	inoremap  x
+	nnoremap o ox
+	nnoremap O Ox
+endfunction
+
+" the function to call if editing notes pasted from Mooc.fi
+function M()
 	" convert mooc.fi's in-line code to code fence
 	" the back-slash is unnecessary within the [\/*] bracket, but without it the syntax highlighting would be thrown off, so
 	:g/\v^`(\/[\/*]|.+[{;]$)/norm :s/`/O```c#
@@ -175,16 +184,34 @@ function SetUpMarkdown()
 	:g/\v^\s*```(\s|\S)+```/s/NEWLINE//g
 	" remove the last newline after the end of each code fence: with the join `:j` command
 	:g/\v^\s*```$/j 
-	" map line insertions to retain indentation on empty lines:
-	" the remap only takes effect for the buffer it was defined in.
-	inoremap  x
-	nnoremap o ox
-	nnoremap O Ox
-	
-	" ⭐️ this stuff is for method declarations / errors thrown copied from Oracle docs to Notion to Vim
-	" inserts empty lines before each bold words. (Paramteters, Returns,Throws) 
-	:%s/\v([^:])\*\*/\1**/g
 endfunction
+
+" this stuff is for method declarations / errors thrown copied from Oracle docs to Notion to Vim
+function O()
+	" inserts empty lines before each bold words. (Paramteters,Returns,Throws), then make it a numbered list
+	%s/\v([^:])\*\*/\11. **/g
+	" put all the See Also items in the same line as See Also
+	g/\v^•/j
+	g/\vSee Also:/j
+	" find all lines that aren't numbered or indented, them number it.
+	g/\v^[^	1]/norm I1. 
+	
+	" get rid of the links for optional since they are the only ones working but I don't need
+	%s/\v\[optional]\(https.{-}\)/optional/g
+	" make the embeded hyper-links in the Throws and See Also sections' in-line code display properly
+	g/\v\*\*(Throws|See Also):/s/\v`\[/[`/g
+	g/\v\*\*(Throws|See Also):/s/\v\)`/)/g
+	g/\v\*\*(Throws|See Also):/s/\v\]/`]/g
+	" the See Also section:
+	%s/\v • //g
+	" put each throw into a new line
+	g/\v\*\*(Throws|See Also):/s/\v(\S)(\[`.{-}`\]\(https:.{-}\))/\1	1. \2/g
+	"" put the text following the bold words into new indented lines, and make it a numbered list
+	%s/\v:\*\*/:\*\*	1. /g
+	"" delete all lines that's only numbered but has no content.
+	g/\v^\s?1\. $/d
+endfunction
+
 autocmd FileType markdown call SetUpMarkdown()
 " o register, o for obliterate;
 autocmd BufEnter *.markdown let @o = 'ggVG"+x:!rm %:q!'
