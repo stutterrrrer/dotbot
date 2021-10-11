@@ -180,6 +180,10 @@ function SetUpMarkdown()
 	inoremap  x
 	nnoremap o ox
 	nnoremap O Ox
+	
+	" ⭐️ this stuff is for method declarations / errors thrown copied from Oracle docs to Notion to Vim
+	" inserts empty lines before each bold words. (Paramteters, Returns,Throws) 
+	:%s/\v([^:])\*\*/\1**/g
 endfunction
 autocmd FileType markdown call SetUpMarkdown()
 " o register, o for obliterate;
