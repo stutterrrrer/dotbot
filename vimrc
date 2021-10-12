@@ -188,6 +188,11 @@ endfunction
 
 " this stuff is for method declarations / errors thrown copied from Oracle docs to Notion to Vim
 function O()
+	" if the first line (method declaration) doesn't end with ), then join from first line to the next line that does end with ) - this happens when the method has multiple parameters.
+	/\%1l\v[^)]$/,/\v\)$/j
+	" change notion's code fences to in-line code.
+	%s/\v\n\n```\n/ `
+	%s/\v\n```\n\n/` 
 	" inserts empty lines before each bold words. (Paramteters,Returns,Throws), then make it a numbered list
 	%s/\v([^:])\*\*/\11. **/g
 	" put all the See Also items in the same line as See Also
