@@ -190,27 +190,20 @@ endfunction
 function O()
 	" if the first line (method declaration) doesn't end with ), then join from first line to the next line that does end with ) - this happens when the method has multiple parameters.
 	/\%1l\v[^)]$/,/\v\)$/j
+	" proper in-line code with embeded links:
+	%s/\v`\[(.{-})\]\((.{-})\)`/[`\1`](\2)/g
 	" change notion's code fences to in-line code.
 	%s/\v\n\n```\n/ `
 	%s/\v\n```\n\n/` 
 	" inserts empty lines before each bold words. (Paramteters,Returns,Throws), then make it a numbered list
 	%s/\v([^:])\*\*/\11. **/g
-	" put all the See Also items in the same line as See Also
-	g/\v^•/j
-	g/\vSee Also:/j
 	" find all lines that aren't numbered or indented, them number it.
 	g/\v^[^	1]/norm I1. 
 	
-	" get rid of the links for optional since they are the only ones working but I don't need
-	%s/\v\[optional]\(https.{-}\)/optional/g
-	" make the embeded hyper-links in the Throws and See Also sections' in-line code display properly
-	g/\v\*\*(Throws|See Also):/s/\v`\[/[`/g
-	g/\v\*\*(Throws|See Also):/s/\v\)`/)/g
-	g/\v\*\*(Throws|See Also):/s/\v\]/`]/g
 	" the See Also section:
 	%s/\v • //g
 	" put each throw into a new line
-	g/\v\*\*(Throws|See Also):/s/\v(\S)(\[`.{-}`\]\(https:.{-}\))/\1	1. \2/g
+	g/\v\*\*Throws:/s/\v(\S)(\[`.{-}`\]\(https:.{-}\))/\1	1. \2/g
 	"" put the text following the bold words into new indented lines, and make it a numbered list
 	%s/\v:\*\*/:\*\*	1. /g
 	"" delete all lines that's only numbered but has no content.
