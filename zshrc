@@ -44,6 +44,15 @@ javar ()
 	rm -rf $tempDir
 }
 
+javar-alg()
+{
+	# include the algorithm course's provided textbook library to classpath:
+	tempDir=compiled_classes_temp
+	javac -classpath ~/IdeaProjects/Princeton_Algorithms_Course/0.jar_files_for_cmd_line/* *.java -d $tempDir 
+	java -classpath ~/IdeaProjects/Princeton_Algorithms_Course/0.jar_files_for_cmd_line/algs4.jar:$tempDir "$@"
+	rm -rf $tempDir
+}
+
 vman ()
 {
 	if [[ $# -eq 1 ]]
