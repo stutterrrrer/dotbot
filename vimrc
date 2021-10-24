@@ -167,27 +167,20 @@ function SetUpMarkdown()
 	nnoremap O Ox
 endfunction
 
-" the function to call if editing notes pasted from Mooc.fi
-function M()
-	" convert mooc.fi's in-line code to code fence
-	" the back-slash is unnecessary within the [\/*] bracket, but without it the syntax highlighting would be thrown off, so
-	:g/\v^`(\/[\/*]|.+[{;]$)/norm :s/`/O```c#
-	:g/\v(^}`$|;`$)/norm :s/`/o```
-	" when pasted in from notion: change java fences to c# fences to avoid the unpredictable markdown anchor disabling code highlight.
-	:g/\v^\s*```java$/s/java/c#
-	" match and select whole code block, then sub out all new line characters
-	" `\S` in the first pattern can't be changed to `c#`: cases where notion's java block is pasted in
-	:g/\v^\s*```\S\_.{-}```/,/\v^\s*```$/s/\n/NEWLINE
-	" insert lines after, exclude (empty or white-space only lines), or those that already have a (empty or white-space only line) below.
-	:g!/\v(^\s*$)|(\n\s*\n)/norm ox
-	" sub the 1-line code fences back to what they should be
-	:g/\v^\s*```(\s|\S)+```/s/NEWLINE//g
-	" remove the last newline after the end of each code fence: with the join `:j` command
-	:g/\v^\s*```$/j 
+" function to call when pasting from Algorithm course's PDF slides.
+function A()
+	" delete the weird dot symbol for dotted lines.
+	%s/\v[\n・]{2,}/
+	" put each sentence ending with . period in a new line
+	s/\v([^.]\. )/\1/g
+	" turn each line into numbered list
+	g/\v^[^	1]/norm I1. 
+	" insert empty lines
+	g!/\v(^\s*$)|(\n\s*\n)/norm o
 endfunction
 
 " this stuff is for method declarations / errors thrown copied from Oracle docs to Notion to Vim
-function O()
+function Oracle()
 	" if the first line (method declaration) doesn't end with ), then join from first line to the next line that does end with ) - this happens when the method has multiple parameters.
 	/\%1l\v[^)]$/,/\v\)$/j
 	" proper in-line code with embeded links:
@@ -208,6 +201,25 @@ function O()
 	%s/\v:\*\*/:\*\*	1. /g
 	"" delete all lines that's only numbered but has no content.
 	g/\v^\s?1\. $/d
+endfunction
+
+" the function to call if editing notes pasted from Mooc.fi
+function Mooc()
+	" convert mooc.fi's in-line code to code fence
+	" the back-slash is unnecessary within the [\/*] bracket, but without it the syntax highlighting would be thrown off, so
+	:g/\v^`(\/[\/*]|.+[{;]$)/norm :s/`/O```c#
+	:g/\v(^}`$|;`$)/norm :s/`/o```
+	" when pasted in from notion: change java fences to c# fences to avoid the unpredictable markdown anchor disabling code highlight.
+	:g/\v^\s*```java$/s/java/c#
+	" match and select whole code block, then sub out all new line characters
+	" `\S` in the first pattern can't be changed to `c#`: cases where notion's java block is pasted in
+	:g/\v^\s*```\S\_.{-}```/,/\v^\s*```$/s/\n/NEWLINE
+	" insert lines after, exclude (empty or white-space only lines), or those that already have a (empty or white-space only line) below.
+	:g!/\v(^\s*$)|(\n\s*\n)/norm ox
+	" sub the 1-line code fences back to what they should be
+	:g/\v^\s*```(\s|\S)+```/s/NEWLINE//g
+	" remove the last newline after the end of each code fence: with the join `:j` command
+	:g/\v^\s*```$/j 
 endfunction
 
 autocmd FileType markdown call SetUpMarkdown()
