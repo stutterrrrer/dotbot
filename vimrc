@@ -172,7 +172,7 @@ function A()
 	" delete the weird dot symbol for dotted lines.
 	%s/\v[\n・]{2,}/
 	" put each sentence ending with . period in a new line
-	s/\v([^.]\. )/\1/g
+	s/\v([^.\d]\. )/\1/g
 	" turn each line into numbered list
 	g/\v^[^	1]/norm I1. 
 	" insert empty lines
