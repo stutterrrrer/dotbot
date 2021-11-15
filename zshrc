@@ -22,8 +22,6 @@ source $(brew --prefix)/opt/powerlevel10k/powerlevel10k.zsh-theme
 alias ls='ls -GF' 
 alias v='mvim'
 	# to easier attach to sessions, especially in intelliJ's emulated terminal
-alias ta='tmux attach-session -t'
-
 
 # 3 >>> environment variables
 export ICLOUD=/Users/ian/Library/Mobile\ Documents/com~apple~CloudDocs
@@ -63,6 +61,15 @@ vman ()
 	fi
 }
 
+ta ()
+{
+	if [[ $# -eq 0 ]]
+	then
+		tmux attach
+	else
+		tmux attach-session -t $@
+	fi
+}
 n ()
 {
     # Block nesting of nnn in subshells
