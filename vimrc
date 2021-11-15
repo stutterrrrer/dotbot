@@ -228,6 +228,15 @@ autocmd BufEnter *.markdown let @o = 'ggVG"+x:!rm %:q!'
 autocmd BufLeave *.markdown let @o = ''
 autocmd BufWinLeave *.markdown let @o = '' | :!open -a Notion\ Enhanced
 
+
+function Valley()
+	%s/输入/input /g
+	%s/输出/output /g
+	%s/描述/description /g
+	%s/样例/sample /g
+	%s/提示/Note: /g
+	%s/\v([eE]xample.{-}:)\n+/\1
+endfunction
 " ############################ emoji (and other) abbreviataions ############################
 " inoreabbrev means abbreviataion but only in insert mode, and no recursion
 " od: orange diamond; cd:crystal diamond
