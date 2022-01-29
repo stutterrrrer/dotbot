@@ -159,12 +159,14 @@ function SetUpMarkdown()
 	set guifont=MesloLGS-NF-Regular:h15
 	" paste, change to tab indentation
 	normal "+p
-	:retab!
+	retab!
 	" map line insertions to retain indentation on empty lines:
 	" the remap only takes effect for the buffer it was defined in.
 	inoremap  x
 	nnoremap o ox
 	nnoremap O Ox
+	" insert empty lines.
+	g!/\v(^\s*$)|(\n\s*\n)/norm o
 endfunction
 
 " function to call when pasting from Algorithm course's PDF slides.
@@ -230,12 +232,15 @@ autocmd BufWinLeave *.markdown let @o = '' | :!open -a Notion\ Enhanced
 
 
 function Valley()
+	# these are for the description file
 	%s/输入/input /g
 	%s/输出/output /g
 	%s/描述/description /g
 	%s/样例/sample /g
 	%s/提示/Note: /g
 	%s/\v([eE]xample.{-}:)\n+/\1
+	# this is for the java file
+	%s/\v\/\*\_.{-}\*\//\/*********************************\/
 endfunction
 " ############################ emoji (and other) abbreviataions ############################
 " inoreabbrev means abbreviataion but only in insert mode, and no recursion
