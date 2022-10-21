@@ -11,3 +11,4 @@
 	required = true
 [core]
 	editor = mvim -f
+	autocrlf = input

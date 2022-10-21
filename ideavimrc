@@ -2,6 +2,9 @@
 " source ~/.dotfiles/ideavim_temporary_source.vim
 source ~/.vimrc
 
+" vim-style undo
+set nooldundo
+
 " try to replicate the unsupported commands here:
 nnoremap g; :action JumpToLastChange<Enter>
 nnoremap g, :action JumpToNextChange<Enter>
