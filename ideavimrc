@@ -6,10 +6,25 @@ source ~/.vimrc
 set nooldundo
 
 " try to replicate the unsupported commands here:
+" unfortunately vim's changelist is simply not implemented in intellij / ideavim, at least not the same way
+
+" JumpToLastChange seems to randomly remember some of the edit locations in
+" the current file, then if you keep going back it will eventually bring you
+" to another file you edited
 nnoremap g; :action JumpToLastChange<Enter>
 nnoremap g, :action JumpToNextChange<Enter>
 nnoremap <Space> :action JumpToLastChange<Enter>
 nnoremap <S-Space> :action JumpToNextChange<Enter>
+
+" git diff view - doesn't work for some reason
+" even when typing in intellij vim normal mode: ":action PreviousDiff" doesn't work
+" even though when tracking action id, that's the action ID that shows up
+" see https://youtrack.jetbrains.com/issue/VIM-1611/actions-related-to-resolving-conflicts-doesnt-seem-to-work
+" so just modify the "Next/Previous Difference" in intellij settings keymap
+" mapped to coomand + [ + c and command + ] + c
+nnoremap [c :action PreviousDiff<Enter>
+nnoremap ]c :action NextDiff<Enter>
+
 " note that doing :action GotoNextBookmark<Enter> in IntelliJ won't set the automatic mark ` where you're jumping from,
 " so you can't do `` to go back after doing ]` like you can in vim, if you just did GoTo... 
 " and that m` in normal mode won't override the automatic ` -- but the ex-command `:mark <>` can.

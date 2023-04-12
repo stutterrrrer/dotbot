@@ -21,6 +21,7 @@ source $(brew --prefix)/opt/powerlevel10k/powerlevel10k.zsh-theme
 	# always use ls with -G color flag. -F show slashes for directory and @ for symlinks
 alias ls='ls -GF' 
 alias v='mvim'
+alias python='python3'
 	# to easier attach to sessions, especially in intelliJ's emulated terminal
 
 # 3 >>> environment variables
@@ -105,3 +106,19 @@ idea()
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/Users/ian/opt/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/Users/ian/opt/anaconda3/etc/profile.d/conda.sh" ]; then
+        . "/Users/ian/opt/anaconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/Users/ian/opt/anaconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+
