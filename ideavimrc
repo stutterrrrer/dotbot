@@ -30,7 +30,14 @@ nnoremap ]c :action NextDiff<Enter>
 " and that m` in normal mode won't override the automatic ` -- but the ex-command `:mark <>` can.
 nnoremap ]` :mark` \| :action GotoNextBookmark<Enter>
 nnoremap [` :mark` \| :action GotoPreviousBookmark<Enter>
+" in vim, this moves a split to a new tab
 nnoremap <C-w>T :action Unsplit<Enter>
+" maps to window moving in vim:
+nnoremap <C-w>W :action MoveEditorToOppositeTabGroup<Enter>
+nnoremap <C-w>H :action MoveEditorToOppositeTabGroup<Enter>
+nnoremap <C-w>L :action MoveEditorToOppositeTabGroup<Enter>
+nnoremap <C-w>J :action MoveEditorToOppositeTabGroup<Enter>
+nnoremap <C-w>K :action MoveEditorToOppositeTabGroup<Enter>
 
 " regarding abbreviataion, convert indents
 " abbreviations are not yet supported by ideaVim.
