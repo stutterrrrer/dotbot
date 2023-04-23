@@ -39,6 +39,11 @@ nnoremap <C-w>L :action MoveEditorToOppositeTabGroup<Enter>
 nnoremap <C-w>J :action MoveEditorToOppositeTabGroup<Enter>
 nnoremap <C-w>K :action MoveEditorToOppositeTabGroup<Enter>
 
+" register contents:
+" the command for deleting all java comment-only lines (has this in vim but
+" needs to write this again for ideavim)
+let @c= 'g/\v^\s*\/\//d'
+
 " regarding abbreviataion, convert indents
 " abbreviations are not yet supported by ideaVim.
 " cnoreabbrev retab! action ConvertIndentsToTabs

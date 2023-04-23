@@ -242,6 +242,22 @@ function Valley()
 	# this is for the java file
 	%s/\v\/\*\_.{-}\*\//\/*********************************\/
 endfunction
+
+
+
+
+
+" ############################ macros; commands saved in registers ############################
+" todo: make this file specific - e.g. when file type is python use # to match comment lines
+" ex-command - in a java file: remove all lines that are just comments
+" saves this command in the register c - c for comments
+" to remove only selected areas: select, type : for command mode, ^C to paste
+" this command after the '<,'> selection marker, then enter to run
+let @c= 'g/\v^\s*\/\//d'
+
+
+
+
 " ############################ emoji (and other) abbreviataions ############################
 " inoreabbrev means abbreviataion but only in insert mode, and no recursion
 " od: orange diamond; cd:crystal diamond
