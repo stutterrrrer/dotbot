@@ -101,8 +101,11 @@ set backspace=indent,eol,start
 " search becomes case-sensitive if it contains any capital letters.
 set ignorecase
 set smartcase
-" enable highlight search to show all matches, `:noh` to turn off the hilighting until next search (but a hassle if you want to use search to navigate within a line)
-" set hlsearch
+" enable highlight search to show all matches, 
+" `:noh` to turn off the hilighting until next search (but a hassle if you want to use search to navigate within a line)
+set hlsearch
+" (Control L) -> initially clears/redraws screen: map to :nohlsearch
+nnoremap <c-l> :nohlsearch<cr>
 " Enable searching as you type, rather than waiting till you press enter.
 set incsearch
 " Disable audible bell because it's annoying.
