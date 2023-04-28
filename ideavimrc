@@ -5,7 +5,8 @@ source ~/.vimrc
 " vim-style undo
 set nooldundo
 
-" try to replicate the unsupported commands here:
+" replicating unsupported vim commands with keymaps {{{
+
 " unfortunately vim's changelist is simply not implemented in intellij / ideavim, at least not the same way
 
 " JumpToLastChange seems to randomly remember some of the edit locations in
@@ -38,13 +39,15 @@ nnoremap <C-w>H :action MoveEditorToOppositeTabGroup<Enter>
 nnoremap <C-w>L :action MoveEditorToOppositeTabGroup<Enter>
 nnoremap <C-w>J :action MoveEditorToOppositeTabGroup<Enter>
 nnoremap <C-w>K :action MoveEditorToOppositeTabGroup<Enter>
+}}}
 
-" register contents:
+" macro: ex-commands stored in registers - most already in vimrc {{{
 " the command for deleting all java comment-only lines (has this in vim but
 " needs to write this again for ideavim)
 let @c= 'g/\v^\s*\/\//d'
+"}}}
 
-" regarding abbreviataion, convert indents
+" regarding abbreviataion, convert indents {{{
 " abbreviations are not yet supported by ideaVim.
 " cnoreabbrev retab! action ConvertIndentsToTabs
 " cnoreabbrev retab action ConvertIndentsToSpaces
@@ -52,3 +55,4 @@ let @c= 'g/\v^\s*\/\//d'
 " cnoremap ret! action ConvertIndentsToTabs
 " but hey! that's all right. once you set the default indentation to using tabs for Java in IntelliJ,
 " doing command option L to reformat will automatically convert all space indents to tab indents.
+}}}

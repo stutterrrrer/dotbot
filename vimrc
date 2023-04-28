@@ -1,35 +1,13 @@
-" ########### marks: `R` = this vimrc file; `d` = markdown, `o` = other, `k` = keymaps, `e` = emoji (and other) abbreviataions; note that these marks need to be set separately in the symlinked ~/.vimrc file and in the original ~/.dotbot/vimrc file #############
+" set custom folding for .vimrc and .ideavimrc - use default markers: triple{ and triple} {{{
+augroup vimrcfolding
+  autocmd BufEnter *vimrc :setfiletype vim 
+  autocmd FileType vim :setlocal foldmethod=marker
+  # use default foldmarkers: "{{{,}}}"
+  " autocmd FileType vim :setlocal foldmarker={{{,}}}
+augroup END
+"}}}
 
-" ############################ vundle plugin, line 1-30  ############################
-set nocompatible              " be iMproved, required
-filetype off                  " required
-
-" set the runtime path to include Vundle and initialize
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-" alternatively, pass a path where Vundle should install plugins: call vundle#begin('~/some/path/here')
-
-" let Vundle manage Vundle, required
-Plugin 'VundleVim/Vundle.vim'
-"plugin list
-Plugin 'instant-markdown/vim-instant-markdown'
-Plugin 'kshenoy/vim-signature'
-
-" All of your Plugins must be added before the following line
-call vundle#end()            " required
-filetype plugin indent on    " required
-
-" Brief help
-" :PluginList       - lists configured plugins
-" :PluginInstall    - installs plugins; append `!` to update or just :PluginUpdate
-" :PluginSearch foo - searches for foo; append `!` to refresh local cache
-" :PluginClean      - confirms removal of unused plugins; append `!` to auto-approve removal
-"
-" see :h vundle for more details or wiki for FAQ
-" ############################  non-plugin stuff after this line ############################
-
-" ############################ ian's own keymaps ############################
-" Unbind some useless/annoying default key bindings.
+" ian's own keymaps {{{
 nmap Q <Nop> " 'Q' in normal mode enters Ex mode. You almost never want this.
 " to pair up with control W / U / H, and also stay consistent with Mac's default forward delete:
 inoremap <C-d> <Del>
@@ -63,6 +41,10 @@ inoremap <Left>  <ESC>:echo "Use ^O-h"<CR>
 inoremap <Right> <ESC>:echo "Use ^O-l"<CR>
 inoremap <Up>    <ESC>:echo "Use ^O-k"<CR>
 inoremap <Down>  <ESC>:echo "Use ^O-j"<CR>
+
+" (Control L) -> initially clears/redraws screen: map to :nohlsearch
+nnoremap <c-l> :nohlsearch<cr>
+
 " note: only macvim recognizes D and M as command and option key;terminal vim doesn't 
 " also these mappings just won't happen automatically so needs to be called as a function; see notion map keys page for the MacVim GitHub open issue.
 function MapMacModifierShortcuts()
@@ -77,8 +59,11 @@ function MapMacModifierShortcuts()
 	nnoremap <M-Right> <ESC>:echo "use W"<CR>
 endfunction
 autocmd VimEnter * call MapMacModifierShortcuts()
-" 
-" ############################ other stuff ############################
+"}}}
+
+" other recommended settings (mostly "set"s and "let"s{{{
+" be iMproved
+set nocompatible
 " (uncomment to) Enable mouse support. You should avoid relying on this too much, but it can
 " sometimes be convenient.
 " set mouse+=a
@@ -103,9 +88,8 @@ set ignorecase
 set smartcase
 " enable highlight search to show all matches, 
 " `:noh` to turn off the hilighting until next search (but a hassle if you want to use search to navigate within a line)
+" mapped control-l to :nol - see the keymap section
 set hlsearch
-" (Control L) -> initially clears/redraws screen: map to :nohlsearch
-nnoremap <c-l> :nohlsearch<cr>
 " Enable searching as you type, rather than waiting till you press enter.
 set incsearch
 " Disable audible bell because it's annoying.
@@ -125,7 +109,9 @@ set shiftwidth=4
 " display tabs indicator as vertical bar:
 set listchars=tab:\|\ 
 set list
+" }}}
 
+" ian's own preferences - mostly graphical {{{
 let &t_SI="\033[5 q" " start insert mode, vertical cursor
 let &t_EI="\033[1 q" " end insert mode, blinking block
 
@@ -154,10 +140,11 @@ set splitright
 " provides a navigatable list of suggestions. ( tab, C-n, right  to scroll forward
 set wildmenu
 set wildmode=full
+"}}}
 
 "ideaVim ignore 
 " ideavim can't parse function and emojis
-" ############################ markdown setup ############################
+" functions - during the markdown-notion-vim craze {{{
 function SetUpMarkdown()
 	set guifont=MesloLGS-NF-Regular:h15
 	" paste, change to tab indentation
@@ -228,11 +215,7 @@ function Mooc()
 endfunction
 
 autocmd FileType markdown call SetUpMarkdown()
-" o register, o for obliterate;
-autocmd BufEnter *.markdown let @o = 'ggVG"+x:!rm %:q!'
-autocmd BufLeave *.markdown let @o = ''
-autocmd BufWinLeave *.markdown let @o = '' | :!open -a Notion\ Enhanced
-
+" see the macros fold section for o register macro in markdown filetype
 
 function Valley()
 	# these are for the description file
@@ -245,12 +228,9 @@ function Valley()
 	# this is for the java file
 	%s/\v\/\*\_.{-}\*\//\/*********************************\/
 endfunction
+"}}}
 
-
-
-
-
-" ############################ macros; commands saved in registers ############################
+" macros: commands saved in registers {{{
 " todo: make this file specific - e.g. when file type is python use # to match comment lines
 " ex-command - in a java file: remove all lines that are just comments
 " saves this command in the register c - c for comments
@@ -258,10 +238,14 @@ endfunction
 " this command after the '<,'> selection marker, then enter to run
 let @c= 'g/\v^\s*\/\//d'
 
+" the markdown stuff
+" o register, o for obliterate;
+autocmd BufEnter *.markdown let @o = 'ggVG"+x:!rm %:q!'
+autocmd BufLeave *.markdown let @o = ''
+autocmd BufWinLeave *.markdown let @o = '' | :!open -a Notion\ Enhanced
+"}}}
 
-
-
-" ############################ emoji (and other) abbreviataions ############################
+" emoji (and other) abbreviataions {{{
 " inoreabbrev means abbreviataion but only in insert mode, and no recursion
 " od: orange diamond; cd:crystal diamond
 inoreabbrev :star: ⭐️
@@ -279,4 +263,6 @@ cnoreabbrev :bd: 🔷
 cnoreabbrev :rd: ♦️
 cnoreabbrev :cd: 💠
 cnoreabbrev :cross: ❌
+" }}}
+
 "ideaVim ignore end
