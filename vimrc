@@ -2,7 +2,6 @@
 augroup vimrcfolding
   autocmd BufEnter *vimrc :setfiletype vim 
   autocmd FileType vim :setlocal foldmethod=marker
-  # use default foldmarkers: "{{{,}}}"
   " autocmd FileType vim :setlocal foldmarker={{{,}}}
 augroup END
 "}}}
