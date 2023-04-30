@@ -1,9 +1,5 @@
-" set custom folding for .vimrc and .ideavimrc - use default markers: triple{ and triple} {{{
-augroup vimrcfolding
-  autocmd BufEnter *vimrc :setfiletype vim 
-  autocmd FileType vim :setlocal foldmethod=marker
-  " autocmd FileType vim :setlocal foldmarker={{{,}}}
-augroup END
+" set custom folding for .vimrc, .ideavimrc, .zshrc, and .tmux.conf - use default markers: triple{ and triple} {{{
+autocmd FileType vim,zsh,tmux :setlocal foldmethod=marker
 "}}}
 
 " ian's own keymaps {{{
@@ -123,7 +119,7 @@ if has("gui_running")
 	set transparency=18
 else
 	" sets the theme for terminal vim
-	colorscheme zellner
+	colorscheme murphy
 endif
 " hide terminal Vim's background, effectively making it transparent if you have the terminal background set as transparent.
 hi Normal guibg=NONE ctermbg=NONE

@@ -1,39 +1,52 @@
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
+# {{{
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
+#}}}
 
-# 0 >>> homebrew plugins
+# homebrew plugins {{{
 source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source $(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
 source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 source $(brew --prefix)/opt/powerlevel10k/powerlevel10k.zsh-theme
+# }}}
 
+# other settings: global history; optimized history search etc. {{{
 
+# history {{{
+# sync history between all zsh sessions
+setopt share_history
+# ignroe duplicates
+setopt HIST_IGNORE_DUPS
+# search through history based on what's alreayd typed - see https://coderwall.com/p/jpj_6q/zsh-better-history-searching-with-arrow-keys
+# these 2 only works with actual up and down keys - not zsh-vim-mode normal j and k
+bindkey $key[Up] up-line-or-beginning-search # Up
+bindkey $key[Down] down-line-or-beginning-search # Down 
+# these work with zsh-vim-mode - see https://stackoverflow.com/a/68484008
+bindkey -M vicmd "k" up-line-or-beginning-search
+bindkey -M vicmd "j" down-line-or-beginning-search
+#}}}
 
-# 1 >>> key bindings
-	# 1. mapping jj etc to escape in zsh ( this is now done with zsh vi mode homebrew version)
+#}}}
 
-
-# 2 >>> aliases
-	# always use ls with -G color flag. -F show slashes for directory and @ for symlinks
+# aliases {{{
+# always use ls with -G color flag. -F show slashes for directory and @ for symlinks
 alias ls='ls -GF' 
 alias v='mvim'
 alias python='python3'
-	# to easier attach to sessions, especially in intelliJ's emulated terminal
+# }}}
 
-# 3 >>> environment variables
+# environment variables {{{
 export ICLOUD=/Users/ian/Library/Mobile\ Documents/com~apple~CloudDocs
 export EDITOR=vim
 	# ClashX - Copy shell command; so that terminal can be routed through ClashX VPN as well.
 # export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890
+# }}}
 
-	# rbenv - manage ruby version - just for vim golf
-eval "$(rbenv init -)"
-
-# z >>> functions:
+# functions: vman(), n(), idea() etc. {{{
 javar ()
 {
 	# compile all .java files in current directory into a temp classes directory, execute, then delete the temp directory.
@@ -71,6 +84,7 @@ ta ()
 		tmux attach-session -t $@
 	fi
 }
+
 n ()
 {
     # Block nesting of nnn in subshells
@@ -103,22 +117,12 @@ idea()
 {
 	open -na "IntelliJ IDEA.app" --args "$@"	
 }
+# }}}
 
+# other: p10k.zsh and ruby {{{
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/Users/ian/opt/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/Users/ian/opt/anaconda3/etc/profile.d/conda.sh" ]; then
-        . "/Users/ian/opt/anaconda3/etc/profile.d/conda.sh"
-    else
-        export PATH="/Users/ian/opt/anaconda3/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
-
+# rbenv - manage ruby version - just for vim golf
+eval "$(rbenv init -)"
+#}}}

@@ -10,5 +10,6 @@
 	process = git-lfs filter-process
 	required = true
 [core]
-	editor = mvim -f
+	# use terminal vim as editor
+	editor = vim -f
 	autocrlf = input
