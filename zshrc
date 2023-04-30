@@ -22,6 +22,13 @@ setopt share_history
 # ignroe duplicates
 setopt HIST_IGNORE_DUPS
 # search through history based on what's alreayd typed - see https://coderwall.com/p/jpj_6q/zsh-better-history-searching-with-arrow-keys
+# why you need the zle commands:
+# zsh-syntax-highlighting: unhandled ZLE widget 'up-line-or-beginning-search'
+# zsh-syntax-highlighting: (This is commonly caused by doing `bindkey <keys> up-line-or-beginning-search` without creating the 'up-line-or-beginning-search' widget with `zle -N` or `zle -C`.)
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+autoload -U up-line-or-beginning-search
+autoload -U down-line-or-beginning-search
 # these 2 only works with actual up and down keys - not zsh-vim-mode normal j and k
 bindkey $key[Up] up-line-or-beginning-search # Up
 bindkey $key[Down] down-line-or-beginning-search # Down 
