@@ -135,6 +135,13 @@ set splitright
 " provides a navigatable list of suggestions. ( tab, C-n, right  to scroll forward
 set wildmenu
 set wildmode=full
+
+" status line:
+" display file full path
+set statusline=%F
+" display window number - then <window number> - C-w w: switch to that window
+set statusline+=\ win-
+set statusline+=%{winnr()}
 "}}}
 
 "ideaVim ignore 
