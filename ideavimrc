@@ -1,3 +1,5 @@
+" note: map <Action>(ActionID) would apply to select mode as well as normal mode; may prefer nnoremap.
+
 " when vimrc source fails on some wonky updates:
 " source ~/.dotfiles/ideavim_temporary_source.vim
 source ~/.vimrc
@@ -12,17 +14,21 @@ set nooldundo
 " JumpToLastChange seems to randomly remember some of the edit locations in
 " the current file, then if you keep going back it will eventually bring you
 " to another file you edited
-nnoremap g; :action JumpToLastChange<Enter>
-nnoremap g, :action JumpToNextChange<Enter>
-nnoremap <Space> :action JumpToLastChange<Enter>
-nnoremap <S-Space> :action JumpToNextChange<Enter>
+" nnoremap g; :action JumpToLastChange<Enter>
+map g; <Action>(JumpToLastChange)
+" nnoremap g, :action JumpToNextChange<Enter>
+map g, <Action>(JumpToNextChange)
+" nnoremap <Space> :action JumpToLastChange<Enter>
+map <Space> <Action>(JumpToLastChange)
+" nnoremap <S-Space> :action JumpToNextChange<Enter>
+map <S-Space> <Action>(JumpToNextChange)
 
 " git diff view - doesn't work for some reason
 " even when typing in intellij vim normal mode: ":action PreviousDiff" doesn't work
 " even though when tracking action id, that's the action ID that shows up
 " see https://youtrack.jetbrains.com/issue/VIM-1611/actions-related-to-resolving-conflicts-doesnt-seem-to-work
 " so just modify the "Next/Previous Difference" in intellij settings keymap
-" mapped to coomand + [ + c and command + ] + c
+" mapped to command + [ + c and command + ] + c
 nnoremap [c :action PreviousDiff<Enter>
 nnoremap ]c :action NextDiff<Enter>
 
@@ -32,14 +38,14 @@ nnoremap ]c :action NextDiff<Enter>
 nnoremap ]` :mark` \| :action GotoNextBookmark<Enter>
 nnoremap [` :mark` \| :action GotoPreviousBookmark<Enter>
 " in vim, this moves a split to a new tab
-nnoremap <C-w>T :action Unsplit<Enter>
+map <C-w>T <Action>(Unsplit)
 " maps to window moving in vim:
 nnoremap <C-w>W :action MoveEditorToOppositeTabGroup<Enter>
 nnoremap <C-w>H :action MoveEditorToOppositeTabGroup<Enter>
 nnoremap <C-w>L :action MoveEditorToOppositeTabGroup<Enter>
 nnoremap <C-w>J :action MoveEditorToOppositeTabGroup<Enter>
 nnoremap <C-w>K :action MoveEditorToOppositeTabGroup<Enter>
-}}}
+" }}}
 
 " macro: ex-commands stored in registers - most already in vimrc {{{
 " the command for deleting all java comment-only lines (has this in vim but
@@ -55,4 +61,4 @@ let @c= 'g/\v^\s*\/\//d'
 " cnoremap ret! action ConvertIndentsToTabs
 " but hey! that's all right. once you set the default indentation to using tabs for Java in IntelliJ,
 " doing command option L to reformat will automatically convert all space indents to tab indents.
-}}}
+" }}}

@@ -44,6 +44,7 @@ bindkey -M vicmd "j" down-line-or-beginning-search
 alias ls='ls -GF' 
 alias v='mvim'
 alias python='python3'
+alias h='history'
 # }}}
 
 # environment variables {{{
@@ -53,7 +54,7 @@ export EDITOR=vim
 # export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890
 # }}}
 
-# functions: vman(), n(), idea() etc. {{{
+# functions: manv(), n(), idea() etc. {{{
 javar ()
 {
 	# compile all .java files in current directory into a temp classes directory, execute, then delete the temp directory.
@@ -72,13 +73,23 @@ javar-alg()
 	rm -rf $tempDir
 }
 
-vman ()
+manv ()
 {
 	if [[ $# -eq 1 ]]
 	then
 		man $1 | mvim +MANPAGER -
 	else
 		$@ | mvim +MANPAGER -
+	fi
+}
+
+manvim ()
+{
+	if [[ $# -eq 1 ]]
+	then
+		man $1 | vim +MANPAGER -
+	else
+		$@ | vim +MANPAGER -
 	fi
 }
 
@@ -126,10 +137,8 @@ idea()
 }
 # }}}
 
-# other: p10k.zsh and ruby {{{
+# other: p10k.zsh {{{
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# rbenv - manage ruby version - just for vim golf
-eval "$(rbenv init -)"
 #}}}

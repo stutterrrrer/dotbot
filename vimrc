@@ -119,7 +119,7 @@ if has("gui_running")
 	set transparency=18
 else
 	" sets the theme for terminal vim
-	colorscheme murphy
+	colorscheme koehler
 endif
 " hide terminal Vim's background, effectively making it transparent if you have the terminal background set as transparent.
 hi Normal guibg=NONE ctermbg=NONE
