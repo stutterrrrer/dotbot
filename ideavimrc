@@ -1,4 +1,4 @@
-" note: map <Action>(ActionID) would apply to select mode as well as normal mode; may prefer nnoremap.
+" note: map <Action>(ActionID) would apply to select mode as well as normal mode; may prefer nnoremap
 
 " when vimrc source fails on some wonky updates:
 " source ~/.dotfiles/ideavim_temporary_source.vim
@@ -45,6 +45,10 @@ nnoremap <C-w>H :action MoveEditorToOppositeTabGroup<Enter>
 nnoremap <C-w>L :action MoveEditorToOppositeTabGroup<Enter>
 nnoremap <C-w>J :action MoveEditorToOppositeTabGroup<Enter>
 nnoremap <C-w>K :action MoveEditorToOppositeTabGroup<Enter>
+
+" replicate vim q: to see command history
+map q: :history<Enter>
+
 " }}}
 
 " macro: ex-commands stored in registers - most already in vimrc {{{
