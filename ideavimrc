@@ -1,4 +1,6 @@
-" note: map <Action>(ActionID) would apply to select mode as well as normal mode; may prefer nnoremap
+" note: map <Action>(ActionID) would apply to select mode as well as normal mode; 
+" may prefer nnoremap
+" but <Action>(actionID) doesn't support nnoremap, only nmap (see nmap stretch editor)
 
 " when vimrc source fails on some wonky updates:
 " source ~/.dotfiles/ideavim_temporary_source.vim
@@ -39,12 +41,37 @@ nnoremap ]` :mark` \| :action GotoNextBookmark<Enter>
 nnoremap [` :mark` \| :action GotoPreviousBookmark<Enter>
 " in vim, this moves a split to a new tab
 map <C-w>T <Action>(Unsplit)
+
+" create/move between splits; native support stopped working for some reason
+" and ideavim doesn't support :wincmd (hjkl)
+nmap <C-w>w <Action>(NextSplitter)
+nmap <C-w>l <Action>(NextSplitter)
+nmap <C-w>h <Action>(PrevSplitter)
+nmap <C-w>j <Action>(NextSplitter)
+nmap <C-w>k <Action>(PrevSplitter)
+nnoremap <C-w>s :split<Enter>
+nnoremap <C-w>v :vsplit<Enter>
+
 " maps to window moving in vim:
 nnoremap <C-w>W :action MoveEditorToOppositeTabGroup<Enter>
 nnoremap <C-w>H :action MoveEditorToOppositeTabGroup<Enter>
 nnoremap <C-w>L :action MoveEditorToOppositeTabGroup<Enter>
 nnoremap <C-w>J :action MoveEditorToOppositeTabGroup<Enter>
 nnoremap <C-w>K :action MoveEditorToOppositeTabGroup<Enter>
+
+" resize split size
+" maximize current split
+" | _ in vim: width; height respectively
+nmap <C-w>| <Action>(MaximizeEditorInSplit)
+nmap <C-w>_ <Action>(MaximizeEditorInSplit)
+" set split sizes to equal
+" but uses the same toggle action in intellij
+nmap <C-w>= <Action>(MaximizeEditorInSplit)
+
+nmap <C-w>+ <Action>(StretchSplitToBottom)
+nmap <C-w>- <Action>(StretchSplitToTop)
+nmap <C-w>< <Action>(StretchSplitToLeft)
+nmap <C-w>> <Action>(StretchSplitToRight)
 
 " replicate vim q: to see command history
 map q: :history<Enter>

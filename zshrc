@@ -133,7 +133,7 @@ n ()
 	# open a folder / directory with IntelliJ IDEA app.
 idea()
 {
-	open -na "IntelliJ IDEA.app" --args "$@"	
+	open -na "IntelliJ IDEA.app" --args "$@"
 }
 # }}}
 
