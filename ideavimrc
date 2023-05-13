@@ -86,6 +86,14 @@ map q: :history<Enter>
 
 " }}}
 
+" intellij-specific mappings (not in vim) {{{
+	" j and k next to l: where <C-l> handles clearning highlighted searches
+	nnoremap <C-j> :action JumpToLastWindow<CR>
+	nnoremap <C-k> :action RestoreDefaultLayout<CR>
+	" x for close: just like in NERDtree
+	nnoremap <C-x> :action HideAllWindows<CR>
+" }}}
+
 " macro: ex-commands stored in registers - most already in vimrc {{{
 " the command for deleting all java comment-only lines (has this in vim but
 " needs to write this again for ideavim)
