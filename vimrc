@@ -3,7 +3,8 @@ autocmd FileType vim,zsh,tmux :setlocal foldmethod=marker
 "}}}
 
 " ian's own keymaps {{{
-nmap Q <Nop> " 'Q' in normal mode enters Ex mode. You almost never want this.
+" 'Q' in normal mode enters Ex mode. You almost never want this.
+nmap Q <Nop> 
 " to pair up with control W / U / H, and also stay consistent with Mac's default forward delete:
 inoremap <C-d> <Del>
 " escapes
@@ -38,7 +39,10 @@ inoremap <Up>    <ESC>:echo "Use ^O-k"<CR>
 inoremap <Down>  <ESC>:echo "Use ^O-j"<CR>
 
 " (Control L) -> initially clears/redraws screen: map to :nohlsearch
-nnoremap <c-l> :nohlsearch<cr>
+" for normal mode
+nnoremap <C-l> :nohlsearch<cr>
+" for visual / select mode: <C-u> to remove the range automatically added to command line
+vnoremap <C-l> :<C-u>nohlsearch<cr>
 
 " note: only macvim recognizes D and M as command and option key;terminal vim doesn't 
 " also these mappings just won't happen automatically so needs to be called as a function; see notion map keys page for the MacVim GitHub open issue.
