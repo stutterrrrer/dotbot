@@ -113,6 +113,10 @@ set list
 " ian's own preferences - mostly graphical {{{
 let &t_SI="\033[5 q" " start insert mode, vertical cursor
 let &t_EI="\033[1 q" " end insert mode, blinking block
+let &t_SR.="\e[4 q" "SR = REPLACE mode
+
+" show "c" on the bottom right for operator-pending mode
+set showcmd
 
 "transparency variable only works for MacVim
 if has("gui_running")
