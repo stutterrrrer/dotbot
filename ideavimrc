@@ -8,12 +8,15 @@ source ~/.vimrc
 set nooldundo
 " plugins (NerdTree) {{{
 set NERDTree
+set matchit
+set surround
+
 set quickscope
 " to configure accepted characters to be used when highlighting
 " let g:qs_accepted_chars = ['a', 'b', ... ] 
-
 " configure color of letter that will be found after f then ;
 let g:qs_secondary_color = '#ff00ff'
+
 " }}}
 
 " replicating unsupported vim commands with keymaps {{{
@@ -95,6 +98,12 @@ nnoremap <C-j> :action JumpToLastWindow<CR>
 nnoremap <C-k> :action RestoreDefaultLayout<CR>
 " x for close: just like in NERDtree
 nnoremap <C-x> :action HideAllWindows<CR>
+" p for piss-off distractions
+nnoremap <C-p> :action ToggleDistractionFreeMode<CR>
+
+" default leader key is backslash \
+" open (h)tml preview
+nnoremap <Leader>h :action WebOpenInAction<CR>
 " }}}
 
 " macro: ex-commands stored in registers - most already in vimrc {{{

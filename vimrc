@@ -44,6 +44,9 @@ nnoremap <C-l> :nohlsearch<cr>
 " for visual / select mode: <C-u> to remove the range automatically added to command line
 vnoremap <C-l> :<C-u>nohlsearch<cr>
 
+" for plugins - with leader key
+nnoremap <leader>n :NERDTree<CR>
+
 " note: only macvim recognizes D and M as command and option key;terminal vim doesn't 
 " also these mappings just won't happen automatically so needs to be called as a function; see notion map keys page for the MacVim GitHub open issue.
 function MapMacModifierShortcuts()
@@ -153,7 +156,72 @@ set statusline+=%{winnr()}
 "}}}
 
 "ideaVim ignore 
-" ideavim can't parse function and emojis
+" ideavim can't parse function and emojis (and plugins?)
+" plugins {{{
+
+" the built-in matchit plugin:
+:filetype plugin on
+runtime macros/matchit.vim
+
+" vim-plug
+" auto installation of vim-plug {{{
+let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
+if empty(glob(data_dir . '/autoload/plug.vim'))
+	  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+	    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+" }}}
+
+" use vim-plug
+call plug#begin()
+Plug 'unblevable/quick-scope'
+Plug 'kana/vim-surround'
+Plug 'preservim/nerdtree'
+" official doc examples {{{
+" The default plugin directory will be as follows:
+" "   - Vim (Linux/macOS): '~/.vim/plugged'
+" "   - e.g. `call plug#begin('~/.vim/plugged')`
+" "   - Avoid using standard Vim directory names like 'plugin'
+" " Make sure you use single quotes
+"
+" " Shorthand notation; fetches https://github.com/junegunn/vim-easy-align
+" Plug 'junegunn/vim-easy-align'
+"
+" " Any valid git URL is allowed
+" Plug 'https://github.com/junegunn/vim-github-dashboard.git'
+"
+" " Multiple Plug commands can be written in a single line using | separators
+" Plug 'SirVer/ultisnips' | Plug 'honza/vim-snippets'
+"
+" " On-demand loading
+" Plug 'preservim/nerdtree', { 'on': 'NERDTreeToggle' }
+" Plug 'tpope/vim-fireplace', { 'for': 'clojure' }
+"
+" " Using a non-default branch
+" Plug 'rdnetto/YCM-Generator', { 'branch': 'stable' }
+"
+" " Using a tagged release; wildcard allowed (requires git 1.9.2 or above)
+" Plug 'fatih/vim-go', { 'tag': '*' }
+"
+" " Plugin options
+" Plug 'nsf/gocode', { 'tag': 'v.20150303', 'rtp': 'vim' }
+"
+" " Plugin outside ~/.vim/plugged with post-update hook
+" Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+"
+" " Unmanaged plugin (manually installed and updated)
+" Plug '~/my-prototype-plugin'
+"
+" " Initialize plugin system
+" " - Automatically executes `filetype plugin indent on` and `syntax enable`.
+" call plug#end()
+" " You can revert the settings after the call like so:
+" filetype indent off   " Disable file-type-specific indentation
+" syntax off            " Disable syntax highlighting
+" }}}
+call plug#end()
+" }}}
+
 " functions - during the markdown-notion-vim craze {{{
 function SetUpMarkdown()
 	set guifont=MesloLGS-NF-Regular:h15
