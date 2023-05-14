@@ -6,9 +6,14 @@ source ~/.vimrc
 
 " vim-style undo
 set nooldundo
-
 " plugins (NerdTree) {{{
 set NERDTree
+set quickscope
+" to configure accepted characters to be used when highlighting
+" let g:qs_accepted_chars = ['a', 'b', ... ] 
+
+" configure color of letter that will be found after f then ;
+let g:qs_secondary_color = '#ff00ff'
 " }}}
 
 " replicating unsupported vim commands with keymaps {{{
@@ -45,8 +50,6 @@ nnoremap [` :mark` \| :action GotoPreviousBookmark<Enter>
 map <C-w>T <Action>(Unsplit)
 
 " create/move between splits; native support stopped working for some reason{{{
-" and ideavim doesn't support :wincmd (hjkl)
-"nmap <C-w>w <Action>(NextSplitter)
 "nmap <C-w>l <Action>(NextSplitter)
 "nmap <C-w>h <Action>(PrevSplitter)
 "nmap <C-w>j <Action>(NextSplitter)
@@ -87,11 +90,11 @@ map q: :history<Enter>
 " }}}
 
 " intellij-specific mappings (not in vim) {{{
-	" j and k next to l: where <C-l> handles clearning highlighted searches
-	nnoremap <C-j> :action JumpToLastWindow<CR>
-	nnoremap <C-k> :action RestoreDefaultLayout<CR>
-	" x for close: just like in NERDtree
-	nnoremap <C-x> :action HideAllWindows<CR>
+" j and k next to l: where <C-l> handles clearning highlighted searches
+nnoremap <C-j> :action JumpToLastWindow<CR>
+nnoremap <C-k> :action RestoreDefaultLayout<CR>
+" x for close: just like in NERDtree
+nnoremap <C-x> :action HideAllWindows<CR>
 " }}}
 
 " macro: ex-commands stored in registers - most already in vimrc {{{
@@ -108,4 +111,4 @@ let @c= 'g/\v^\s*\/\//d'
 " cnoremap ret! action ConvertIndentsToTabs
 " but hey! that's all right. once you set the default indentation to using tabs for Java in IntelliJ,
 " doing command option L to reformat will automatically convert all space indents to tab indents.
-" }}}
+" }}}ideavim doesn't support :wincmd (h

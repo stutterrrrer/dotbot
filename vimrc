@@ -224,7 +224,7 @@ function Mooc()
 	:g/\v^\s*```$/j 
 endfunction
 
-autocmd FileType markdown call SetUpMarkdown()
+" autocmd FileType markdown call SetUpMarkdown()
 " see the macros fold section for o register macro in markdown filetype
 
 function Valley()
