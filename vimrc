@@ -3,6 +3,13 @@ autocmd FileType vim,zsh,tmux :setlocal foldmethod=marker
 "}}}
 
 " ian's own keymaps {{{
+"
+" @@ = @" which makes no sense
+" since you can't set the : (colon) register, use the e(ex-command) register
+" instead
+" use case: ideavimrc when the window resize action is repeated
+nnoremap @@ @e
+
 " 'Q' in normal mode enters Ex mode. You almost never want this.
 nmap Q <Nop> 
 " to pair up with control W / U / H, and also stay consistent with Mac's default forward delete:
@@ -20,7 +27,7 @@ onoremap / /\v
 " cnoremap %s/ %smagic/
 " cnoremap \>s/ \>smagic/
 " nnoremap :g/ :g/\v
- 
+
 " map space and shift-space(only works for MacVim, not terminal Vim) to traverse change-list
 nnoremap <Space> g;
 nnoremap <S-space> g,

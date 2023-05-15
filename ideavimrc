@@ -77,15 +77,20 @@ nmap <C-w>_ <Action>(MaximizeEditorInSplit)
 " but uses the same toggle action in intellij
 nmap <C-w>= <Action>(MaximizeEditorInSplit)
 
-" use the ex-command instead of action, so that you can @@/@: to redo
 "nmap <C-w>+ <Action>(StretchSplitToBottom)
 "nmap <C-w>- <Action>(StretchSplitToTop)
 "nmap <C-w>< <Action>(StretchSplitToLeft)
 "nmap <C-w>> <Action>(StretchSplitToRight)
-nmap <C-w>+ :action StretchSplitToBottom<Enter>
-nmap <C-w>- :action StretchSplitToTop<Enter>
-nmap <C-w>< :action StretchSplitToLeft<Enter>
-nmap <C-w>> :action StretchSplitToRight<Enter>
+"
+" use the ex-command instead of action, so that you can @@ to redo
+" but script-run ex-commands can't be recorded into the : register: so set it here
+" and since the : can't be set, use the e register instead; e for ex-command
+" @@ is mapped to @e in vimrc
+" "\<cr>" places a carriage return in the register
+nmap <C-w>+ :action StretchSplitToBottom<CR>:let @e=":action StretchSplitToBottom\<cr>"<CR>
+nmap <C-w>- :action StretchSplitToTop<CR>:let @e=":action StretchSplitToTop\<cr>"<CR>
+nmap <C-w>< :action StretchSplitToLeft<CR>:let @e=":action StretchSplitToLeft\<cr>"<CR>
+nmap <C-w>> :action StretchSplitToRight<CR>:let @e=":action StretchSplitToRight\<cr>"<CR>
 
 " replicate vim q: to see command history
 map q: :history<Enter>
@@ -104,6 +109,12 @@ nnoremap <C-p> :action ToggleDistractionFreeMode<CR>
 " default leader key is backslash \
 " open (h)tml preview
 nnoremap <Leader>h :action WebOpenInAction<CR>
+
+" fold selection: for particular file types (e.g. ending in .txt) where custom
+" regions don't work
+" this is a toggle that defines and removes fold region (doing it a second
+" time removes it)
+vnoremap zs <Action>(CollapseSelection)
 " }}}
 
 " macro: ex-commands stored in registers - most already in vimrc {{{
