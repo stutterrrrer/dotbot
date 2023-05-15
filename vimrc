@@ -177,6 +177,7 @@ call plug#begin()
 Plug 'unblevable/quick-scope'
 Plug 'kana/vim-surround'
 Plug 'preservim/nerdtree'
+Plug 'kshenoy/vim-signature'
 " official doc examples {{{
 " The default plugin directory will be as follows:
 " "   - Vim (Linux/macOS): '~/.vim/plugged'
