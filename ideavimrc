@@ -86,11 +86,11 @@ nmap <C-w>= <Action>(MaximizeEditorInSplit)
 " but script-run ex-commands can't be recorded into the : register: so set it here
 " and since the : can't be set, use the e register instead; e for ex-command
 " @@ is mapped to @e in vimrc
-" "\<cr>" places a carriage return in the register
-nmap <C-w>+ :action StretchSplitToBottom<CR>:let @e=":action StretchSplitToBottom\<cr>"<CR>
-nmap <C-w>- :action StretchSplitToTop<CR>:let @e=":action StretchSplitToTop\<cr>"<CR>
-nmap <C-w>< :action StretchSplitToLeft<CR>:let @e=":action StretchSplitToLeft\<cr>"<CR>
-nmap <C-w>> :action StretchSplitToRight<CR>:let @e=":action StretchSplitToRight\<cr>"<CR>
+" "\r" places a carriage return in the register
+nmap <C-w>+ :action StretchSplitToBottom<CR>:let @e=":action StretchSplitToBottom\r"<CR>
+nmap <C-w>- :action StretchSplitToTop<CR>:let @e=":action StretchSplitToTop\r"<CR>
+nmap <C-w>< :action StretchSplitToLeft<CR>:let @e=":action StretchSplitToLeft\r"<CR>
+nmap <C-w>> :action StretchSplitToRight<CR>:let @e=":action StretchSplitToRight\r"<CR>
 
 " replicate vim q: to see command history
 map q: :history<Enter>

@@ -7,8 +7,15 @@ autocmd FileType vim,zsh,tmux :setlocal foldmethod=marker
 " @@ = @" which makes no sense
 " since you can't set the : (colon) register, use the e(ex-command) register
 " instead
-" use case: ideavimrc when the window resize action is repeated
+" use case: repeat the window resize action with @@
 nnoremap @@ @e
+
+" repeatable window resize:
+nnoremap <C-w>- :resize -10<CR>:let @e=":resize-10\r"<CR>
+nnoremap <C-w>+ :resize +10<CR>:let @e=":resize+10\r"<CR>
+nnoremap <C-w>< :vertical resize -10<CR>:let @e=":vertical resize-10\r"<CR>
+nnoremap <C-w>> :vertical resize +10<CR>:let @e=":vertical resize+10\r"<CR>
+
 
 " 'Q' in normal mode enters Ex mode. You almost never want this.
 nmap Q <Nop> 
@@ -155,11 +162,11 @@ set wildmenu
 set wildmode=full
 
 " status line:
-" display file full path
-set statusline=%F
 " display window number - then <window number> - C-w w: switch to that window
-set statusline+=\ win-
-set statusline+=%{winnr()}
+set statusline=win-
+set statusline+=%{winnr()}\  
+" display file full path
+set statusline+=%F
 "}}}
 
 "ideaVim ignore 
@@ -182,8 +189,17 @@ endif
 " use vim-plug
 call plug#begin()
 Plug 'unblevable/quick-scope'
+" configure color of letter that will be found after f then ;
+let g:qs_secondary_color = '#ff00ff'
+
 Plug 'kana/vim-surround'
+
 Plug 'preservim/nerdtree'
+" enable line numbers
+let NERDTreeShowLineNumbers=1
+" " make sure relative line numbers are used
+autocmd FileType nerdtree setlocal relativenumber
+
 Plug 'kshenoy/vim-signature'
 " official doc examples {{{
 " The default plugin directory will be as follows:
