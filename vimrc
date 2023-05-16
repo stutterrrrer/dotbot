@@ -8,13 +8,19 @@ autocmd FileType vim,zsh,tmux :setlocal foldmethod=marker
 " since you can't set the : (colon) register, use the e(ex-command) register
 " instead
 " use case: repeat the window resize action with @@
-nnoremap @@ @e
+" nnoremap @@ @e
+" vim's normal mode ! just accepts a motion and opens ex-command input with
+" the selection appended by '!', which is easily done with V (visual mode) :
+" then type '!'; so override that
+nnoremap ! @e
 
 " repeatable window resize:
-nnoremap <C-w>- :resize -10<CR>:let @e=":resize-10\r"<CR>
-nnoremap <C-w>+ :resize +10<CR>:let @e=":resize+10\r"<CR>
-nnoremap <C-w>< :vertical resize -10<CR>:let @e=":vertical resize-10\r"<CR>
-nnoremap <C-w>> :vertical resize +10<CR>:let @e=":vertical resize+10\r"<CR>
+" use \n instead of \r, because \r moves the cursor one line down for some
+" reason other than executing the command
+nnoremap <C-w>- :resize -10<CR>:let @e=":resize-10\n"<CR>
+nnoremap <C-w>+ :resize +10<CR>:let @e=":resize+10\n"<CR>
+nnoremap <C-w>< :vertical resize -10<CR>:let @e=":vertical resize-10\n"<CR>
+nnoremap <C-w>> :vertical resize +10<CR>:let @e=":vertical resize+10\n"<CR>
 
 
 " 'Q' in normal mode enters Ex mode. You almost never want this.

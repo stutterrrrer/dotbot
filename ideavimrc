@@ -79,10 +79,10 @@ nnoremap <C-w>K :action MoveEditorToOppositeTabGroup<Enter>
 " and since the : can't be set, use the e register instead; e for ex-command
 " @@ is mapped to @e in vimrc
 " "\r" places a carriage return in the register
-nmap <C-w>+ :action StretchSplitToBottom<CR>:let @e=":action StretchSplitToBottom\r"<CR>
-nmap <C-w>- :action StretchSplitToTop<CR>:let @e=":action StretchSplitToTop\r"<CR>
-nmap <C-w>< :action StretchSplitToLeft<CR>:let @e=":action StretchSplitToLeft\r"<CR>
-nmap <C-w>> :action StretchSplitToRight<CR>:let @e=":action StretchSplitToRight\r"<CR>
+nmap <C-w>+ :action StretchSplitToBottom<CR>:let @e=":action StretchSplitToBottom\n"<CR>
+nmap <C-w>- :action StretchSplitToTop<CR>:let @e=":action StretchSplitToTop\n"<CR>
+nmap <C-w>< :action StretchSplitToLeft<CR>:let @e=":action StretchSplitToLeft\n"<CR>
+nmap <C-w>> :action StretchSplitToRight<CR>:let @e=":action StretchSplitToRight\n"<CR>
 
 " replicate vim q: to see command history
 map q: :history<Enter>
