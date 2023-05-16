@@ -68,15 +68,7 @@ nnoremap <C-w>L :action MoveEditorToOppositeTabGroup<Enter>
 nnoremap <C-w>J :action MoveEditorToOppositeTabGroup<Enter>
 nnoremap <C-w>K :action MoveEditorToOppositeTabGroup<Enter>
 
-" resize split size
-" maximize current split
-" | _ in vim: width; height respectively
-nmap <C-w>\| <Action>(MaximizeEditorInSplit)
-nmap <C-w>_ <Action>(MaximizeEditorInSplit)
-" set split sizes to equal
-" but uses the same toggle action in intellij
-nmap <C-w>= <Action>(MaximizeEditorInSplit)
-
+" resize splits (windows in vim)
 "nmap <C-w>+ <Action>(StretchSplitToBottom)
 "nmap <C-w>- <Action>(StretchSplitToTop)
 "nmap <C-w>< <Action>(StretchSplitToLeft)
@@ -94,6 +86,14 @@ nmap <C-w>> :action StretchSplitToRight<CR>:let @e=":action StretchSplitToRight\
 
 " replicate vim q: to see command history
 map q: :history<Enter>
+
+" maximize current split
+" | _ in vim: width; height respectively
+nmap <C-w>\| :action MaximizeEditorInSplit<CR>:let @e=":action MaximizeEditorInSplit\r"<CR>
+nmap <C-w>_ :action MaximizeEditorInSplit<CR>:let @e=":action MaximizeEditorInSplit\r"<CR>
+" set split sizes to equal
+" but uses the same toggle action in intellij
+nmap <C-w>= :action MaximizeEditorInSplit<CR>:let @e=":action MaximizeEditorInSplit\r"<CR>
 
 " }}}
 
