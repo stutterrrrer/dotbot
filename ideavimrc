@@ -7,7 +7,6 @@ source ~/.vimrc
 " vim-style undo
 set nooldundo
 " plugins (NerdTree) {{{
-set NERDTree
 set matchit
 set surround
 
@@ -19,6 +18,9 @@ let g:qs_secondary_color = '#ff00ff'
 
 set easymotion
 map <Leader> <Plug>(easymotion-prefix)
+
+set NERDTree
+nnoremap <leader>n :NERDTreeToggle<CR>
 " }}}
 
 " replicating unsupported vim commands with keymaps {{{
