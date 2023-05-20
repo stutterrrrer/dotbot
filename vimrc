@@ -202,7 +202,7 @@ Plug 'easymotion/vim-easymotion'
 map <Leader> <Plug>(easymotion-prefix)
 
 Plug 'preservim/nerdtree'
-nnoremap <leader>n :NERDTree<CR>
+nnoremap <leader>n :NERDTreeToggle<CR>
 " enable line numbers
 let NERDTreeShowLineNumbers=1
 " " make sure relative line numbers are used
