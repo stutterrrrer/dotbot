@@ -64,8 +64,6 @@ nnoremap <C-l> :nohlsearch<cr>
 " for visual / select mode: <C-u> to remove the range automatically added to command line
 vnoremap <C-l> :<C-u>nohlsearch<cr>
 
-" for plugins - with leader key
-nnoremap <leader>n :NERDTree<CR>
 
 " note: only macvim recognizes D and M as command and option key;terminal vim doesn't 
 " also these mappings just won't happen automatically so needs to be called as a function; see notion map keys page for the MacVim GitHub open issue.
@@ -200,7 +198,11 @@ let g:qs_secondary_color = '#ff00ff'
 
 Plug 'kana/vim-surround'
 
+Plug 'easymotion/vim-easymotion'
+map <Leader> <Plug>(easymotion-prefix)
+
 Plug 'preservim/nerdtree'
+nnoremap <leader>n :NERDTree<CR>
 " enable line numbers
 let NERDTreeShowLineNumbers=1
 " " make sure relative line numbers are used

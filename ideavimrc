@@ -17,6 +17,8 @@ set quickscope
 " configure color of letter that will be found after f then ;
 let g:qs_secondary_color = '#ff00ff'
 
+set easymotion
+map <Leader> <Plug>(easymotion-prefix)
 " }}}
 
 " replicating unsupported vim commands with keymaps {{{
