@@ -23,7 +23,14 @@ endif
 
 " use vim-plug
 call plug#begin()
+
 Plug 'unblevable/quick-scope'
+" place inside autocmd to be called everytime colorscheme is changed
+augroup qs_colors
+	  autocmd!
+		autocmd ColorScheme * highlight QuickScopePrimary guifg='#afff5f' gui=underline ctermfg=155 cterm=underline
+		autocmd ColorScheme * highlight QuickScopeSecondary guifg='#5fffff' gui=underline ctermfg=81 cterm=underline
+augroup END
 
 Plug 'kana/vim-surround'
 
@@ -37,12 +44,15 @@ autocmd VimEnter * NERDTree
 autocmd VimEnter * wincmd w
 
 Plug 'kshenoy/vim-signature'
+
 call plug#end()
 
 " }}}
 " ideaVim ignore end
 
 " plugin configurations (ideavim compatible) {{{
+" meant for ideavim -> the autocommand that sets the color can't be called in
+" ideavim
 " quickscope: configure color of letter that will be found after f then ;
 let g:qs_secondary_color = '#ff00ff'
 " to configure accepted characters to be used when highlighting
@@ -76,7 +86,7 @@ map <Leader><Leader>j <Plug>(easymotion-overwin-line)
 nnoremap ! @e
 
 " delete a bookmark - see custom function below
-nnoremap m- :<c-u>call DeleteMarksOnCurrentLine()
+nnoremap m- :<c-u>call DeleteMarksOnCurrentLine()<CR>
 
 " repeatable window resize:
 " use \n instead of \r, because \r moves the cursor one line down for some
@@ -162,9 +172,10 @@ set shortmess+=I
 " count + j / k doesn't.
 "set number
 "set relativenumber
+"
 " status line at the bottom, even if you only have one window open.
-
 set laststatus=2
+
 " backspace over anything.
 set backspace=indent,eol,start
 " See `:help hidden` for more information on this. (uncomment to disable
@@ -208,19 +219,19 @@ let &t_SR.="\e[4 q" "SR = REPLACE mode
 " show "c" on the bottom right for operator-pending mode
 set showcmd
 
-"transparency variable only works for MacVim
-if has("gui_running")
-	" MacVim is a GUI I guess; sets the theme for MacVim
-	" colorscheme murphy
-	" colorscheme desert
-	colo evening
-	set transparency=18
-else
-	" sets the theme for terminal vim
-	colorscheme koehler
-endif
+colorscheme industry
+" transparency variable only works for MacVim
+" if has("gui_running")
+" 	set transparency=18
+" endif
+
 " hide terminal Vim's background, effectively making it transparent if you have the terminal background set as transparent.
-hi Normal guibg=NONE ctermbg=NONE
+" but enabling it reduces the contrast
+" hi Normal guibg=NONE ctermbg=NONE
+
+" highlight status bar of active window
+" must be placed after colorscheme setting, otherwise overriden
+highlight StatusLine ctermfg=black  guifg=#ffffff ctermbg=green guibg=#4e4e4e
 
 set guifont=MesloLGS-NF-Regular:h13
 set linespace=3
