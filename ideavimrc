@@ -14,6 +14,10 @@ set surround
 set quickscope
 
 set easymotion
+" unsupported overwindow motions
+map <Leader><Leader>f :echo 'easymotion over window motions unsupported'<CR>
+map <Leader><Leader>w :echo 'easymotion over window motions unsupported'<CR>
+map <Leader><Leader>j :echo 'easymotion over window motions unsupported'<CR>
 
 set NERDTree
 " }}}
@@ -33,6 +37,9 @@ map g, <Action>(JumpToNextChange)
 map <Space> <Action>(JumpToLastChange)
 " nnoremap <S-Space> :action JumpToNextChange<Enter>
 map <S-Space> <Action>(JumpToNextChange)
+
+" replace the custom function call in vimrc - delete bookmark on current line
+nnoremap m- :action ToggleBookmark<CR>
 
 " git diff view - doesn't work for some reason
 " even when typing in intellij vim normal mode: ":action PreviousDiff" doesn't work

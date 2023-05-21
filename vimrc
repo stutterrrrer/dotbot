@@ -30,7 +30,11 @@ Plug 'kana/vim-surround'
 Plug 'easymotion/vim-easymotion'
 
 Plug 'preservim/nerdtree'
-autocmd FileType nerdtree setlocal relativenumber
+" autocmd FileType nerdtree setlocal relativenumber
+" start nerd tree automatically and focus on it
+autocmd VimEnter * NERDTree
+" switch focus to the edited file
+autocmd VimEnter * wincmd w
 
 Plug 'kshenoy/vim-signature'
 call plug#end()
@@ -45,13 +49,16 @@ let g:qs_secondary_color = '#ff00ff'
 " let g:qs_accepted_chars = ['a', 'b', ... ] 
 
 " nerdtree
-nnoremap <leader>n :NERDTreeToggle<CR>
-nnoremap <leader>N :NERDTree<CR>
-" enable line numbers
-let NERDTreeShowLineNumbers=1
+" don't use n/N - that's for easymotion next search
+nnoremap <leader>p :NERDTreeToggle<CR>
+nnoremap <leader>P :NERDTree<CR>
 
 " easymotion:
 map <Leader> <Plug>(easymotion-prefix)
+map <Leader><Leader>f <Plug>(easymotion-overwin-f)
+map <Leader><Leader>w <Plug>(easymotion-overwin-w)
+map <Leader><Leader>j <Plug>(easymotion-overwin-line)
+" let g:EasyMotion_skipfoldedline = 0
 
 " }}}
 " }}}
@@ -67,6 +74,9 @@ map <Leader> <Plug>(easymotion-prefix)
 " the selection appended by '!', which is easily done with V (visual mode) :
 " then type '!'; so override that
 nnoremap ! @e
+
+" delete a bookmark - see custom function below
+nnoremap m- :<c-u>call DeleteMarksOnCurrentLine()
 
 " repeatable window resize:
 " use \n instead of \r, because \r moves the cursor one line down for some
@@ -145,10 +155,15 @@ set nocompatible
 syntax on
 " Disable the default Vim startup message.
 set shortmess+=I
+
 " Show line numbers.
-set number
-set relativenumber
+" experiment to replace line motions with easymotion -
+" better because that would count as a jump and saved to jump list, but doing
+" count + j / k doesn't.
+"set number
+"set relativenumber
 " status line at the bottom, even if you only have one window open.
+
 set laststatus=2
 " backspace over anything.
 set backspace=indent,eol,start
@@ -229,6 +244,23 @@ set statusline+=%F
 
 "ideaVim ignore 
 " ideavim can't parse function and emojis (and plugins?)
+" functions {{{
+
+" other functions {{{
+function! DeleteMarksOnCurrentLine()
+	    let l:m = join(filter(
+			       \ map(range(char2nr('a'), char2nr('z')), 'nr2char(v:val)'),
+				          \ 'line("''".v:val) == line(".")'))
+		    if !empty(l:m)
+				exe 'delmarks' l:m
+				" to remove the gutter bookmark icon displayed by
+				" vim-signature plugin
+				SignatureRefresh
+			endif
+endfunction
+" mapped to m- in keymap section
+" }}}
+
 " functions - during the markdown-notion-vim craze {{{
 function SetUpMarkdown()
 	set guifont=MesloLGS-NF-Regular:h15
@@ -314,6 +346,7 @@ function Valley()
 	%s/\v\/\*\_.{-}\*\//\/*********************************\/
 endfunction
 "}}}
+" }}}
 
 " macros: commands saved in registers {{{
 " todo: make this file specific - e.g. when file type is python use # to match comment lines
