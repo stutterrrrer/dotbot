@@ -1,3 +1,7 @@
+" use space as leader key
+let mapleader = " "
+map <Bslash> <nop>
+
 " set custom folding for .vimrc, .ideavimrc, .zshrc, and .tmux.conf - use default markers: triple{ and triple} {{{
 autocmd FileType vim,zsh,tmux :setlocal foldmethod=marker
 "}}}
@@ -28,8 +32,9 @@ Plug 'unblevable/quick-scope'
 " place inside autocmd to be called everytime colorscheme is changed
 augroup qs_colors
 	  autocmd!
-		autocmd ColorScheme * highlight QuickScopePrimary guifg='#afff5f' gui=underline ctermfg=155 cterm=underline
-		autocmd ColorScheme * highlight QuickScopeSecondary guifg='#5fffff' gui=underline ctermfg=81 cterm=underline
+	  " cterm: terminal vim; gui: macvim
+		autocmd ColorScheme * highlight QuickScopePrimary guifg='#afff5f' gui=underline ctermfg=172 cterm=underline
+		autocmd ColorScheme * highlight QuickScopeSecondary guifg='#ec42f5' gui=underline ctermfg=163 cterm=underline
 augroup END
 
 Plug 'kana/vim-surround'
@@ -88,6 +93,7 @@ nnoremap ! @e
 " delete a bookmark - see custom function below
 nnoremap m- :<c-u>call DeleteMarksOnCurrentLine()<CR>
 
+
 " repeatable window resize:
 " use \n instead of \r, because \r moves the cursor one line down for some
 " reason other than executing the command
@@ -115,9 +121,10 @@ onoremap / /\v
 " cnoremap \>s/ \>smagic/
 " nnoremap :g/ :g/\v
 
-" map space and shift-space(only works for MacVim, not terminal Vim) to traverse change-list
-nnoremap <Space> g;
-nnoremap <S-space> g,
+" map \(backslash: the default leader key) and shift-\ to jump through change list
+nnoremap \ g;
+" the first backslash is to escape the | char.
+nnoremap \| g,
 
 " Try to prevent bad habits like using the arrow keys for movement.
 " use `echo` instead of `echoe` for compatibility issues with intelliJ
@@ -141,7 +148,7 @@ vnoremap <C-l> :<C-u>nohlsearch<cr>
 
 " note: only macvim recognizes D and M as command and option key;terminal vim doesn't 
 " also these mappings just won't happen automatically so needs to be called as a function; see notion map keys page for the MacVim GitHub open issue.
-function MapMacModifierShortcuts()
+function! MapMacModifierShortcuts()
 	inoremap <D-Left> <ESC>:echo "use jkI"<CR>
 	inoremap <D-Right> <ESC>:echo "use jkA"<CR>
 	inoremap <M-Left> <ESC>:echo "use jkbi"<CR>
@@ -219,6 +226,7 @@ let &t_SR.="\e[4 q" "SR = REPLACE mode
 " show "c" on the bottom right for operator-pending mode
 set showcmd
 
+
 colorscheme industry
 " transparency variable only works for MacVim
 " if has("gui_running")
@@ -227,7 +235,7 @@ colorscheme industry
 
 " hide terminal Vim's background, effectively making it transparent if you have the terminal background set as transparent.
 " but enabling it reduces the contrast
-" hi Normal guibg=NONE ctermbg=NONE
+hi Normal guibg=NONE ctermbg=NONE
 
 " highlight status bar of active window
 " must be placed after colorscheme setting, otherwise overriden
@@ -273,7 +281,7 @@ endfunction
 " }}}
 
 " functions - during the markdown-notion-vim craze {{{
-function SetUpMarkdown()
+function! SetUpMarkdown()
 	set guifont=MesloLGS-NF-Regular:h15
 	" paste, change to tab indentation
 	normal "+p
@@ -288,7 +296,7 @@ function SetUpMarkdown()
 endfunction
 
 " function to call when pasting from Algorithm course's PDF slides.
-function A()
+function! A()
 	" delete the weird dot symbol for dotted lines.
 	%s/\v[\n・]{2,}/
 	" put each sentence ending with . period in a new line
@@ -300,7 +308,7 @@ function A()
 endfunction
 
 " this stuff is for method declarations / errors thrown copied from Oracle docs to Notion to Vim
-function Oracle()
+function! Oracle()
 	" if the first line (method declaration) doesn't end with ), then join from first line to the next line that does end with ) - this happens when the method has multiple parameters.
 	/\%1l\v[^)]$/,/\v\)$/j
 	" proper in-line code with embeded links:
@@ -324,7 +332,7 @@ function Oracle()
 endfunction
 
 " the function to call if editing notes pasted from Mooc.fi
-function Mooc()
+function! Mooc()
 	" convert mooc.fi's in-line code to code fence
 	" the back-slash is unnecessary within the [\/*] bracket, but without it the syntax highlighting would be thrown off, so
 	:g/\v^`(\/[\/*]|.+[{;]$)/norm :s/`/O```c#
@@ -345,7 +353,7 @@ endfunction
 " autocmd FileType markdown call SetUpMarkdown()
 " see the macros fold section for o register macro in markdown filetype
 
-function Valley()
+function! Valley()
 	# these are for the description file
 	%s/输入/input /g
 	%s/输出/output /g

@@ -935,15 +935,21 @@
 			<true/>
 			<key>Background Color</key>
 			<dict>
+				<key>Alpha Component</key>
+				<real>1</real>
 				<key>Blue Component</key>
-				<real>0.098039215686274508</real>
+				<real>0.0</real>
+				<key>Color Space</key>
+				<string>sRGB</string>
 				<key>Green Component</key>
-				<real>0.078431372549019607</real>
+				<real>0.0</real>
 				<key>Red Component</key>
-				<real>0.058823529411764705</real>
+				<real>0.0</real>
 			</dict>
 			<key>Background Image Location</key>
-			<string></string>
+			<string>/Users/ian/Library/Mobile Documents/com~apple~CloudDocs/3-Pictures/Gintama/bar.jpeg</string>
+			<key>Background Image Mode</key>
+			<integer>2</integer>
 			<key>Badge Color</key>
 			<dict>
 				<key>Alpha Component</key>
@@ -957,6 +963,8 @@
 				<key>Red Component</key>
 				<real>1</real>
 			</dict>
+			<key>Blend</key>
+			<real>0.14602105182150144</real>
 			<key>Blinking Cursor</key>
 			<false/>
 			<key>Blur</key>
@@ -1550,7 +1558,7 @@
 	<key>SplitPaneDimmingAmount</key>
 	<real>0.40110725180616652</real>
 	<key>TabStyleWithAutomaticOption</key>
-	<integer>1</integer>
+	<integer>3</integer>
 	<key>ToolbeltTools</key>
 	<array>
 		<string>Profiles</string>

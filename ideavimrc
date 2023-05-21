@@ -33,10 +33,8 @@ set NERDTree
 map g; <Action>(JumpToLastChange)
 " nnoremap g, :action JumpToNextChange<Enter>
 map g, <Action>(JumpToNextChange)
-" nnoremap <Space> :action JumpToLastChange<Enter>
-map <Space> <Action>(JumpToLastChange)
-" nnoremap <S-Space> :action JumpToNextChange<Enter>
-map <S-Space> <Action>(JumpToNextChange)
+map \ <Action>(JumpToLastChange)
+map \| <Action>(JumpToNextChange)
 
 " replace the custom function call in vimrc - delete bookmark on current line
 nnoremap m- :action ToggleBookmark<CR>
