@@ -213,9 +213,6 @@ set tabstop=4
 " so that's what you get when you do '>>' in normal mode.
 " but there's no `\t` character when you do this. right?
 set shiftwidth=4
-" display tabs indicator as vertical bar:
-set listchars=tab:\|\ 
-set list
 " }}}
 
 " ian's own preferences - mostly graphical {{{
