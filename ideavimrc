@@ -118,7 +118,7 @@ nnoremap <Leader>h :action WebOpenInAction<CR>
 " regions don't work
 " this is a toggle that defines and removes fold region (doing it a second
 " time removes it)
-vnoremap zs <Action>(CollapseSelection)
+map zs <Action>(CollapseSelection)
 " }}}
 
 " macro: ex-commands stored in registers - most already in vimrc {{{

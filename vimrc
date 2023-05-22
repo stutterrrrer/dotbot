@@ -65,8 +65,8 @@ let g:qs_secondary_color = '#ff00ff'
 
 " nerdtree
 " don't use n/N - that's for easymotion next search
-nnoremap <leader>p :NERDTreeToggle<CR>
-nnoremap <leader>P :NERDTree<CR>
+nnoremap <leader>o :NERDTreeToggle<CR>
+nnoremap <leader>O :NERDTree<CR>
 
 " easymotion:
 map <Leader> <Plug>(easymotion-prefix)
