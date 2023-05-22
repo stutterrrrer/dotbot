@@ -108,7 +108,7 @@ nnoremap <C-k> :action RestoreDefaultLayout<CR>
 " x for close: just like in NERDtree
 nnoremap <C-x> :action HideAllWindows<CR>
 " p for piss-off distractions
-nnoremap <C-p> :action ToggleDistractionFreeMode<CR>
+nnoremap <C-p> :action ViewToolButtons<CR>
 
 " default leader key is backslash \
 " open (h)tml preview
