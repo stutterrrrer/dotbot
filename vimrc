@@ -75,13 +75,8 @@ let g:qs_secondary_color = '#ff00ff'
 " don't use n/N - that's for easymotion next search
 nnoremap <leader>o :NERDTree<CR>
 nnoremap <leader>O :NERDTreeToggle<CR>
-
-" vim style splits
-let g:NERDTreeOpenSplit = 's'
-let g:NERDTreePreviewSplit = 'gs'
-let g:NERDTreeOpenVSplit = 'v'
-let g:NERDTreePreviewVSplit = 'gv'
-
+" vim style splits (s & v) won't work because nerdtree is still vim and v
+" enters visual mode
 
 " easymotion:
 map <Leader> <Plug>(easymotion-prefix)
