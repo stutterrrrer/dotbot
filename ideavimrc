@@ -36,6 +36,12 @@ map g, <Action>(JumpToNextChange)
 map \ <Action>(JumpToLastChange)
 map \| <Action>(JumpToNextChange)
 
+" limit the ideavim's jump list to one project?
+nnoremap <C-o> :action Back<cr>
+nnoremap <C-i> :action Forward<cr>
+vnoremap <C-o> :action Back<cr>
+vnoremap <C-i> :action Forward<cr>
+
 " replace the custom function call in vimrc - delete bookmark on current line
 nnoremap m- :action ToggleBookmark<CR>
 
@@ -108,11 +114,15 @@ nnoremap <C-k> :action RestoreDefaultLayout<CR>
 " x for close: just like in NERDtree
 nnoremap <C-x> :action HideAllWindows<CR>
 " p for piss-off distractions
-nnoremap <C-p> :action ViewToolButtons<CR>
+nnoremap <C-p> :action ToggleDistractionFreeMode<CR>
 
 " default leader key is backslash \
 " open (h)tml preview
 nnoremap <Leader>h :action WebOpenInAction<CR>
+" u for strUcture
+nnoremap <Leader>u :action ActivateStructureToolWindow<CR>
+" m for maven
+nnoremap <Leader>m :action ActivateMavenToolWindow<CR>
 
 " fold selection: for particular file types (e.g. ending in .txt) where custom
 " regions don't work

@@ -40,10 +40,18 @@ augroup END
 Plug 'kana/vim-surround'
 
 Plug 'easymotion/vim-easymotion'
+" ideavim default maps: search / find n-char {{{
+" but need to press return to show highlights
+map <Leader>s <Plug>(easymotion-sn)
+map <Leader>f <Plug>(easymotion-fn)
+map <Leader>F <Plug>(easymotion-Fn)
+map <Leader>t <Plug>(easymotion-tn)
+map <Leader>T <Plug>(easymotion-Tn)
+" }}}
 
 Plug 'preservim/nerdtree'
 " autocmd FileType nerdtree setlocal relativenumber
-" start nerd tree automatically and focus on it
+" start nerd tree automatically and focus od it
 autocmd VimEnter * NERDTree
 " switch focus to the edited file
 autocmd VimEnter * wincmd w
@@ -177,8 +185,8 @@ set shortmess+=I
 " experiment to replace line motions with easymotion -
 " better because that would count as a jump and saved to jump list, but doing
 " count + j / k doesn't.
-"set number
-"set relativenumber
+set number
+set relativenumber
 "
 " status line at the bottom, even if you only have one window open.
 set laststatus=2
