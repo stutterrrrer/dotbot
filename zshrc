@@ -52,8 +52,8 @@ alias r='. ranger'
 # environment variables {{{
 export ICLOUD=/Users/ian/Library/Mobile\ Documents/com~apple~CloudDocs
 export EDITOR=vim
-	# ClashX - Copy shell command; so that terminal can be routed through ClashX VPN as well.
-# export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890
+# ClashX - Copy shell command; so that terminal can be routed through ClashX VPN as well.
+export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890
 # }}}
 
 # functions: manv(), n(), idea() etc. {{{

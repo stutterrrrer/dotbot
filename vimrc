@@ -41,12 +41,13 @@ Plug 'kana/vim-surround'
 
 Plug 'easymotion/vim-easymotion'
 " ideavim default maps: search / find n-char {{{
-" but need to press return to show highlights
+" but need to press return to show highlights, so is an annoying discrepancy
+" therefore only use leader-s for multi-char searches, not f / t
 map <Leader>s <Plug>(easymotion-sn)
-map <Leader>f <Plug>(easymotion-fn)
-map <Leader>F <Plug>(easymotion-Fn)
-map <Leader>t <Plug>(easymotion-tn)
-map <Leader>T <Plug>(easymotion-Tn)
+" map <Leader>f <Plug>(easymotion-fn)
+" map <Leader>F <Plug>(easymotion-Fn)
+" map <Leader>t <Plug>(easymotion-tn)
+" map <Leader>T <Plug>(easymotion-Tn)
 " }}}
 
 Plug 'preservim/nerdtree'
