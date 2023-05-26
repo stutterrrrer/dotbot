@@ -378,10 +378,10 @@ endfunction
 " macros: commands saved in registers {{{
 " todo: make this file specific - e.g. when file type is python use # to match comment lines
 " ex-command - in a java file: remove all lines that are just comments
+" do "@c" in normal mode to run
 " saves this command in the register c - c for comments
-" to remove only selected areas: select, type : for command mode, ^C to paste
-" this command after the '<,'> selection marker, then enter to run
-let @c= 'g/\v^\s*\/\//d'
+" to remove only selected areas: select first
+let @c= ":g/\\v^\\s*\\/\\//d\n"
 
 " the markdown stuff
 " o register, o for obliterate;
