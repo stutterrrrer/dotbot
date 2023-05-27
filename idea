@@ -1,0 +1,9 @@
+#!/bin/bash
+# fix the intellij's auto-generated script's bug
+# where doing "idea ." would sometimes open "/" root directory
+
+if [ $# -eq 1 ] && [ "$1" = "." ]; then
+  idea-generated "$(pwd)"
+  else
+    idea-generated "$@"
+fi

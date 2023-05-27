@@ -49,14 +49,14 @@ alias h='history'
 alias r='. ranger'
 # }}}
 
-# environment variables {{{
+# environment variables (path) {{{
 export ICLOUD=/Users/ian/Library/Mobile\ Documents/com~apple~CloudDocs
 export EDITOR=vim
 # ClashX - Copy shell command; so that terminal can be routed through ClashX VPN as well.
 export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890
 # }}}
 
-# functions: manv(), n(), idea() etc. {{{
+# functions: manv(), n() etc. {{{
 javar ()
 {
 	# compile all .java files in current directory into a temp classes directory, execute, then delete the temp directory.
@@ -105,11 +105,6 @@ ta ()
 	fi
 }
 
-	# open a folder / directory with IntelliJ IDEA app.
-idea()
-{
-	open -na "IntelliJ IDEA.app" --args "$@"
-}
 # }}}
 
 # other: p10k.zsh {{{
