@@ -16,6 +16,11 @@ source $(brew --prefix)/opt/powerlevel10k/powerlevel10k.zsh-theme
 
 # other settings: global history; optimized history search etc. {{{
 
+# Turn off all beeps
+# unsetopt BEEP
+# Turn off ambiguous autocomplete beeps
+unsetopt LIST_BEEP
+
 # history {{{
 # sync history between all zsh sessions
 setopt share_history
