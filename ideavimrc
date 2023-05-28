@@ -129,6 +129,10 @@ nnoremap <Leader>m :action ActivateMavenToolWindow<CR>
 " this is a toggle that defines and removes fold region (doing it a second
 " time removes it)
 map zs <Action>(CollapseSelection)
+
+" reformat code
+" works on selection if anything selected; or the whole document otherwise
+map <Leader>r <Action>(ReformatCode)
 " }}}
 
 " macro: ex-commands stored in registers - most already in vimrc {{{
