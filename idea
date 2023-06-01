@@ -1,9 +1,16 @@
 #!/bin/bash
 # fix the intellij's auto-generated script's bug
-# where doing "idea ." would sometimes open "/" root directory
+# 1. doing "idea ." would sometimes open "/" root directory
+# 2. doing relative path would open an empty file with the provided folder name
+# problem: doesn't work when the path to pwd contains special characters (such as space or &) in the folder names.
+# adding $(pwd) in front solves it by automatically escaping the special characters in the path - functionality provided by $(pwd) command substitution
 
-if [ $# -eq 1 ] && [ "$1" = "." ]; then
-  idea-generated "$(pwd)"
-  else
-    idea-generated "$@"
+if [ $# -eq 1 ]; then
+  if [ "$1" = "." ]; then
+    idea-generated "$(pwd)"
+    else
+      idea-generated "$(pwd)/$1"
+  fi
+else
+  idea-generated "$@"
 fi
