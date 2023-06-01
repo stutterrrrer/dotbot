@@ -84,7 +84,12 @@ map <Leader> <Plug>(easymotion-prefix)
 map <Leader><Leader>f <Plug>(easymotion-overwin-f)
 map <Leader><Leader>w <Plug>(easymotion-overwin-w)
 map <Leader><Leader>j <Plug>(easymotion-overwin-line)
-" let g:EasyMotion_skipfoldedline = 0
+let g:EasyMotion_skipfoldedline = 0
+
+" for surround with new line by enter key: see "https://github.com/tpope/vim-surround/issues/140#issuecomment-1012773520"
+" but didn't work
+let g:surround_{char2nr("\<CR>")} = "\n\r\n"
+
 
 " }}}
 " }}}
@@ -171,6 +176,10 @@ function! MapMacModifierShortcuts()
 	nnoremap <M-Right> <ESC>:echo "use W"<CR>
 endfunction
 autocmd VimEnter * call MapMacModifierShortcuts()
+
+" https://stackoverflow.com/a/13097329 : go to next error
+nnoremap ]e :lnext
+nnoremap [e :lprevious
 "}}}
 
 " other recommended settings (mostly "set"s and "let"s{{{

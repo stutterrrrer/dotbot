@@ -105,14 +105,18 @@ nmap <C-w>_ :action MaximizeEditorInSplit<CR>:let @e=":action MaximizeEditorInSp
 " but uses the same toggle action in intellij
 nmap <C-w>= :action MaximizeEditorInSplit<CR>:let @e=":action MaximizeEditorInSplit\r"<CR>
 
+" next error: https://stackoverflow.com/a/13097329; replicating :lnext and :lprevious
+nnoremap ]e :action GotoNextError<CR>
+nnoremap [e :action GotoPreviousError<CR>
 " }}}
 
 " intellij-specific mappings (not in vim) {{{
 " j and k next to l: where <C-l> handles clearning highlighted searches
 nnoremap <C-j> :action JumpToLastWindow<CR>
 nnoremap <C-k> :action RestoreDefaultLayout<CR>
-" x for close: just like in NERDtree
-nnoremap <C-x> :action HideAllWindows<CR>
+" n for No-tool-windows; 
+" using control-x conflicts with decrementing numbers in vim, and C-n was just next line originally 
+nnoremap <C-n> :action HideAllWindows<CR>
 " p for piss-off distractions
 nnoremap <C-p> :action ToggleDistractionFreeMode<CR>
 
