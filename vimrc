@@ -180,6 +180,12 @@ autocmd VimEnter * call MapMacModifierShortcuts()
 " https://stackoverflow.com/a/13097329 : go to next error
 nnoremap ]e :lnext
 nnoremap [e :lprevious
+
+" vimium style tab switching;
+" bumps the original J (do :join) instead, since it's rarer
+" note: gt supports count
+nnoremap J gt 
+nnoremap K gT
 "}}}
 
 " other recommended settings (mostly "set"s and "let"s{{{

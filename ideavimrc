@@ -137,6 +137,7 @@ map zs <Action>(CollapseSelection)
 " reformat code
 " works on selection if anything selected; or the whole document otherwise
 map <Leader>r <Action>(ReformatCode)
+map <Leader>R <Action>(RunClass)
 " }}}
 
 " macro: ex-commands stored in registers - most already in vimrc {{{
