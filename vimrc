@@ -183,6 +183,7 @@ nnoremap [e :lprevious
 
 " vimium style tab switching;
 " bumps the original J (do :join) instead, since it's rarer
+" J for next, because j is down in vim
 " note: gt supports count
 nnoremap J gt 
 nnoremap K gT
