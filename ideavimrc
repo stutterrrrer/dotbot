@@ -14,10 +14,18 @@ set surround
 set quickscope
 
 set easymotion
+" change the common easymotion commands prefix from two leader keys to single leader key
+" but don't change the double leader key altogether - plugin conflicts; like NERDTree still uses <leader>o to open directory
+nmap <Leader>s <Plug>(easymotion-s)
+vmap <Leader>s <Plug>(easymotion-s)
+
+" replaces default character search with easymotion character search
+" nmap f <Plug>(easymotion-f)
+
 " unsupported overwindow motions
-map <Leader><Leader>f :echo 'easymotion over window motions unsupported'<CR>
-map <Leader><Leader>w :echo 'easymotion over window motions unsupported'<CR>
-map <Leader><Leader>j :echo 'easymotion over window motions unsupported'<CR>
+" map <Leader><Leader>f :echo 'easymotion over window motions unsupported'<CR>
+" map <Leader><Leader>w :echo 'easymotion over window motions unsupported'<CR>
+" map <Leader><Leader>j :echo 'easymotion over window motions unsupported'<CR>
 
 set NERDTree
 " }}}
@@ -57,8 +65,13 @@ nnoremap ]c :action NextDiff<Enter>
 " note that doing :action GotoNextBookmark<Enter> in IntelliJ won't set the automatic mark ` where you're jumping from,
 " so you can't do `` to go back after doing ]` like you can in vim, if you just did GoTo... 
 " and that m` in normal mode won't override the automatic ` -- but the ex-command `:mark <>` can.
-nnoremap ]` :mark` \| :action GotoNextBookmark<Enter>
-nnoremap [` :mark` \| :action GotoPreviousBookmark<Enter>
+
+" nnoremap ]` :mark` \| :action GotoNextBookmark<Enter>
+" noremap [` :mark` \| :action GotoPreviousBookmark<Enter>
+
+" the above doesn't work so trying
+nmap ]` <Action>(GotoNextBookmark)
+
 " in vim, this moves a split to a new tab
 map <C-w>T <Action>(Unsplit)
 

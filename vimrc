@@ -40,10 +40,13 @@ augroup END
 Plug 'kana/vim-surround'
 
 Plug 'easymotion/vim-easymotion'
+
 " ideavim default maps: search / find n-char {{{
 " but need to press return to show highlights, so is an annoying discrepancy
 " therefore only use leader-s for multi-char searches, not f / t
-map <Leader>s <Plug>(easymotion-sn)
+" nmap <Leader>s <Plug>(easymotion-sn)
+" vmap <Leader>s <Plug>(easymotion-sn)
+
 " map <Leader>f <Plug>(easymotion-fn)
 " map <Leader>F <Plug>(easymotion-Fn)
 " map <Leader>t <Plug>(easymotion-tn)
@@ -79,11 +82,7 @@ nnoremap <leader>O :NERDTreeToggle<CR>
 " vim style splits (s & v) won't work because nerdtree is still vim and v
 " enters visual mode
 
-" easymotion:
-map <Leader> <Plug>(easymotion-prefix)
-map <Leader><Leader>f <Plug>(easymotion-overwin-f)
-map <Leader><Leader>w <Plug>(easymotion-overwin-w)
-map <Leader><Leader>j <Plug>(easymotion-overwin-line)
+" easymotion: ?
 let g:EasyMotion_skipfoldedline = 0
 
 " for surround with new line by enter key: see "https://github.com/tpope/vim-surround/issues/140#issuecomment-1012773520"
@@ -312,7 +311,9 @@ function! SetUpMarkdown()
 	retab!
 	" map line insertions to retain indentation on empty lines:
 	" the remap only takes effect for the buffer it was defined in.
-	inoremap  x
+	inoremap 
+ 
+x
 	nnoremap o ox
 	nnoremap O Ox
 	" insert empty lines.
@@ -324,7 +325,8 @@ function! A()
 	" delete the weird dot symbol for dotted lines.
 	%s/\v[\n・]{2,}/
 	" put each sentence ending with . period in a new line
-	s/\v([^.\d]\. )/\1/g
+	s/\v([^.\d]\. )/\1
+/g
 	" turn each line into numbered list
 	g/\v^[^	1]/norm I1. 
 	" insert empty lines
@@ -341,16 +343,20 @@ function! Oracle()
 	%s/\v\n\n```\n/ `
 	%s/\v\n```\n\n/` 
 	" inserts empty lines before each bold words. (Paramteters,Returns,Throws), then make it a numbered list
-	%s/\v([^:])\*\*/\11. **/g
+	%s/\v([^:])\*\*/\1
+
+1. **/g
 	" find all lines that aren't numbered or indented, them number it.
 	g/\v^[^	1]/norm I1. 
 	
 	" the See Also section:
 	%s/\v • //g
 	" put each throw into a new line
-	g/\v\*\*Throws:/s/\v(\S)(\[`.{-}`\]\(https:.{-}\))/\1	1. \2/g
+	g/\v\*\*Throws:/s/\v(\S)(\[`.{-}`\]\(https:.{-}\))/\1
+	1. \2/g
 	"" put the text following the bold words into new indented lines, and make it a numbered list
-	%s/\v:\*\*/:\*\*	1. /g
+	%s/\v:\*\*/:\*\*
+	1. /g
 	"" delete all lines that's only numbered but has no content.
 	g/\v^\s?1\. $/d
 endfunction
@@ -359,8 +365,10 @@ endfunction
 function! Mooc()
 	" convert mooc.fi's in-line code to code fence
 	" the back-slash is unnecessary within the [\/*] bracket, but without it the syntax highlighting would be thrown off, so
-	:g/\v^`(\/[\/*]|.+[{;]$)/norm :s/`/O```c#
-	:g/\v(^}`$|;`$)/norm :s/`/o```
+	:g/\v^`(\/[\/*]|.+[{;]$)/norm :s/`/
+O```c#
+	:g/\v(^}`$|;`$)/norm :s/`/
+o```
 	" when pasted in from notion: change java fences to c# fences to avoid the unpredictable markdown anchor disabling code highlight.
 	:g/\v^\s*```java$/s/java/c#
 	" match and select whole code block, then sub out all new line characters
@@ -369,7 +377,8 @@ function! Mooc()
 	" insert lines after, exclude (empty or white-space only lines), or those that already have a (empty or white-space only line) below.
 	:g!/\v(^\s*$)|(\n\s*\n)/norm ox
 	" sub the 1-line code fences back to what they should be
-	:g/\v^\s*```(\s|\S)+```/s/NEWLINE//g
+	:g/\v^\s*```(\s|\S)+```/s/NEWLINE/
+/g
 	" remove the last newline after the end of each code fence: with the join `:j` command
 	:g/\v^\s*```$/j 
 endfunction
@@ -401,7 +410,10 @@ let @c= ":g/\\v^\\s*\\/\\//d\n"
 
 " the markdown stuff
 " o register, o for obliterate;
-autocmd BufEnter *.markdown let @o = 'ggVG"+x:!rm %:q!'
+autocmd BufEnter *.markdown let @o = 'ggVG"+x:!rm %
+
+:q!
+'
 autocmd BufLeave *.markdown let @o = ''
 autocmd BufWinLeave *.markdown let @o = '' | :!open -a Notion\ Enhanced
 "}}}
