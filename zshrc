@@ -1,3 +1,16 @@
+# oh-my-zsh stuff
+export ZSH="$HOME/.oh-my-zsh"
+ZSH_THEME="powerlevel10k/powerlevel10k"
+# plugins:
+plugins=(
+  git
+  zsh-syntax-highlighting
+  zsh-autosuggestions
+  zsh-vi-mode
+)
+
+source $ZSH/oh-my-zsh.sh
+
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -6,13 +19,6 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 #}}}
-
-# homebrew plugins {{{
-source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source $(brew --prefix)/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
-source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-source $(brew --prefix)/opt/powerlevel10k/powerlevel10k.zsh-theme
-# }}}
 
 # other settings: global history; optimized history search etc. {{{
 
@@ -55,10 +61,11 @@ alias r='. ranger'
 # }}}
 
 # environment variables (path, http proxy) {{{
+
 export ICLOUD=/Users/ian/Library/Mobile\ Documents/com~apple~CloudDocs
 export EDITOR=vim
-# ClashX - Copy shell command; so that terminal can be routed through ClashX VPN as well.
-# export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890
+# 零点云 - mac app - tools - Copy environment variable; so that terminal can be routed through  VPN as well.
+export http_proxy=http://127.0.0.1:17891 https_proxy=http://127.0.0.1:17891 all_proxy=http://127.0.0.1:17891
 # }}}
 
 # functions: manv(), n() etc. {{{
