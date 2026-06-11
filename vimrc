@@ -18,10 +18,8 @@ runtime macros/matchit.vim
 " auto installation of vim-plug {{{
 let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
 if empty(glob(data_dir . '/autoload/plug.vim'))
-		  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim
-		  --create-dirs
-		  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-		  	    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
 endif
 " }}}
 
@@ -303,23 +301,6 @@ endfunction
 " mapped to m- in keymap section
 " }}}
 
-" functions - during the markdown-notion-vim craze {{{
-function! SetUpMarkdown()
-	set guifont=MesloLGS-NF-Regular:h15
-	" paste, change to tab indentation
-	normal "+p
-	retab!
-	" map line insertions to retain indentation on empty lines:
-	" the remap only takes effect for the buffer it was defined in.
-	inoremap 
- 
-x
-	nnoremap o ox
-	nnoremap O Ox
-	" insert empty lines.
-	g!/\v(^\s*$)|(\n\s*\n)/norm o
-endfunction
-
 " function to call when pasting from Algorithm course's PDF slides.
 function! A()
 	" delete the weird dot symbol for dotted lines.
@@ -382,60 +363,5 @@ o```
 	" remove the last newline after the end of each code fence: with the join `:j` command
 	:g/\v^\s*```$/j 
 endfunction
-
-" autocmd FileType markdown call SetUpMarkdown()
-" see the macros fold section for o register macro in markdown filetype
-
-function! Valley()
-	# these are for the description file
-	%s/输入/input /g
-	%s/输出/output /g
-	%s/描述/description /g
-	%s/样例/sample /g
-	%s/提示/Note: /g
-	%s/\v([eE]xample.{-}:)\n+/\1
-	# this is for the java file
-	%s/\v\/\*\_.{-}\*\//\/*********************************\/
-endfunction
-"}}}
-" }}}
-
-" macros: commands saved in registers {{{
-" todo: make this file specific - e.g. when file type is python use # to match comment lines
-" ex-command - in a java file: remove all lines that are just comments
-" do "@c" in normal mode to run
-" saves this command in the register c - c for comments
-" to remove only selected areas: select first
-let @c= ":g/\\v^\\s*\\/\\//d\n"
-
-" the markdown stuff
-" o register, o for obliterate;
-autocmd BufEnter *.markdown let @o = 'ggVG"+x:!rm %
-
-:q!
-'
-autocmd BufLeave *.markdown let @o = ''
-autocmd BufWinLeave *.markdown let @o = '' | :!open -a Notion\ Enhanced
-"}}}
-
-" emoji (and other) abbreviataions {{{
-" inoreabbrev means abbreviataion but only in insert mode, and no recursion
-" od: orange diamond; cd:crystal diamond
-inoreabbrev :star: ⭐️
-inoreabbrev :pin: 📌
-inoreabbrev :od: 🔶
-inoreabbrev :bd: 🔷
-inoreabbrev :rd: ♦️
-inoreabbrev :cd: 💠
-inoreabbrev :cross: ❌
-" add to command line mode too for substitutions.
-cnoreabbrev :star: ⭐️
-cnoreabbrev :pin: 📌
-cnoreabbrev :od: 🔶
-cnoreabbrev :bd: 🔷
-cnoreabbrev :rd: ♦️
-cnoreabbrev :cd: 💠
-cnoreabbrev :cross: ❌
-" }}}
 
 "ideaVim ignore end
