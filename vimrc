@@ -42,8 +42,8 @@ Plug 'easymotion/vim-easymotion'
 " ideavim default maps: search / find n-char {{{
 " but need to press return to show highlights, so is an annoying discrepancy
 " therefore only use leader-s for multi-char searches, not f / t
-" nmap <Leader>s <Plug>(easymotion-sn)
-" vmap <Leader>s <Plug>(easymotion-sn)
+nmap <Leader>s <Plug>(easymotion-sn)
+vmap <Leader>s <Plug>(easymotion-sn)
 
 " map <Leader>f <Plug>(easymotion-fn)
 " map <Leader>F <Plug>(easymotion-Fn)

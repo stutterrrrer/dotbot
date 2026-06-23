@@ -56,8 +56,6 @@ alias ls='ls -GF'
 alias v='mvim'
 alias python='python3'
 alias h='history'
-# . ranger makes the shell follow the first tab of ranger (cd when q)
-alias r='. ranger'
 # }}}
 
 # environment variables (path, http proxy) {{{
@@ -69,35 +67,16 @@ export http_proxy=http://127.0.0.1:17891 https_proxy=http://127.0.0.1:17891 all_
 # }}}
 
 # functions: manv(), n() etc. {{{
-javar ()
+
+# functions to shorten commands: {{{
+
+r()
 {
-	# compile all .java files in current directory into a temp classes directory, execute, then delete the temp directory.
-	tempDir=compiled_classes_temp
-	javac *.java -d $tempDir
-	java -classpath $tempDir "$@"
-	rm -rf $tempDir
+    # "source ranger" makes your shell follow to the directory where you quit ranger in
+    source ranger "$@"
 }
 
-javar-alg()
-{
-	# include the algorithm course's provided textbook library to classpath:
-	tempDir=compiled_classes_temp
-	javac -classpath ~/IdeaProjects/Princeton_Algorithms_Course/0-jar_files_for_cmd_line/* *.java -d $tempDir 
-	java -classpath ~/IdeaProjects/Princeton_Algorithms_Course/0-jar_files_for_cmd_line/algs4.jar:$tempDir "$@"
-	rm -rf $tempDir
-}
-
-manv ()
-{
-	if [[ $# -eq 1 ]]
-	then
-		man $1 | mvim +MANPAGER -
-	else
-		$@ | mvim +MANPAGER -
-	fi
-}
-
-manvim ()
+vman ()
 {
 	if [[ $# -eq 1 ]]
 	then
@@ -116,11 +95,47 @@ ta ()
 		tmux attach-session -t $@
 	fi
 }
+#}}}
 
-# }}}
+# other more complicated functions{{{
+javar ()
+{
+	# compile all .java files in current directory into a temp classes directory, execute, then delete the temp directory.
+	tempDir=compiled_classes_temp
+	javac *.java -d $tempDir
+	java -classpath $tempDir "$@"
+	rm -rf $tempDir
+}
+
+javar-alg()
+{
+	# include the algorithm course's provided textbook library to classpath:
+	tempDir=compiled_classes_temp
+	javac -classpath ~/IdeaProjects/Princeton_Algorithms_Course/0-jar_files_for_cmd_line/* *.java -d $tempDir 
+	java -classpath ~/IdeaProjects/Princeton_Algorithms_Course/0-jar_files_for_cmd_line/algs4.jar:$tempDir "$@"
+	rm -rf $tempDir
+}
+#}}}
+#}}}
 
 # other: p10k.zsh {{{
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 #}}}
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/opt/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/opt/anaconda3/etc/profile.d/conda.sh" ]; then
+        . "/opt/anaconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/opt/anaconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+
