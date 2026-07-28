@@ -133,9 +133,9 @@ nnoremap <C-n> :action HideAllWindows<CR>
 " p for piss-off distractions
 nnoremap <C-p> :action ToggleDistractionFreeMode<CR>
 
-" default leader key is backslash \
-" open (h)tml preview
-nnoremap <Leader>h :action WebOpenInAction<CR>
+" default leader key is backslash \, but mapped to space in vimrc
+" open html <p>review
+nnoremap <Leader>p :action WebOpenInAction<CR>
 " u for strUcture
 nnoremap <Leader>u :action ActivateStructureToolWindow<CR>
 " m for maven

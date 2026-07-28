@@ -115,6 +115,14 @@ nnoremap <C-w>+ :resize +10<CR>:let @e=":resize+10\n"<CR>
 nnoremap <C-w>< :vertical resize -10<CR>:let @e=":vertical resize-10\n"<CR>
 nnoremap <C-w>> :vertical resize +10<CR>:let @e=":vertical resize+10\n"<CR>
 
+" jump to a line that isn't empty and doesn't start with white-space:
+" Top-level line (especially for python where [m doesn't work)
+nnoremap [t ?^\S<CR>
+nnoremap ]t /^\S<CR>
+xnoremap [t ?^\S<CR>
+xnoremap ]t /^\S<CR>
+onoremap [t ?^\S<CR>
+onoremap ]t /^\S<CR>
 
 " 'Q' in normal mode enters Ex mode. You almost never want this.
 nmap Q <Nop> 
@@ -153,8 +161,10 @@ inoremap <Up>    <ESC>:echo "Use ^O-k"<CR>
 inoremap <Down>  <ESC>:echo "Use ^O-j"<CR>
 
 " (Control L) -> initially clears/redraws screen: map to :nohlsearch
+" also do leader (space) - h
 " for normal mode
 nnoremap <C-l> :nohlsearch<cr>
+nnoremap <leader>h :nohlsearch<cr>
 " for visual / select mode: <C-u> to remove the range automatically added to command line
 vnoremap <C-l> :<C-u>nohlsearch<cr>
 
@@ -178,11 +188,11 @@ autocmd VimEnter * call MapMacModifierShortcuts()
 nnoremap ]e :lnext
 nnoremap [e :lprevious
 
-" vimium style tab switching;
+" chrome vimium style tab switching;
 " bumps the original J (do :join) instead, since it's rarer
 " J for next, because j is down in vim
 " note: gt supports count
-nnoremap J gt 
+nnoremap J gt
 nnoremap K gT
 "}}}
 
