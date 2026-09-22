@@ -44,11 +44,14 @@ Plug 'easymotion/vim-easymotion'
 " therefore only use leader-s for multi-char searches, not f / t
 nmap <Leader>s <Plug>(easymotion-sn)
 vmap <Leader>s <Plug>(easymotion-sn)
-
 " map <Leader>f <Plug>(easymotion-fn)
 " map <Leader>F <Plug>(easymotion-Fn)
 " map <Leader>t <Plug>(easymotion-tn)
 " map <Leader>T <Plug>(easymotion-Tn)
+
+" repeat last find with <Leader>-dot to show highlights for the same input
+nmap <Leader>. <Plug>(easymotion-repeat)
+vmap <Leader>. <Plug>(easymotion-repeat)
 " }}}
 
 Plug 'preservim/nerdtree'
@@ -105,6 +108,9 @@ nnoremap ! @e
 
 " delete a bookmark - see custom function below
 nnoremap m- :<c-u>call DeleteMarksOnCurrentLine()<CR>
+
+" toggle wrap lines
+nnoremap <leader>w :set wrap!<CR>
 
 
 " repeatable window resize:

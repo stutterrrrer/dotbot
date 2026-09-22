@@ -19,6 +19,11 @@ set easymotion
 nmap <Leader>s <Plug>(easymotion-s)
 vmap <Leader>s <Plug>(easymotion-s)
 
+" repeat last find with <Leader>-dot to show highlights for the same input
+" unsupported yet
+" nmap <Leader>. <Plug>(easymotion-repeat)
+" vmap <Leader>. <Plug>(easymotion-repeat)
+
 " replaces default character search with easymotion character search
 " nmap f <Plug>(easymotion-f)
 

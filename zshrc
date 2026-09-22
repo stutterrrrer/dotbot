@@ -70,6 +70,17 @@ export http_proxy=http://127.0.0.1:17891 https_proxy=http://127.0.0.1:17891 all_
 
 # functions to shorten commands: {{{
 
+# fixes: "idea ..." fails in a chinese-named directory
+# when using relative path: resolve to absolute path
+# for all absolute paths: cd to home before calling bare "idea"
+idea() {
+  local args=()
+  for a in "$@"; do
+    [[ "$a" == -* ]] && args+=("$a") || args+=("${a:A}")
+  done
+  (cd ~ && command idea "${args[@]}")
+}
+
 r()
 {
     # "source ranger" makes your shell follow to the directory where you quit ranger in
@@ -96,6 +107,12 @@ ta ()
 	fi
 }
 #}}}
+
+# use kj and jk to exit insert mode in zsh-vim-mode
+function zvm_after_init() {
+  zvm_bindkey viins 'jk' zvm_exit_insert_mode
+  zvm_bindkey viins 'kj' zvm_exit_insert_mode
+}
 
 # other more complicated functions{{{
 javar ()
