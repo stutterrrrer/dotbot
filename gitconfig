@@ -13,3 +13,5 @@
 	# use terminal vim as editor
 	editor = vim -f
 	autocrlf = input
+[credential]
+	helper = osxkeychain
