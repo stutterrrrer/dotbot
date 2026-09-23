@@ -141,14 +141,6 @@ the terminal you actually use and transfer it privately.
   Anaconda/Miniconda paths.
 
 ## Keyboard and window-management utilities not currently managed
-
-- [ ] **NOT CURRENTLY MANAGED — Karabiner-Elements** — the current Mac has
-  `~/.config/karabiner/`, but Karabiner is not in the current Brewfile and its
-  configuration is not in `home/`. If you use it, install Karabiner-Elements,
-  transfer the containing `~/.config/karabiner/` directory or a reviewed
-  `karabiner.json`, and reauthorize its macOS services. Do not make
-  `karabiner.json` itself a symlink; Karabiner requires the directory-level
-  arrangement to detect changes correctly.
 - [ ] **MANUAL — macOS keyboard shortcuts and permissions** — System Settings
   keyboard shortcuts, Accessibility, Input Monitoring, Screen Recording, and
   Full Disk Access are not portable chezmoi files and must be reapproved. See
@@ -200,8 +192,7 @@ For the exact observed values and the safer native-versus-BTT split, see
 ## macOS permissions and final checks
 
 - [ ] **MANUAL — permissions** — grant Accessibility/Input Monitoring
-  permissions to BetterTouchTool and Moom when macOS requests them; reapprove
-  Karabiner services if Karabiner is used.
+  permissions to BetterTouchTool and Moom when macOS requests them.
 - [ ] Re-enable any app-specific login items, menu-bar helpers, and cloud sync.
 - [ ] Run `chezmoi diff`, `chezmoi doctor`, and `brew bundle check`.
 - [ ] Keep `~/.dotbot-symlink-backup-20260922` until the new setup has been
@@ -212,5 +203,4 @@ For the exact observed values and the safer native-versus-BTT split, see
 - [Moom settings transfer FAQ](https://manytricks.com/osticket/kb/faq.php?id=53)
 - [BetterTouchTool presets](https://docs.folivora.ai/docs/configuration/presets/)
 - [BetterTouchTool automatic backups](https://docs.folivora.ai/docs/configuration/restoring-backups/)
-- [Karabiner configuration file path](https://karabiner-elements.pqrs.org/docs/manual/misc/configuration-file-path/)
 - [JetBrains IDE settings backup and sync](https://www.jetbrains.com/help/idea/sharing-your-ide-settings.html)

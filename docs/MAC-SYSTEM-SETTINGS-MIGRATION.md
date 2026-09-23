@@ -92,8 +92,8 @@ troubleshooting much easier.
 
 Use native macOS or the relevant dedicated tool for these items:
 
-- modifier-key remapping and low-level device rules: System Settings or
-  Karabiner-Elements;
+- modifier-key remapping and low-level device rules: System Settings or a
+  dedicated remapper only if you intentionally choose one;
 - input-source installation and language switching: System Settings;
 - key-repeat, function-key mode, scrolling direction, pointer speed, Force
   Click, and accessibility display options: System Settings;
@@ -115,8 +115,8 @@ The source Mac currently has these symbolic-hotkey records enabled:
 120, 121, 122, 123, 124, 163, 164, 176, 190`. These numbers are useful for
 comparing machines, but macOS does not expose them as stable human-readable
 names in the preference store. Identify each user-facing action in System
-Settings before deciding whether it belongs in native macOS, BTT, or
-Karabiner; do not import the numeric records wholesale.
+Settings before deciding whether it belongs in native macOS or BTT; do not
+import the numeric records wholesale.
 
 ## Private diagnostic backup, if needed
 

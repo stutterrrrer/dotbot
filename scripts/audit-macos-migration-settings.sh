@@ -123,8 +123,7 @@ print_section_header "migration-relevant application state paths"
 for migration_path in \
     "$HOME/Library/Application Support/BetterTouchTool" \
     "$HOME/Library/Preferences/com.hegenberg.BetterTouchTool.plist" \
-    "$HOME/Library/Preferences/com.manytricks.Moom.plist" \
-    "$HOME/.config/karabiner"; do
+    "$HOME/Library/Preferences/com.manytricks.Moom.plist"; do
     if [[ -e "$migration_path" ]]; then
         printf 'present: %s\n' "$migration_path"
     else
