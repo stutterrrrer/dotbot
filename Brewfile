@@ -10,6 +10,8 @@ brew "gh"
 brew "git-lfs"
 # JSON processor, used by the Codex helper
 brew "jq"
+# Configure macOS default application handlers from the command line
+brew "duti"
 # Current supported Python release for command-line and development use
 brew "python"
 # GUI for vim, made for macOS

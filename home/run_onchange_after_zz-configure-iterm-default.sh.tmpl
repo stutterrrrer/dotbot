@@ -1,0 +1,28 @@
+#!/bin/bash
+{{ if ne .chezmoi.os "darwin" }}
+exit 0
+{{ else }}
+set -euo pipefail
+
+# Finder associates shell-script files with iTerm through Launch Services.
+# Apple's "New Terminal at Folder" service remains specific to Terminal.app;
+# use Finder's "New iTerm2 Window Here" service for folders instead.
+iterm_bundle_identifier="com.googlecode.iterm2"
+iterm_application_path="/Applications/iTerm.app"
+duti_executable_path=""
+
+if [[ -x /opt/homebrew/bin/duti ]]; then
+  duti_executable_path="/opt/homebrew/bin/duti"
+elif [[ -x /usr/local/bin/duti ]]; then
+  duti_executable_path="/usr/local/bin/duti"
+fi
+
+if [[ -z "$duti_executable_path" || ! -d "$iterm_application_path" ]]; then
+  echo "duti and iTerm must be installed before configuring default handlers." >&2
+  exit 1
+fi
+
+for shell_script_extension in command tool zsh csh pl; do
+  "$duti_executable_path" -s "$iterm_bundle_identifier" ".$shell_script_extension" all
+done
+{{ end }}

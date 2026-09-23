@@ -109,7 +109,10 @@ parts manually even after import. Do not put the plist in chezmoi.
 
 - [ ] **EXPORT/IMPORT — iTerm2** — import `com.googlecode.iterm2.plist` if
   iTerm2 is the terminal of choice; verify profiles, key mappings, and shell
-  integration. The plist is not currently managed by chezmoi.
+  integration. The plist is not currently managed by chezmoi. Chezmoi makes
+  iTerm the default handler for shell-script files. Finder's built-in **New
+  Terminal at Folder** service still opens Terminal.app; use **New iTerm2
+  Window Here** from Finder's Services menu instead.
 - [ ] **EXPORT/IMPORT — Apple Terminal** — import `com.apple.Terminal.plist`
   only if Apple Terminal is still used. The plist is not currently managed by
   chezmoi.

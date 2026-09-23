@@ -58,6 +58,7 @@ assuming it is represented in the global macOS shortcut store.
 | Contrast/transparency | `increaseContrast=1`, `reduceTransparency=1` | Native macOS | Recreate under Accessibility > Display. Do not use BTT. |
 | Clock display | 24-hour, date, and weekday visible | Native macOS | Recreate under Control Center > Clock. |
 | Mission Control/Spaces layout | multiple spaces and display UUIDs recorded | Native macOS | Recreate after the new displays are connected. Do not import `com.apple.spaces` wholesale. |
+| Finder Services context menu | `NSServicesMinimumItemCountForContextSubmenu=99` | Native macOS | Keeps applicable Services, including iTerm's folder actions, in Finder's first-level context menu instead of a submenu. |
 
 Dock app membership and Spaces identifiers are machine/session state. They
 should not be placed in chezmoi or treated as a portable BTT preset.
