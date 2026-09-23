@@ -66,5 +66,7 @@ cask "docker-desktop"
 cask "chatgpt"
 # Official Codex CLI for terminal-based local work.
 cask "codex"
+# Clipboard history manager for Mac, iPhone, and iPad.
+cask "paste"
 # Things 3 is purchased through the Mac App Store and managed through mas.
 mas "Things 3", id: 904280696
