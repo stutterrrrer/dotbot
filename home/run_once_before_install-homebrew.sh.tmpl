@@ -1,0 +1,18 @@
+#!/bin/bash
+set -euo pipefail
+
+# This hook is intentionally macOS-only. On another operating system, there
+# is no reason to attempt the Homebrew installation used by this repository.
+operating_system_name="$(uname -s)"
+if [[ "$operating_system_name" != "Darwin" ]]; then
+  exit 0
+fi
+
+# Do not reinstall Homebrew when chezmoi is applied again.
+if command -v brew >/dev/null 2>&1; then
+  exit 0
+fi
+
+echo "Homebrew is not installed; installing it now."
+homebrew_install_script_url="https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh"
+/bin/bash -c "$(curl -fsSL "$homebrew_install_script_url")"

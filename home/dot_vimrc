@@ -106,6 +106,9 @@ let g:surround_{char2nr("\<CR>")} = "\n\r\n"
 " then type '!'; so override that
 nnoremap ! @e
 
+" yank to system clipboard by shift-y on the selection (instead of 3 keys: "+y)
+xnoremap <silent> Y "+y
+
 " delete a bookmark - see custom function below
 nnoremap m- :<c-u>call DeleteMarksOnCurrentLine()<CR>
 

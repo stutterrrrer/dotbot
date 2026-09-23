@@ -80,21 +80,20 @@ nmap ]` <Action>(GotoNextBookmark)
 " in vim, this moves a split to a new tab
 map <C-w>T <Action>(Unsplit)
 
-" create/move between splits; native support stopped working for some reason{{{
+" create/move between splits;
+" native vim settings work for these now, so comment out {{{
 "nmap <C-w>l <Action>(NextSplitter)
 "nmap <C-w>h <Action>(PrevSplitter)
 "nmap <C-w>j <Action>(NextSplitter)
 "nmap <C-w>k <Action>(PrevSplitter)
 "nnoremap <C-w>s :split<Enter>
 "nnoremap <C-w>v :vsplit<Enter>
+
 "}}}
 
 " maps to window moving in vim:
-nnoremap <C-w>W :action MoveEditorToOppositeTabGroup<Enter>
-nnoremap <C-w>H :action MoveEditorToOppositeTabGroup<Enter>
-nnoremap <C-w>L :action MoveEditorToOppositeTabGroup<Enter>
-nnoremap <C-w>J :action MoveEditorToOppositeTabGroup<Enter>
-nnoremap <C-w>K :action MoveEditorToOppositeTabGroup<Enter>
+" no longer needed since ideavim supports native vim <C-w>HLJK now
+" nnoremap <C-w>W :action MoveEditorToOppositeTabGroup<Enter>
 
 " resize splits (windows in vim)
 "nmap <C-w>+ <Action>(StretchSplitToBottom)
@@ -108,10 +107,8 @@ nnoremap <C-w>K :action MoveEditorToOppositeTabGroup<Enter>
 " @@ is mapped to @e in vimrc
 " "\r" places a carriage return in the register
 " write to register first, then execute register e, so @@ can actually repeat the last executed register
-nmap <C-w>+ :let @e=":action StretchSplitToBottom\r"<CR>@e
-nmap <C-w>- :let @e=":action StretchSplitToTop\r"<CR>@e
-nmap <C-w>< :let @e=":action StretchSplitToLeft\r"<CR>@e
-nmap <C-w>> :let @e=":action StretchSplitToRight\r"<CR>@e
+" apparently ideavim supports vim native on these too now?
+" nmap <C-w>+ :let @e=":action StretchSplitToBottom\r"<CR>@e
 
 " replicate vim q: to see command history
 map q: :history<Enter>

@@ -1,0 +1,5 @@
+# The proxy configuration is machine-local. It is enabled through the local
+# chezmoi config file, never committed to the repository.
+{{ if not .enable_proxy }}
+.config/ian/proxy.zsh
+{{ end }}

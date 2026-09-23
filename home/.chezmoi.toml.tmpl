@@ -1,0 +1,5 @@
+{{- $enableProxy := promptBoolOnce . "enable_proxy" "Enable the local HTTP proxy?" -}}
+sourceDir = {{ .chezmoi.workingTree | quote }}
+
+[data]
+    enable_proxy = {{ $enableProxy }}

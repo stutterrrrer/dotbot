@@ -70,6 +70,11 @@ export http_proxy=http://127.0.0.1:17891 https_proxy=http://127.0.0.1:17891 all_
 
 # functions to shorten commands: {{{
 
+# Show which Codex threads are currently being written by a live process.
+codex_thread_lock_status() {
+  zsh "$HOME/.dotfiles/scripts/codex_thread_lock_status.zsh"
+}
+
 # fixes: "idea ..." fails in a chinese-named directory
 # when using relative path: resolve to absolute path
 # for all absolute paths: cd to home before calling bare "idea"
@@ -155,4 +160,3 @@ else
 fi
 unset __conda_setup
 # <<< conda initialize <<<
-

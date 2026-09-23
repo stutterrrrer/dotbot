@@ -1,0 +1,37 @@
+#!/bin/bash
+set -euo pipefail
+
+declare -a intellij_args=()
+declare -a open_args=(-na)
+
+for arg in "$@"; do
+  if [[ "$arg" == "--wait" || "$arg" == "-w" ]]; then
+    open_args+=(-W)
+  else
+    intellij_args+=("$arg")
+  fi
+done
+
+idea_app=""
+while IFS= read -r candidate; do
+  if [[ -x "$candidate/Contents/MacOS/idea" ]]; then
+    idea_app="$candidate/Contents/MacOS/idea"
+    break
+  fi
+done < <(mdfind 'kMDItemCFBundleIdentifier == "com.jetbrains.intellij"' 2>/dev/null || true)
+
+for candidate in \
+  "/Applications/IntelliJ IDEA.app" \
+  "$HOME/Applications/IntelliJ IDEA.app"; do
+  if [[ -z "$idea_app" && -x "$candidate/Contents/MacOS/idea" ]]; then
+    idea_app="$candidate/Contents/MacOS/idea"
+  fi
+done
+
+if [[ -z "$idea_app" ]]; then
+  echo "IntelliJ IDEA was not found in /Applications or ~/Applications." >&2
+  exit 1
+fi
+
+open_args+=("$idea_app")
+exec open "${open_args[@]}" --args "${intellij_args[@]}"

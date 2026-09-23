@@ -1,0 +1,25 @@
+#!/bin/bash
+{{ if ne .chezmoi.os "darwin" }}
+exit 0
+{{ else }}
+set -euo pipefail
+
+# Brewfile checksum: {{ output "shasum" "-a" "256" (joinPath .chezmoi.workingTree "Brewfile") | trim }}
+
+# Resolve the Homebrew executable explicitly so this works on both Apple
+# Silicon and Intel Macs, whose default Homebrew prefixes differ.
+managed_brewfile_path={{ joinPath .chezmoi.workingTree "Brewfile" | quote }}
+homebrew_executable_path=""
+if [[ -x /opt/homebrew/bin/brew ]]; then
+  homebrew_executable_path="/opt/homebrew/bin/brew"
+elif [[ -x /usr/local/bin/brew ]]; then
+  homebrew_executable_path="/usr/local/bin/brew"
+else
+  echo "Homebrew was expected but no supported brew executable was found." >&2
+  exit 1
+fi
+
+# Add Homebrew's environment to this hook, then install the declared bundle.
+eval "$("$homebrew_executable_path" shellenv)"
+"$homebrew_executable_path" bundle --file="$managed_brewfile_path"
+{{ end }}
