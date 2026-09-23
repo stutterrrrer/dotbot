@@ -45,6 +45,11 @@ macOS privacy permissions, licenses, accounts, or window/display state.
 
 ## Homebrew casks
 
+- [ ] **BREW ONLY + ACCOUNT SIGN-IN — ChatGPT/Codex** — the Brewfile now
+  installs the official `chatgpt` desktop app and `codex` CLI cask. Sign in to
+  ChatGPT, open the Codex surface, and verify `command -v codex`. Portable
+  Codex preferences are merged by chezmoi; credentials, history, sessions,
+  caches, and runtime state remain local and are not migrated.
 - [ ] **BREW ONLY — Dropzone** — install and sign in/configure actions.
 - [ ] **BREW ONLY — KeyCastr** — enable the preferred keystroke display
   options.
