@@ -53,12 +53,21 @@ macOS privacy permissions, licenses, accounts, or window/display state.
 - [ ] **BREW ONLY — Dropzone** — install and sign in/configure actions.
 - [ ] **BREW ONLY — KeyCastr** — enable the preferred keystroke display
   options.
+- [ ] **BREW ONLY — WhichSpace** — confirm that it launches at login or is
+  otherwise running, and verify that the menu bar shows the current macOS
+  Space/Desktop number. WhichSpace's menu-bar configuration is
+  application-local state; this repository records and reinstalls the app, but
+  does not copy its runtime preferences.
 - [ ] **EXPORT/IMPORT + MANUAL — BetterTouchTool** — export the Master Preset
   as a JSON preset on the old Mac, transfer it privately, import it on the new
   Mac, and grant Accessibility permission. See the detailed procedure below.
-- [ ] **EXPORT/IMPORT + MANUAL — Moom** — perform the one-time plist export
-  and import, then grant Accessibility permission. Moom does not provide
-  automatic cross-Mac settings sync.
+- [ ] **REFERENCE + MANUAL — Moom** — keep the reviewed plist export as
+  migration reference, manually recreate the settings, and grant Accessibility
+  permission. Moom does not provide
+  automatic cross-Mac settings sync. The reviewed reference export at
+  `docs/migration-reference/moom/Moom-settings.plist` is for ChatGPT/AI-assisted
+  reconstruction of settings and keymaps only; do not apply it directly with
+  chezmoi or import it wholesale on a new Mac.
 
 ### BetterTouchTool transfer
 
@@ -93,17 +102,17 @@ On the old Mac:
 defaults export com.manytricks.Moom "$HOME/Desktop/Moom.plist"
 ```
 
-Transfer `Moom.plist` privately to the new Mac. After installing Moom, quit it
-and run on the new Mac:
-
-```sh
-defaults import com.manytricks.Moom "$HOME/Desktop/Moom.plist"
-```
+Transfer the reviewed reference export privately if needed. After installing
+Moom, quit it and reproduce the settings and keymaps manually on the new Mac,
+using the reference export to identify the intended values. Do not run
+`defaults import` against the repository reference file; use Moom's own UI to
+recreate the reviewed settings instead.
 
 Then launch Moom and verify the custom actions, keyboard shortcuts, grid
 dimensions, saved layouts, and display-specific behavior. Because layouts can
-depend on the new Mac's displays and resolutions, expect to adjust those
-parts manually even after import. Do not put the plist in chezmoi.
+depend on the new Mac's displays and resolutions, adjust those parts manually.
+The reference plist is intentionally outside chezmoi's active `home/` source
+tree: it is repository-tracked documentation data, not a deployable dotfile.
 
 ## Terminal and shell
 
@@ -139,9 +148,9 @@ the terminal you actually use and transfer it privately.
 - [ ] **CHEZMOI — IdeaVim** — verify `~/.ideavimrc`; this repository carries
   the Vim-style IntelliJ key mappings separately from IntelliJ's native
   keymap.
-- [ ] **MANUAL — IntelliJ scratch files** — restore the contents of
-  `legacy-dotbot/intellij_scratch_files_symlinks/` to the new IntelliJ scratch
-  directory if needed.
+- [ ] **MANUAL — IntelliJ scratch files** — restore any required scratch files
+  from the old Mac or a separate backup to the new IntelliJ scratch directory
+  if needed.
 - [ ] **CHEZMOI/MANUAL — Git** — verify user identity, osxkeychain, Git LFS, and
   SSH/GPG access. Identity configuration is managed; credentials and keys are
   intentionally not.

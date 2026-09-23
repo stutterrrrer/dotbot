@@ -12,8 +12,8 @@ up in `~/.dotbot-symlink-backup-20260922`.
 
 The new setup uses chezmoi to render and copy managed files into the home
 directory. It intentionally manages regular files rather than recreating the
-old symlinks. The old Dotbot files remain together under `legacy-dotbot/` only
-for rollback and reference.
+old symlinks. The former Dotbot files were removed after the migration was
+validated.
 
 ## Active repository layout
 
@@ -32,15 +32,8 @@ for rollback and reference.
 │   ├── dot_local/bin/...                # -> ~/.local/bin/...
 │   └── run_*                            # setup hooks, never target files
 ├── APPLICATION-MIGRATION-CHECKLIST.md   # app-by-app post-install checks
-├── docs/                                # these persistent guides
-└── legacy-dotbot/                       # disposable old setup
+└── docs/                                # these persistent guides
 ```
-
-`legacy-dotbot/` contains the old installer, Dotbot submodule, flat dotfiles,
-plist exports, and IntelliJ scratch-file links. Do not edit those files for
-normal maintenance. Once the new Mac is working, delete that directory and
-the root `.gitmodules` file together. Keep the home backup until rollback is
-no longer needed.
 
 ## How chezmoi maps names
 
@@ -96,7 +89,7 @@ enable_proxy = true
 Then run:
 
 ```sh
-chezmoi --source "$HOME/.dotfiles" apply
+chezmoi --source "$HOME/.chezmoi" apply
 ```
 
 Do not put credentials, tokens, private keys, or other machine-specific
@@ -130,10 +123,10 @@ To update the portable Codex preferences, edit the source files and review the
 rendered result before applying:
 
 ```sh
-vim "$HOME/.dotfiles/home/dot_codex/AGENTS.md"
-vim "$HOME/.dotfiles/home/dot_codex/keybindings.json"
-chezmoi --source "$HOME/.dotfiles" diff -- ~/.codex/AGENTS.md ~/.codex/keybindings.json
-chezmoi --source "$HOME/.dotfiles" apply
+vim "$HOME/.chezmoi/home/dot_codex/AGENTS.md"
+vim "$HOME/.chezmoi/home/dot_codex/keybindings.json"
+chezmoi --source "$HOME/.chezmoi" diff -- ~/.codex/AGENTS.md ~/.codex/keybindings.json
+chezmoi --source "$HOME/.chezmoi" apply
 ```
 
 If you intentionally edited one of the live files under `~/.codex/`, capture
@@ -141,8 +134,8 @@ only that reviewed file back into the source state instead of importing the
 whole directory:
 
 ```sh
-chezmoi --source "$HOME/.dotfiles" re-add ~/.codex/AGENTS.md
-chezmoi --source "$HOME/.dotfiles" re-add ~/.codex/keybindings.json
+chezmoi --source "$HOME/.chezmoi" re-add ~/.codex/AGENTS.md
+chezmoi --source "$HOME/.chezmoi" re-add ~/.codex/keybindings.json
 git diff -- home/dot_codex
 ```
 
@@ -162,19 +155,19 @@ the machine-local paths remain in the live target.
 
 ```sh
 # Show the source path for a target.
-chezmoi --source "$HOME/.dotfiles" source-path ~/.zshrc
+chezmoi --source "$HOME/.chezmoi" source-path ~/.zshrc
 
 # Show the rendered target content without changing anything.
-chezmoi --source "$HOME/.dotfiles" cat ~/.zshrc
+chezmoi --source "$HOME/.chezmoi" cat ~/.zshrc
 
 # Preview all differences.
-chezmoi --source "$HOME/.dotfiles" diff
+chezmoi --source "$HOME/.chezmoi" diff
 
 # Check whether the target state is already applied.
-chezmoi --source "$HOME/.dotfiles" verify
+chezmoi --source "$HOME/.chezmoi" verify
 
 # Show machine data used by templates.
-chezmoi --source "$HOME/.dotfiles" data
+chezmoi --source "$HOME/.chezmoi" data
 ```
 
 Official references: [source-directory customization](https://www.chezmoi.io/user-guide/advanced/customize-your-source-directory/), [setup and config templates](https://www.chezmoi.io/user-guide/setup/), and [script behavior](https://www.chezmoi.io/user-guide/use-scripts-to-perform-actions/).

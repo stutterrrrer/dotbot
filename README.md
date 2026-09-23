@@ -1,8 +1,7 @@
 # Ian's macOS dotfiles
 
 This repository is managed by [chezmoi](https://www.chezmoi.io/). The desired
-home-directory state lives under `home/`. The old Dotbot setup is isolated in
-`legacy-dotbot/` so it can be removed cleanly after migration.
+home-directory state lives under `home/`.
 
 ## Which files matter
 
@@ -22,13 +21,13 @@ The active setup is:
   procedure.
 - `docs/MAC-SYSTEM-SETTINGS-MIGRATION.md` — the audited native macOS settings,
   the BTT-versus-native ownership split, and the read-only audit script.
+- `docs/migration-reference/` — reviewed exports that ChatGPT or another AI
+  tool may read as migration source material. These files are tracked in the
+  repository but are outside `home/`, so chezmoi never applies them directly.
 
-The disposable rollback setup is all under `legacy-dotbot/`. It contains the
-old Dotbot submodule, installer/configuration, flat dotfiles, plist exports,
-and IntelliJ scratch-file links. Do not use it for the new Mac. After the new
-machine has been tested successfully, remove `legacy-dotbot/` and the root
-`.gitmodules` file together. Keep `~/.dotbot-symlink-backup-20260922` until
-you are certain rollback is no longer needed.
+The migration is now chezmoi-only. The former Dotbot files and submodule have
+been removed from the repository. Keep `~/.dotbot-symlink-backup-20260922`
+locally only if you still want a short-term rollback copy.
 
 ## New Mac setup
 
@@ -39,29 +38,29 @@ Install and apply everything with:
 
 ```sh
 sh -c "$(curl -fsLS https://get.chezmoi.io)" -- init --apply \
-  --source "$HOME/.dotfiles" \
-  https://github.com/stutterrrrer/dotbot.git
+  --source "$HOME/.chezmoi" \
+  https://github.com/stutterrrrer/chezmoi.git
 ```
 
-The command installs chezmoi, clones this repository into `~/.dotfiles`,
+The command installs chezmoi, clones this repository into `~/.chezmoi`,
 installs Homebrew if necessary, installs the packages in `Brewfile`, installs
 Oh My Zsh, and applies the managed files. If the repository has been cloned
 already, run:
 
 ```sh
-chezmoi --source "$HOME/.dotfiles" init --apply
+chezmoi --source "$HOME/.chezmoi" init --apply
 ```
 
-The repository name still says `dotbot` on GitHub; it can be renamed there
-later without changing the local layout.
+The repository and local checkout are named `chezmoi` to match the active
+migration tool.
 
 ## Everyday commands
 
 ```sh
-chezmoi --source "$HOME/.dotfiles" diff
-chezmoi --source "$HOME/.dotfiles" apply
-chezmoi --source "$HOME/.dotfiles" update
-chezmoi --source "$HOME/.dotfiles" doctor
+chezmoi --source "$HOME/.chezmoi" diff
+chezmoi --source "$HOME/.chezmoi" apply
+chezmoi --source "$HOME/.chezmoi" update
+chezmoi --source "$HOME/.chezmoi" doctor
 ```
 
 Edit managed files in `home/` or use `chezmoi edit`. Run `chezmoi diff` before

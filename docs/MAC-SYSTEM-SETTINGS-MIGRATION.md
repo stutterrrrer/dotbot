@@ -15,7 +15,9 @@ The important distinction is:
   its preference export. Do not silently redesign Moom mappings as BTT
   mappings during this migration.
 - **chezmoi** owns text configuration and reviewed portable files, not live
-  macOS preference databases or permission records.
+  macOS preference databases or permission records. The reviewed Moom export
+  under `docs/migration-reference/moom/` is an AI-readable reference only; it
+  is outside the active `home/` source tree and must not be applied directly.
 
 ## Source-Mac findings
 
@@ -140,7 +142,7 @@ safe to restore.
 Run the repository's read-only audit script on either Mac:
 
 ```sh
-/Users/ian/.dotfiles/scripts/audit-macos-migration-settings.sh \
+/Users/ian/.chezmoi/scripts/audit-macos-migration-settings.sh \
   > "$HOME/Desktop/macos-settings-audit.txt"
 ```
 

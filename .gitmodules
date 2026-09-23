@@ -1,4 +1,0 @@
-[submodule "legacy-dotbot/dotbot"]
-	path = legacy-dotbot/dotbot
-	url = https://github.com/anishathalye/dotbot
-	ignore = dirty

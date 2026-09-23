@@ -10,6 +10,8 @@ brew "gh"
 brew "git-lfs"
 # JSON processor, used by the Codex helper
 brew "jq"
+# Command-line interface for installing and updating Mac App Store apps
+brew "mas"
 # Configure macOS default application handlers from the command line
 brew "duti"
 # Current supported Python release for command-line and development use
@@ -42,6 +44,8 @@ cask "dropzone"
 cask "bettertouchtool"
 # Window management utility
 cask "moom"
+# Menu-bar indicator and switcher for macOS Spaces/Desktops
+cask "whichspace"
 # Open-source keystroke visualizer
 cask "keycastr"
 # Terminal emulator used for the primary shell workflow.
@@ -62,3 +66,5 @@ cask "docker-desktop"
 cask "chatgpt"
 # Official Codex CLI for terminal-based local work.
 cask "codex"
+# Things 3 is purchased through the Mac App Store and managed through mas.
+mas "Things 3", id: 904280696

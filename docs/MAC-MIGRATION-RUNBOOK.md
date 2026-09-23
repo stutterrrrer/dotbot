@@ -9,20 +9,20 @@ in order and stop to review any `chezmoi diff` output before accepting changes.
 2. Check the repository status and commit/push the migration changes:
 
    ```sh
-   cd "$HOME/.dotfiles"
+   cd "$HOME/.chezmoi"
    git status
    git diff --check
    # Stage tracked edits/deletions, then explicitly stage migration files.
    # This avoids accidentally committing local IDE metadata or app exports.
    git add -u
-   git add .chezmoiroot .gitmodules Brewfile README.md \
-     APPLICATION-MIGRATION-CHECKLIST.md docs home scripts legacy-dotbot
+   git add .chezmoiroot Brewfile README.md \
+     APPLICATION-MIGRATION-CHECKLIST.md docs home scripts
    git commit -m "complete chezmoi migration"
    git push
    ```
 
-3. Confirm the repository is reachable from the new Mac. The current remote is
-   `https://github.com/stutterrrrer/dotbot.git`; its name is historical.
+3. Confirm the repository is reachable from the new Mac at
+   `https://github.com/stutterrrrer/chezmoi.git`.
 4. Keep `~/.dotbot-symlink-backup-20260922` until the new machine has passed
    the final checks.
 
@@ -38,22 +38,22 @@ Install, clone, and apply chezmoi in one command:
 
 ```sh
 sh -c "$(curl -fsLS https://get.chezmoi.io)" -- init --apply --verbose \
-  --source "$HOME/.dotfiles" \
-  https://github.com/stutterrrrer/dotbot.git
+  --source "$HOME/.chezmoi" \
+  https://github.com/stutterrrrer/chezmoi.git
 ```
 
 When prompted, answer the local HTTP proxy question according to the network
 you are using. If the repository is already cloned, use:
 
 ```sh
-chezmoi --source "$HOME/.dotfiles" init --apply --verbose
+chezmoi --source "$HOME/.chezmoi" init --apply --verbose
 ```
 
 If you want to inspect before applying, split the operation into:
 
 ```sh
-chezmoi --source "$HOME/.dotfiles" diff
-chezmoi --source "$HOME/.dotfiles" apply --verbose
+chezmoi --source "$HOME/.chezmoi" diff
+chezmoi --source "$HOME/.chezmoi" apply --verbose
 ```
 
 ## If Homebrew does not finish
@@ -87,7 +87,7 @@ or run `xcode-select --install`, then retry the formula step. Do not delete
 First retry the package step directly:
 
 ```sh
-brew bundle install --no-upgrade --file="$HOME/.dotfiles/Brewfile"
+brew bundle install --no-upgrade --file="$HOME/.chezmoi/Brewfile"
 ```
 
 The cask adoption step needs an interactive Terminal because Homebrew may ask
@@ -109,7 +109,7 @@ brew trust --formula romkatv/powerlevel10k/powerlevel10k
 Then reapply the files after the package step succeeds:
 
 ```sh
-chezmoi --source "$HOME/.dotfiles" apply --verbose
+chezmoi --source "$HOME/.chezmoi" apply --verbose
 ```
 
 Install an individual cask separately when necessary:
@@ -142,9 +142,9 @@ itself launches before checking off the Brewfile item.
 Run the following checks:
 
 ```sh
-chezmoi --source "$HOME/.dotfiles" verify
-chezmoi --source "$HOME/.dotfiles" doctor
-brew bundle check --file="$HOME/.dotfiles/Brewfile" --verbose
+chezmoi --source "$HOME/.chezmoi" verify
+chezmoi --source "$HOME/.chezmoi" doctor
+brew bundle check --file="$HOME/.chezmoi/Brewfile" --verbose
 zsh -n "$HOME/.zshrc"
 test -x "$HOME/.local/bin/idea"
 test -x "$HOME/.local/bin/codex_thread_lock_status"
@@ -155,9 +155,9 @@ Then complete [APPLICATION-MIGRATION-CHECKLIST.md](../APPLICATION-MIGRATION-CHEC
 Codex preferences are handled separately from Codex runtime state:
 
 ```sh
-chezmoi --source "$HOME/.dotfiles" source-path ~/.codex/AGENTS.md
-chezmoi --source "$HOME/.dotfiles" source-path ~/.codex/keybindings.json
-chezmoi --source "$HOME/.dotfiles" verify
+chezmoi --source "$HOME/.chezmoi" source-path ~/.codex/AGENTS.md
+chezmoi --source "$HOME/.chezmoi" source-path ~/.codex/keybindings.json
+chezmoi --source "$HOME/.chezmoi" verify
 ```
 
 The repository syncs the reviewed portable values from
@@ -176,8 +176,8 @@ Edit the corresponding file in `home/`, not the generated file in `$HOME`:
 
 ```sh
 vim home/dot_zshrc
-chezmoi --source "$HOME/.dotfiles" diff
-chezmoi --source "$HOME/.dotfiles" apply
+chezmoi --source "$HOME/.chezmoi" diff
+chezmoi --source "$HOME/.chezmoi" apply
 ```
 
 If you edit a generated file directly, capture it back into the source state
@@ -191,9 +191,17 @@ install the change:
 
 ```sh
 vim Brewfile
-brew bundle check --file="$HOME/.dotfiles/Brewfile" --verbose
-chezmoi --source "$HOME/.dotfiles" apply
+brew bundle check --file="$HOME/.chezmoi/Brewfile" --verbose
+chezmoi --source "$HOME/.chezmoi" apply
 ```
+
+`Brewfile` is an explicit, version-controlled package manifest. Homebrew does
+not add packages to it automatically when you run `brew install` or
+`brew install --cask`; installing WhichSpace separately therefore requires an
+entry to make it part of future migrations. `brew bundle dump` can create an
+installed-state snapshot, but it may include packages that are not intentional
+and can overwrite the curated migration manifest, so use it only as a reviewed
+source of additions rather than as an automatic recorder.
 
 Do not use `brew bundle cleanup` unless you intentionally want to uninstall
 every dependency missing from the Brewfile.
@@ -212,10 +220,10 @@ inspect the change first and clear only the relevant state bucket:
 
 ```sh
 # Allows run_onchange_ hooks to run again.
-chezmoi --source "$HOME/.dotfiles" state delete-bucket --bucket=entryState
+chezmoi --source "$HOME/.chezmoi" state delete-bucket --bucket=entryState
 
 # Allows run_once_ hooks to run again. Use this cautiously.
-chezmoi --source "$HOME/.dotfiles" state delete-bucket --bucket=scriptState
+chezmoi --source "$HOME/.chezmoi" state delete-bucket --bucket=scriptState
 ```
 
 Usually it is safer to rerun the specific underlying command directly—for
@@ -229,8 +237,8 @@ Edit only the reviewed source files under `home/dot_codex/`:
 ```sh
 vim home/dot_codex/AGENTS.md
 vim home/dot_codex/keybindings.json
-chezmoi --source "$HOME/.dotfiles" diff -- ~/.codex/AGENTS.md ~/.codex/keybindings.json
-chezmoi --source "$HOME/.dotfiles" apply
+chezmoi --source "$HOME/.chezmoi" diff -- ~/.codex/AGENTS.md ~/.codex/keybindings.json
+chezmoi --source "$HOME/.chezmoi" apply
 ```
 
 If a new Codex setting appears in `~/.codex/config.toml`, classify it before
@@ -244,17 +252,17 @@ If you change one of the managed files directly in `~/.codex/`, capture only
 that file after reviewing it:
 
 ```sh
-chezmoi --source "$HOME/.dotfiles" re-add ~/.codex/AGENTS.md
-chezmoi --source "$HOME/.dotfiles" re-add ~/.codex/keybindings.json
+chezmoi --source "$HOME/.chezmoi" re-add ~/.codex/AGENTS.md
+chezmoi --source "$HOME/.chezmoi" re-add ~/.codex/keybindings.json
 git diff -- home/dot_codex
 ```
 
 ### Publish a migration update
 
 ```sh
-cd "$HOME/.dotfiles"
+   cd "$HOME/.chezmoi"
 git diff --check
-chezmoi --source "$HOME/.dotfiles" diff
+chezmoi --source "$HOME/.chezmoi" diff
 git status
 git add home Brewfile README.md docs scripts APPLICATION-MIGRATION-CHECKLIST.md
 git commit -m "update macOS dotfiles"
@@ -267,14 +275,7 @@ template update.
 
 ## Final cleanup after the migration
 
-After the new Mac has been used successfully for a while, remove the old
-Dotbot material from the repository in one deliberate change:
-
-```sh
-git rm -r legacy-dotbot .gitmodules
-git commit -m "remove legacy Dotbot setup"
-git push
-```
-
-Do not remove the home backup until you have confirmed that the new regular
-files, shell behavior, applications, and credentials all work.
+The legacy Dotbot directory and its submodule declaration have been removed.
+Do not remove the local `~/.dotbot-symlink-backup-20260922` rollback copy until
+you have confirmed that the new regular files, shell behavior, applications,
+and credentials all work.
