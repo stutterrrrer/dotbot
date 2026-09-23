@@ -1,5 +1,3 @@
-tap "homebrew/bundle"
-tap "romkatv/powerlevel10k"
 # chezmoi is the dotfiles manager used by this repository.
 brew "chezmoi"
 # Clone of cat(1) with syntax highlighting and Git integration
@@ -12,8 +10,8 @@ brew "gh"
 brew "git-lfs"
 # JSON processor, used by the Codex helper
 brew "jq"
-# Interpreted, interactive, object-oriented programming language
-brew "python@3.9"
+# Current supported Python release for command-line and development use
+brew "python"
 # GUI for vim, made for macOS
 brew "macvim"
 # Tiny, lightning fast, feature-packed file manager
@@ -25,7 +23,7 @@ brew "ranger"
 # Static analysis and lint tool, for (ba)sh scripts
 brew "shellcheck"
 # Simplified and community-driven man pages
-brew "tldr"
+brew "tlrc"
 # Terminal multiplexer
 brew "tmux"
 # Fish-like fast/unobtrusive autosuggestions for zsh
@@ -35,7 +33,7 @@ brew "zsh-syntax-highlighting"
 # Better and friendly vi(vim) mode plugin for ZSH
 brew "zsh-vi-mode"
 # A Zsh Theme
-brew "romkatv/powerlevel10k/powerlevel10k"
+brew "powerlevel10k"
 # Productivity app
 cask "dropzone"
 # Window and input automation utility
@@ -48,8 +46,8 @@ cask "keycastr"
 cask "iterm2"
 # Web browser pinned in the Dock.
 cask "google-chrome"
-# JetBrains IDE used for Python and Java development.
-cask "intellij-idea"
+# Toolbox manages IntelliJ IDEA installations, versions, and updates.
+cask "jetbrains-toolbox"
 # Notes and project workspace pinned in the Dock.
 cask "notion"
 # Music streaming app pinned in the Dock.

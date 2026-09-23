@@ -127,7 +127,8 @@ the terminal you actually use and transfer it privately.
 
 ## Development tools
 
-- [ ] **BREW/INSTALL + ACCOUNT SYNC — IntelliJ IDEA** — install/sign in, verify
+- [ ] **BREW/INSTALL + ACCOUNT SYNC — IntelliJ IDEA** — Homebrew installs
+  JetBrains Toolbox; use Toolbox to install and update IntelliJ IDEA. Sign in, verify
   the `idea` launcher, and enable JetBrains Backup and Sync for IDE themes,
   keymaps, editor settings, plugins, live templates, and other supported
   categories. Use a JetBrains settings ZIP export if account sync is not

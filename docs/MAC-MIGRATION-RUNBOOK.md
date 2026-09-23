@@ -58,10 +58,10 @@ chezmoi --source "$HOME/.dotfiles" apply --verbose
 
 ## If Homebrew does not finish
 
-The `Brewfile` contains older tools such as `python@3.9` and `macvim`. Intel
-Homebrew may need to build dependencies from source, and individual casks can
-fail because of a vendor download. A failed package hook does not mean the
-dotfiles should be restored from the old symlinks.
+The `Brewfile` contains tools such as Python and MacVim. Intel Homebrew may
+need to build dependencies from source, and individual casks can fail because
+of a vendor download. A failed package hook does not mean the dotfiles should
+be restored from the old symlinks.
 
 On the source Intel Mac, the 2026-09-23 attempt installed many dependencies
 but did not complete the Brewfile. The remaining failures were MacVim,

@@ -8,7 +8,8 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # oh-my-zsh stuff
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="powerlevel10k/powerlevel10k"
+# Powerlevel10k is installed by Homebrew and loaded below.
+ZSH_THEME=""
 # plugins:
 plugins=(
   git
@@ -19,6 +20,9 @@ source $ZSH/oh-my-zsh.sh
 # These plugins are installed by Homebrew rather than Oh My Zsh. Load them
 # explicitly so the setup works with either Intel or Apple Silicon Homebrew.
 zsh_brew_prefix="$(brew --prefix 2>/dev/null || true)"
+if [[ -r "$zsh_brew_prefix/share/powerlevel10k/powerlevel10k.zsh-theme" ]]; then
+  source "$zsh_brew_prefix/share/powerlevel10k/powerlevel10k.zsh-theme"
+fi
 if [[ -r "$zsh_brew_prefix/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
   source "$zsh_brew_prefix/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 fi
