@@ -44,3 +44,7 @@ cask "bettertouchtool"
 cask "moom"
 # Open-source keystroke visualizer
 cask "keycastr"
+# Official ChatGPT desktop app, which provides the Codex desktop surface.
+cask "chatgpt"
+# Official Codex CLI for terminal-based local work.
+cask "codex"
