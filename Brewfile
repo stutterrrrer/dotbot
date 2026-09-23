@@ -44,6 +44,20 @@ cask "bettertouchtool"
 cask "moom"
 # Open-source keystroke visualizer
 cask "keycastr"
+# Terminal emulator used for the primary shell workflow.
+cask "iterm2"
+# Web browser pinned in the Dock.
+cask "google-chrome"
+# JetBrains IDE used for Python and Java development.
+cask "intellij-idea"
+# Notes and project workspace pinned in the Dock.
+cask "notion"
+# Music streaming app pinned in the Dock.
+cask "spotify"
+# Messaging app pinned in the Dock.
+cask "wechat"
+# Container development platform already managed by Homebrew on this Mac.
+cask "docker-desktop"
 # Official ChatGPT desktop app, which provides the Codex desktop surface.
 cask "chatgpt"
 # Official Codex CLI for terminal-based local work.
