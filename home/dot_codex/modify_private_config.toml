@@ -1,0 +1,38 @@
+{{- /* chezmoi:modify-template */ -}}
+{{- /*
+This partial configuration keeps Codex's machine-local configuration intact.
+The existing target content arrives through .chezmoi.stdin. Only values from
+.chezmoidata/codex.toml are written into it, so MCP paths, trusted projects,
+plugin marketplace paths, and generated state stay local to each Mac.
+*/ -}}
+{{- $codexConfiguration := dict -}}
+{{- if ne .chezmoi.stdin "" -}}
+  {{- $codexConfiguration = fromToml .chezmoi.stdin -}}
+{{- end -}}
+{{- $codexConfiguration
+  | setValueAtPath "model" .codex.model
+  | setValueAtPath "model_reasoning_effort" .codex.model_reasoning_effort
+  | setValueAtPath "approvals_reviewer" .codex.approvals_reviewer
+  | setValueAtPath "desktop.followUpQueueMode" .codex.desktop.followUpQueueMode
+  | setValueAtPath "desktop.conversationDetailMode" .codex.desktop.conversationDetailMode
+  | setValueAtPath "desktop.sansFontSize" .codex.desktop.sansFontSize
+  | setValueAtPath "desktop.codeFontSize" .codex.desktop.codeFontSize
+  | setValueAtPath "desktop.ambient-suggestions-enabled" (index .codex.desktop "ambient-suggestions-enabled")
+  | setValueAtPath "desktop.preventSleepWhileRunning" .codex.desktop.preventSleepWhileRunning
+  | setValueAtPath "desktop.selected-avatar-id" (index .codex.desktop "selected-avatar-id")
+  | setValueAtPath "desktop.avatar-overlay-mascot-width-px" (index .codex.desktop "avatar-overlay-mascot-width-px")
+  | setValueAtPath "desktop.keepRemoteControlAwakeWhilePluggedIn" .codex.desktop.keepRemoteControlAwakeWhilePluggedIn
+  | setValueAtPath "features.memories" .codex.features.memories
+  | setValueAtPath "memories.generate_memories" .codex.memories.generate_memories
+  | setValueAtPath "memories.use_memories" .codex.memories.use_memories
+  | setValueAtPath "plugins.codex-app-tools@openai-bundled.enabled" (index (index .codex.plugins "codex-app-tools@openai-bundled") "enabled")
+  | setValueAtPath "plugins.browser@openai-bundled.enabled" (index (index .codex.plugins "browser@openai-bundled") "enabled")
+  | setValueAtPath "plugins.visualize@openai-bundled.enabled" (index (index .codex.plugins "visualize@openai-bundled") "enabled")
+  | setValueAtPath "plugins.documents@openai-primary-runtime.enabled" (index (index .codex.plugins "documents@openai-primary-runtime") "enabled")
+  | setValueAtPath "plugins.pdf@openai-primary-runtime.enabled" (index (index .codex.plugins "pdf@openai-primary-runtime") "enabled")
+  | setValueAtPath "plugins.spreadsheets@openai-primary-runtime.enabled" (index (index .codex.plugins "spreadsheets@openai-primary-runtime") "enabled")
+  | setValueAtPath "plugins.presentations@openai-primary-runtime.enabled" (index (index .codex.plugins "presentations@openai-primary-runtime") "enabled")
+  | setValueAtPath "plugins.template-creator@openai-primary-runtime.enabled" (index (index .codex.plugins "template-creator@openai-primary-runtime") "enabled")
+  | setValueAtPath "plugins.chrome@openai-bundled.enabled" (index (index .codex.plugins "chrome@openai-bundled") "enabled")
+  | toToml
+-}}

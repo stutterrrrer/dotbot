@@ -10,6 +10,9 @@ The active setup is:
 
 - `.chezmoiroot` — tells chezmoi to use `home/` as its source directory.
 - `home/` — the only directory chezmoi applies to your home directory.
+- `home/.chezmoidata/codex.toml` and `home/dot_codex/` — the reviewed portable
+  Codex preferences merged into `~/.codex/`; machine-local Codex runtime state
+  is intentionally excluded.
 - `Brewfile` — formulas and casks installed by the chezmoi hook.
 - `README.md` and `APPLICATION-MIGRATION-CHECKLIST.md` — setup and migration
   instructions.
@@ -17,6 +20,8 @@ The active setup is:
   work.
 - `docs/MAC-MIGRATION-RUNBOOK.md` — the ordered new-Mac and maintenance
   procedure.
+- `docs/MAC-SYSTEM-SETTINGS-MIGRATION.md` — the audited native macOS settings,
+  the BTT-versus-native ownership split, and the read-only audit script.
 
 The disposable rollback setup is all under `legacy-dotbot/`. It contains the
 old Dotbot submodule, installer/configuration, flat dotfiles, plist exports,

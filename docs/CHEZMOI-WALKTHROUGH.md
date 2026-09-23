@@ -24,8 +24,10 @@ for rollback and reference.
 ├── home/                                # active chezmoi source state
 │   ├── .chezmoi.toml.tmpl               # per-machine config template
 │   ├── .chezmoiignore                   # conditional target exclusions
+│   ├── .chezmoidata/codex.toml          # portable Codex preferences
 │   ├── dot_gitconfig                    # -> ~/.gitconfig
 │   ├── dot_zshrc                        # -> ~/.zshrc
+│   ├── dot_codex/                       # -> ~/.codex/ (portable Codex preferences)
 │   ├── dot_config/ian/private_proxy...  # -> ~/.config/ian/proxy.zsh
 │   ├── dot_local/bin/...                # -> ~/.local/bin/...
 │   └── run_*                            # setup hooks, never target files
@@ -47,6 +49,8 @@ Chezmoi encodes the target path and file behavior in the source filename:
 | Source name | Target or behavior |
 | --- | --- |
 | `home/dot_zshrc` | `~/.zshrc` |
+| `home/dot_codex/AGENTS.md` | `~/.codex/AGENTS.md` |
+| `home/dot_codex/keybindings.json` | `~/.codex/keybindings.json` |
 | `home/dot_config/ian/...` | `~/.config/ian/...` |
 | `dot_` prefix | Adds a leading dot to that path component |
 | `private_` prefix | Makes the generated file private; it is not part of the target filename |
@@ -98,6 +102,61 @@ chezmoi --source "$HOME/.dotfiles" apply
 Do not put credentials, tokens, private keys, or other machine-specific
 secrets in this repository. Use chezmoi encryption or a password manager for
 those values.
+
+## Codex preferences: portable versus machine-specific
+
+The active Codex preference files are deliberately split from the rest of the
+Codex data:
+
+- `home/dot_codex/AGENTS.md` manages `~/.codex/AGENTS.md`, the portable
+  natural-language user and agent preferences that Codex loads as instruction
+  context.
+- `home/dot_codex/keybindings.json` manages the portable Codex desktop
+  keybinding preference.
+- `home/.chezmoidata/codex.toml` is the source of portable Codex choices.
+- `home/dot_codex/modify_private_config.toml` partially manages
+  `~/.codex/config.toml`: it updates only the reviewed portable choices while
+  preserving machine-specific absolute paths, local MCP commands, project trust
+  entries, plugin marketplace paths, and application state already on the Mac.
+
+The following are intentionally excluded from chezmoi: `auth.json`,
+conversation/history/session files, SQLite databases, caches, lock files,
+browser state, plugin/runtime directories, and any exported application state
+that contains credentials or machine-local paths. Do not add the whole
+`~/.codex` directory with `chezmoi add`; add only a reviewed portable file or
+preference value.
+
+To update the portable Codex preferences, edit the source files and review the
+rendered result before applying:
+
+```sh
+vim "$HOME/.dotfiles/home/dot_codex/AGENTS.md"
+vim "$HOME/.dotfiles/home/dot_codex/keybindings.json"
+chezmoi --source "$HOME/.dotfiles" diff -- ~/.codex/AGENTS.md ~/.codex/keybindings.json
+chezmoi --source "$HOME/.dotfiles" apply
+```
+
+If you intentionally edited one of the live files under `~/.codex/`, capture
+only that reviewed file back into the source state instead of importing the
+whole directory:
+
+```sh
+chezmoi --source "$HOME/.dotfiles" re-add ~/.codex/AGENTS.md
+chezmoi --source "$HOME/.dotfiles" re-add ~/.codex/keybindings.json
+git diff -- home/dot_codex
+```
+
+On a new Mac, `chezmoi apply` recreates `~/.codex/`, applies the portable
+values to `config.toml`, and installs these two standalone preference files
+after Codex has been installed. The existing machine-local configuration is
+preserved rather than copied from this Mac.
+
+The Codex desktop app may rewrite TOML table indentation or ordering after it
+starts. If `chezmoi diff --exclude=scripts` shows only formatting around
+machine-local marketplace tables, use `chezmoi verify --exclude=scripts` and
+check the semantic values; do not use `chezmoi re-add` on the whole file.
+Portable values are still controlled by `home/.chezmoidata/codex.toml`, while
+the machine-local paths remain in the live target.
 
 ## Useful inspection commands
 

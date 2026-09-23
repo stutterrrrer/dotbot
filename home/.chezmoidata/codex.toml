@@ -1,0 +1,55 @@
+# Portable Codex preferences copied into ~/.codex/config.toml by the modify
+# template. Keep machine paths, MCP commands, project trust, and generated
+# application state out of this file.
+
+[codex]
+model = "gpt-5.6-luna"
+model_reasoning_effort = "medium"
+approvals_reviewer = "auto_review"
+
+[codex.desktop]
+followUpQueueMode = "steer"
+conversationDetailMode = "STEPS_COMMANDS"
+sansFontSize = 14
+codeFontSize = 13
+ambient-suggestions-enabled = true
+preventSleepWhileRunning = true
+selected-avatar-id = "seedy"
+avatar-overlay-mascot-width-px = 98
+keepRemoteControlAwakeWhilePluggedIn = true
+
+[codex.features]
+memories = true
+
+[codex.memories]
+generate_memories = true
+use_memories = true
+
+# These are user-level enablement choices. The marketplace source paths and
+# plugin caches remain machine-local and are intentionally not copied.
+[codex.plugins."codex-app-tools@openai-bundled"]
+enabled = true
+
+[codex.plugins."browser@openai-bundled"]
+enabled = true
+
+[codex.plugins."visualize@openai-bundled"]
+enabled = true
+
+[codex.plugins."documents@openai-primary-runtime"]
+enabled = true
+
+[codex.plugins."pdf@openai-primary-runtime"]
+enabled = true
+
+[codex.plugins."spreadsheets@openai-primary-runtime"]
+enabled = true
+
+[codex.plugins."presentations@openai-primary-runtime"]
+enabled = true
+
+[codex.plugins."template-creator@openai-primary-runtime"]
+enabled = true
+
+[codex.plugins."chrome@openai-bundled"]
+enabled = true

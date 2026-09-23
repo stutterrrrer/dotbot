@@ -16,7 +16,7 @@ in order and stop to review any `chezmoi diff` output before accepting changes.
    # This avoids accidentally committing local IDE metadata or app exports.
    git add -u
    git add .chezmoiroot .gitmodules Brewfile README.md \
-     APPLICATION-MIGRATION-CHECKLIST.md docs home legacy-dotbot
+     APPLICATION-MIGRATION-CHECKLIST.md docs home scripts legacy-dotbot
    git commit -m "complete chezmoi migration"
    git push
    ```
@@ -63,10 +63,47 @@ Homebrew may need to build dependencies from source, and individual casks can
 fail because of a vendor download. A failed package hook does not mean the
 dotfiles should be restored from the old symlinks.
 
+On the source Intel Mac, the 2026-09-23 attempt installed many dependencies
+but did not complete the Brewfile. The remaining failures were MacVim,
+ShellCheck, tmux, git-lfs, the Powerlevel10k tap formula, cask registration
+for existing applications, and Moom's vendor download. Homebrew also reported
+that the installed Command Line Tools are older than the current release and
+that Intel macOS is now a Tier 3 configuration. The new Apple-Silicon Mac is
+expected to avoid much of the source-build pressure, but still follow the
+checks below if a package hook fails.
+
+First check the compiler toolchain in an interactive Terminal:
+
+```sh
+xcode-select --print-path
+clang++ --version
+brew doctor
+```
+
+If macOS offers a Command Line Tools update, install it from Software Update
+or run `xcode-select --install`, then retry the formula step. Do not delete
+`/Library/Developer/CommandLineTools` as a first-line migration action.
+
 First retry the package step directly:
 
 ```sh
 brew bundle install --no-upgrade --file="$HOME/.dotfiles/Brewfile"
+```
+
+The cask adoption step needs an interactive Terminal because Homebrew may ask
+for the administrator password to adjust ownership or permissions on an
+existing `/Applications` app. Run this outside a non-interactive Codex hook if
+the app is already present:
+
+```sh
+brew install --cask --adopt dropzone bettertouchtool keycastr
+```
+
+Trust only the explicitly selected Powerlevel10k formula if Homebrew's tap
+trust policy blocks it:
+
+```sh
+brew trust --formula romkatv/powerlevel10k/powerlevel10k
 ```
 
 Then reapply the files after the package step succeeds:
@@ -87,6 +124,19 @@ when the vendor site is reachable. Do not run `brew bundle cleanup` during
 migration; cleanup can remove software that is not yet represented in the
 Brewfile.
 
+For the current Moom download failure, retry from an interactive Terminal when
+the vendor site is reachable:
+
+```sh
+brew fetch --cask moom --retry
+brew install --cask moom
+```
+
+The existing `/Applications/Moom Classic.app`, BetterTouchTool, Dropzone, and
+KeyCastr application bundles are not proof that Homebrew has registered the
+casks. Confirm registration with `brew list --cask` and confirm the application
+itself launches before checking off the Brewfile item.
+
 ## Verify the new machine
 
 Run the following checks:
@@ -100,7 +150,23 @@ test -x "$HOME/.local/bin/idea"
 test -x "$HOME/.local/bin/codex_thread_lock_status"
 ```
 
-Then complete [APPLICATION-MIGRATION-CHECKLIST.md](../APPLICATION-MIGRATION-CHECKLIST.md), including app sign-in, terminal profile import, IntelliJ setup, and Accessibility permissions for BetterTouchTool and Moom.
+Then complete [APPLICATION-MIGRATION-CHECKLIST.md](../APPLICATION-MIGRATION-CHECKLIST.md), including app sign-in, terminal profile import, IntelliJ setup, and Accessibility permissions for BetterTouchTool and Moom. For the native keyboard, input, Dock, hot-corner, accessibility, and display settings that are intentionally outside chezmoi, use [the system-settings inventory](MAC-SYSTEM-SETTINGS-MIGRATION.md).
+
+Codex preferences are handled separately from Codex runtime state:
+
+```sh
+chezmoi --source "$HOME/.dotfiles" source-path ~/.codex/AGENTS.md
+chezmoi --source "$HOME/.dotfiles" source-path ~/.codex/keybindings.json
+chezmoi --source "$HOME/.dotfiles" verify
+```
+
+The repository syncs the reviewed portable values from
+`home/.chezmoidata/codex.toml` into `~/.codex/config.toml`, as well as
+`~/.codex/AGENTS.md` and `~/.codex/keybindings.json`. Do not copy
+`~/.codex/config.toml` wholesale: it contains machine-specific paths, local MCP
+endpoints/commands, project trust, and plugin/runtime state. Never migrate
+`auth.json`, history, sessions, databases, caches, locks, or browser/plugin
+state through this repository.
 
 ## Future maintenance
 
@@ -156,6 +222,33 @@ Usually it is safer to rerun the specific underlying command directly—for
 example, `brew bundle install --no-upgrade ...`—than to clear all once-script
 state.
 
+### Change Codex preferences
+
+Edit only the reviewed source files under `home/dot_codex/`:
+
+```sh
+vim home/dot_codex/AGENTS.md
+vim home/dot_codex/keybindings.json
+chezmoi --source "$HOME/.dotfiles" diff -- ~/.codex/AGENTS.md ~/.codex/keybindings.json
+chezmoi --source "$HOME/.dotfiles" apply
+```
+
+If a new Codex setting appears in `~/.codex/config.toml`, classify it before
+adding it to chezmoi. Portable preferences belong in
+`home/.chezmoidata/codex.toml`; absolute paths, local commands, project trust,
+plugin locations, credentials, and generated state should remain machine-local.
+Do not run `chezmoi re-add ~/.codex/config.toml`, because that would try to
+capture the whole mixed file instead of updating the portable preference list.
+
+If you change one of the managed files directly in `~/.codex/`, capture only
+that file after reviewing it:
+
+```sh
+chezmoi --source "$HOME/.dotfiles" re-add ~/.codex/AGENTS.md
+chezmoi --source "$HOME/.dotfiles" re-add ~/.codex/keybindings.json
+git diff -- home/dot_codex
+```
+
 ### Publish a migration update
 
 ```sh
@@ -163,7 +256,7 @@ cd "$HOME/.dotfiles"
 git diff --check
 chezmoi --source "$HOME/.dotfiles" diff
 git status
-git add home Brewfile README.md docs APPLICATION-MIGRATION-CHECKLIST.md
+git add home Brewfile README.md docs scripts APPLICATION-MIGRATION-CHECKLIST.md
 git commit -m "update macOS dotfiles"
 git push
 ```
