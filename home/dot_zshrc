@@ -49,6 +49,10 @@ fi
 # Turn off ambiguous autocomplete beeps
 unsetopt LIST_BEEP
 
+# Extended globbing: ^*.zip (everything except .zip), *~*.log (exclude), **/*(.) etc.
+# Side effect: ^ ~ # become glob characters, so quote them in args, e.g. git reset 'HEAD^'
+setopt EXTENDED_GLOB
+
 # history {{{
 # sync history between all zsh sessions
 setopt share_history

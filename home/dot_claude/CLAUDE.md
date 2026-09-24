@@ -38,6 +38,23 @@ to Claude Code sessions.
 - Before sending any external message, find the exact message/recipient and
   get my confirmation right before sending.
 
+## Claude desktop app
+
+- For every new question I ask (not follow-ups like "yes"), call
+  `mark_chapter` with a short version of the question, so the session's table
+  of contents lists my questions.
+- Give each session a short topic title, and update it with each new question
+  so it reflects the latest topic (e.g. "IntelliJ settings backup").
+- Remote Control is on, so I may be on my phone: send screenshots, reports,
+  and built files with SendUserFile instead of only giving local paths.
+- After editing files, open the diff pane instead of pasting long diffs.
+- For tasks longer than ~5 minutes, send a push notification when done or
+  blocked.
+- Use the built-in browser by default; use Chrome only for sites where I need
+  my logged-in session.
+- Answer in chat; publish an Artifact page only when I ask or when the result
+  is meant to be shared.
+
 ## Dotfiles (chezmoi)
 
 - Repo: `~/.chezmoi` (source under `home/`), remote
@@ -59,6 +76,13 @@ to Claude Code sessions.
 - Don't use JetBrains AI Assistant / AI Chat for this.
 - For Vim-mode Esc, IntelliJ's Settings → Tools → Terminal → "Move focus to the
   editor with Escape" must be off.
+- In the terminal, keep tables to ≤4 narrow columns; otherwise use lists.
+- Reference code as `path:line` so IntelliJ makes it clickable.
+- When the IDE is connected, treat my current selection / open file as the
+  default context for "this".
+- The CLI status line (`~/.claude/statusline.sh`) and Notification hook
+  (`~/.claude/hooks/notify.sh`) are pinned by
+  `home/dot_claude/modify_settings.json`.
 
 ## Code style
 

@@ -1,10 +1,14 @@
 {{- /* chezmoi:modify-template */ -}}
 {{- /*
 Claude Code writes its own runtime state (permissions, model, etc.) into
-~/.claude/settings.json, so this partial template only pins the Vim prompt
-settings and Remote Control at startup (so every CLI session can be driven
-from the Claude mobile app), and leaves every other key untouched. The existing target content
-arrives through .chezmoi.stdin.
+~/.claude/settings.json, so this partial template only pins the keys below
+and leaves every other key untouched. The existing target content arrives
+through .chezmoi.stdin. Pinned:
+- Vim prompt mode and jk / kj -> <Esc>
+- Remote Control at startup (every CLI session can be driven from the phone)
+- statusLine -> ~/.claude/statusline.sh (model | folder | branch | context %)
+- Notification hook -> ~/.claude/hooks/notify.sh (macOS banner when the CLI
+  waits for me; silent in the desktop app)
 
 jk / kj -> <Esc> is native in Claude Code >= 2.1.208: exactly two printable
 characters, INSERT mode only, second key within one second. It is read only
@@ -20,4 +24,6 @@ No wrapper is needed.
   | setValueAtPath "vimInsertModeRemaps.jk" "<Esc>"
   | setValueAtPath "vimInsertModeRemaps.kj" "<Esc>"
   | setValueAtPath "remoteControlAtStartup" true
+  | setValueAtPath "statusLine" (dict "type" "command" "command" "~/.claude/statusline.sh")
+  | setValueAtPath "hooks.Notification" (list (dict "hooks" (list (dict "type" "command" "command" "~/.claude/hooks/notify.sh"))))
   | toPrettyJson }}
