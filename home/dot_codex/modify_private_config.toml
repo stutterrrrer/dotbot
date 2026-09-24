@@ -1,13 +1,19 @@
 {{- /* chezmoi:modify-template */ -}}
 {{- /*
 This partial configuration keeps Codex's machine-local configuration intact.
-The existing target content arrives through .chezmoi.stdin. Only values from
-.chezmoidata/codex.toml are written into it, so MCP paths, trusted projects,
-plugin marketplace paths, and generated state stay local to each Mac.
+The existing target content arrives through .chezmoi.stdin. Portable values
+come from .chezmoidata/codex.toml; the IntelliJ endpoint below is host-scoped.
+Other MCP paths, trusted projects, plugin paths, and generated state stay local.
 */ -}}
 {{- $codexConfiguration := dict -}}
 {{- if ne .chezmoi.stdin "" -}}
   {{- $codexConfiguration = fromToml .chezmoi.stdin -}}
+{{- end -}}
+{{- /* This port was verified in IntelliJ's MCP Server settings on this Mac. */ -}}
+{{- if eq .chezmoi.hostname "ians-MacBook-Pro" -}}
+  {{- $codexConfiguration = $codexConfiguration
+    | setValueAtPath "mcp_servers.jetbrains.url" "http://127.0.0.1:64342/stream"
+    | setValueAtPath "mcp_servers.jetbrains.enabled" true -}}
 {{- end -}}
 {{- $codexConfiguration
   | setValueAtPath "model" .codex.model
