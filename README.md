@@ -12,6 +12,9 @@ The active setup is:
 - `home/.chezmoidata/codex.toml` and `home/dot_codex/` — the reviewed portable
   Codex preferences merged into `~/.codex/`; machine-local Codex runtime state
   is intentionally excluded.
+- `home/dot_claude/modify_settings.json` — pins Claude Code's Vim prompt mode
+  and native `jk`/`kj` → Escape in `~/.claude/settings.json`; all other keys
+  Claude Code writes there are left untouched.
 - `Brewfile` — formulas and casks installed by the chezmoi hook.
 - `README.md` and `APPLICATION-MIGRATION-CHECKLIST.md` — setup and migration
   instructions.
