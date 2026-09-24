@@ -8,7 +8,7 @@ arrives through .chezmoi.stdin.
 jk / kj -> <Esc> is native in Claude Code >= 2.1.208: exactly two printable
 characters, INSERT mode only, second key within one second. It is read only
 from this user settings file (project .claude/settings.json is ignored).
-No wrapper is needed, unlike codex-with-jk.
+No wrapper is needed.
 */ -}}
 {{- $claudeSettings := dict -}}
 {{- if ne .chezmoi.stdin "" -}}

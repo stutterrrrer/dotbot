@@ -9,9 +9,6 @@ The active setup is:
 
 - `.chezmoiroot` — tells chezmoi to use `home/` as its source directory.
 - `home/` — the only directory chezmoi applies to your home directory.
-- `home/.chezmoidata/codex.toml` and `home/dot_codex/` — the reviewed portable
-  Codex preferences merged into `~/.codex/`; machine-local Codex runtime state
-  is intentionally excluded.
 - `home/dot_claude/modify_settings.json` — pins Claude Code's Vim prompt mode
   and native `jk`/`kj` → Escape in `~/.claude/settings.json`; all other keys
   Claude Code writes there are left untouched.

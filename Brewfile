@@ -64,10 +64,8 @@ cask "spotify"
 cask "wechat"
 # Container development platform already managed by Homebrew on this Mac.
 cask "docker-desktop"
-# Official ChatGPT desktop app, which provides the Codex desktop surface.
+# Official ChatGPT desktop app.
 cask "chatgpt"
-# Official Codex CLI for terminal-based local work.
-cask "codex"
 # Clipboard history manager for Mac, iPhone, and iPad.
 cask "paste"
 # Things 3 is purchased through the Mac App Store and managed through mas.

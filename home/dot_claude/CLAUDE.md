@@ -88,5 +88,3 @@ to Claude Code sessions.
   (Miniforge base `/opt/homebrew/Caskroom/miniforge/base`), not the base dir.
 - Missing colors in a CLI inside IntelliJ: check for an inherited `NO_COLOR`
   first, not the theme.
-- Codex conversation stuck "open in another app": delete it from IntelliJ's
-  AI Chat tool window, then Retry in the ChatGPT/Codex app.
