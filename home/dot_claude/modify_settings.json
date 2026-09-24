@@ -2,7 +2,8 @@
 {{- /*
 Claude Code writes its own runtime state (permissions, model, etc.) into
 ~/.claude/settings.json, so this partial template only pins the Vim prompt
-settings and leaves every other key untouched. The existing target content
+settings and Remote Control at startup (so every CLI session can be driven
+from the Claude mobile app), and leaves every other key untouched. The existing target content
 arrives through .chezmoi.stdin.
 
 jk / kj -> <Esc> is native in Claude Code >= 2.1.208: exactly two printable
@@ -18,4 +19,5 @@ No wrapper is needed.
   | setValueAtPath "editorMode" "vim"
   | setValueAtPath "vimInsertModeRemaps.jk" "<Esc>"
   | setValueAtPath "vimInsertModeRemaps.kj" "<Esc>"
+  | setValueAtPath "remoteControlAtStartup" true
   | toPrettyJson }}
