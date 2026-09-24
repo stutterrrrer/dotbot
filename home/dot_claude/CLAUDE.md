@@ -60,6 +60,28 @@ to Claude Code sessions.
 - For Vim-mode Esc, IntelliJ's Settings → Tools → Terminal → "Move focus to the
   editor with Escape" must be off.
 
+## Code style
+
+- Use verbose, descriptive variable names rather than cryptic abbreviations.
+- Leave clear, concise comments where they explain intent, non-obvious
+  logic, or important tradeoffs.
+
+## macOS troubleshooting
+
+- Keyboard shortcut / input problems: check the exact key event with KeyCastr
+  first, before diagnosing or changing Vim, iTerm, BetterTouchTool, or other
+  mappings.
+- macOS Keyboard Shortcuts: a mapping in `com.apple.symbolichotkeys` is not
+  the same as the shortcut being enabled in System Settings. Verify the UI
+  checkbox (especially Mission Control Control+number) before concluding a
+  shortcut is configured.
+- Space/Desktop indicator: use WhichSpace; don't suggest or install Spaceman.
+- Stop and ask me when a password or macOS privacy prompt needs my input.
+- Mac migration: use the existing chezmoi workflow; don't run Dotbot or
+  migrate Karabiner.
+- Verify machine-specific facts locally before documenting them, and scope
+  facts that differ between Macs to the right host.
+
 ## Machine facts (re-verify before relying on them)
 
 - IntelliJ's Conda field needs the executable `/opt/homebrew/bin/conda`
