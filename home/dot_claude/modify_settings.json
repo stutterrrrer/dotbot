@@ -6,14 +6,16 @@ and leaves every other key untouched. The existing target content arrives
 through .chezmoi.stdin. Pinned:
 - Vim prompt mode and jk / kj -> <Esc>
 - Remote Control at startup (every CLI session can be driven from the phone)
-- statusLine -> ~/.claude/statusline.sh (2 rows: model · effort | 5-hour %,
-  weekly %; conda | branch + dirty state | lines changed | context | duration
-  | IDE). Edit the
+- statusLine -> ~/.claude/statusline.sh (2 rows: prompt cache | model ·
+  effort | 5-hour %, weekly %; conda | branch + dirty state | lines changed |
+  context | duration | IDE). refreshInterval 60 re-runs it every minute so the
+  cache and quota countdowns stay current while idle. Edit the
   rows in home/dot_claude/executable_statusline.sh
 - Notification hook -> ~/.claude/hooks/notify.sh (macOS banner when the CLI
   waits for me; silent in the desktop app)
-- UserPromptSubmit hook -> ~/.claude/hooks/session-title.py (retitle the CLI
-  session from its rolling topic, EWMA of keyword weights; silent in the
+- UserPromptSubmit hook -> ~/.claude/hooks/session-title.py (natural rolling
+  CLI session titles: every 3 questions Haiku blends them into the current
+  title in the background; shown from the next question; silent in the
   desktop app)
 
 jk / kj -> <Esc> is native in Claude Code >= 2.1.208: exactly two printable
@@ -30,7 +32,7 @@ No wrapper is needed.
   | setValueAtPath "vimInsertModeRemaps.jk" "<Esc>"
   | setValueAtPath "vimInsertModeRemaps.kj" "<Esc>"
   | setValueAtPath "remoteControlAtStartup" true
-  | setValueAtPath "statusLine" (dict "type" "command" "command" "~/.claude/statusline.sh")
+  | setValueAtPath "statusLine" (dict "type" "command" "command" "~/.claude/statusline.sh" "refreshInterval" 60)
   | setValueAtPath "hooks.Notification" (list (dict "hooks" (list (dict "type" "command" "command" "~/.claude/hooks/notify.sh"))))
   | setValueAtPath "hooks.UserPromptSubmit" (list (dict "hooks" (list (dict "type" "command" "command" "~/.claude/hooks/session-title.py"))))
   | toPrettyJson }}

@@ -54,11 +54,11 @@ to Claude Code sessions.
 - For every new question I ask (not follow-ups like "yes"), call
   `mark_chapter` with a short version of the question, so the session's table
   of contents lists my questions.
-- Give each session a short topic title and update it with each new question
-  as a rolling topic, like an EWMA: the current title is the running summary;
-  blend the new question into it, keep themes that recur, and let one-off
-  tangents fade after a few questions. Don't re-read past messages to retitle
-  (same idea as the CLI hook `~/.claude/hooks/session-title.py`).
+- Give each session a short topic title at the first question, then update it
+  every 3rd new question as a rolling topic, like an EWMA: the current title is
+  the running summary; blend the last 3 questions into it, keep themes that
+  recur, and let one-off tangents fade. Don't re-read past messages to retitle
+  (the CLI hook `~/.claude/hooks/session-title.py` does the same with Haiku).
 - Remote Control is on, so I may be on my phone: send screenshots, reports,
   and built files with SendUserFile instead of only giving local paths.
 - After editing files, open the diff pane instead of pasting long diffs.
@@ -95,11 +95,12 @@ to Claude Code sessions.
 - When the IDE is connected, treat my current selection / open file as the
   default context for "this".
 - Pinned by `home/dot_claude/modify_settings.json`: the CLI status line
-  (`~/.claude/statusline.sh`, 2 rows: model + effort, 5-hour / weekly usage;
+  (`~/.claude/statusline.sh`, 2 rows: prompt cache, model + effort, 5-hour / weekly usage;
   conda env, branch + dirty state, lines changed, context, session duration,
   IDE connection), the Notification hook (`~/.claude/hooks/notify.sh`),
-  and the session-title hook (`~/.claude/hooks/session-title.py`, retitles
-  CLI sessions from the rolling topic: an EWMA of keyword weights per session).
+  and the session-title hook (`~/.claude/hooks/session-title.py`: natural
+  rolling CLI titles; every 3 questions Haiku blends them into the current
+  title in the background, shown from the next question).
 
 ## Code style
 

@@ -1,10 +1,16 @@
 #!/bin/bash
 # Claude Code CLI status line, two rows (each echo is one row):
-#   1: model · effort (· fast) | 5-hour % ↻reset, weekly % ↻reset
-#      (no "5h"/"wk" labels: the reset time format tells them apart —
-#       time only = 5-hour window, weekday + time = weekly window)
-#   2: 🐍 conda env | branch ●changed ↑ahead ↓behind | +added −removed | ctx % |
-#      ⏱ session duration | IDE ✓/✗        (row 2 = this session's own state)
+#   1: prompt cache | model effort (fast) | 5-hour % ⏳left, weekly % ⏳left
+#      e.g. "🟢cache 47m | Opus 5.5 high | 53% ⏳2h-27m, 8% ⏳6d-4h"
+#      - cache warm: time until it expires; emoji = how urgent it is to send
+#        the next message: 🟢 30m+  🟡 10-29m  🔴 under 10m
+#      - cache cold: tokens the next reply re-processes at full price; emoji =
+#        how expensive that is: 🧊 under 50k  💰 50-150k  💸 over 150k
+#      - quota: no "5h"/"wk" labels, the time left tells them apart
+#        (hours = 5-hour window, days = weekly)
+#   2: 🐍conda env | branch●changed↑ahead↓behind | edits +added −removed | ctx % |
+#      🕒session duration | IDE✓/✗        (row 2 = this session's own state)
+# Icons sit directly against their text, with no space.
 # The session title is already shown above the prompt, and the vim mode by
 # Claude Code's own instant "-- INSERT --" indicator, so neither is repeated.
 # Claude Code passes session data as JSON on stdin (see
@@ -12,12 +18,27 @@
 
 # Speed matters: this re-runs on every vim mode change, and each extra process
 # (jq, date, git, ps…) costs ~7 ms on this Mac. So ONE jq call extracts every
-# field, formats the reset times, and returns the current time. Fields are
+# field, formats the time left until each quota resets, and returns the
+# current time. Fields are
 # joined by the ASCII unit separator so empty values survive `read`.
 IFS=$'\x1f' read -r model_name current_dir context_percent effort_level \
   fast_mode_enabled lines_added lines_removed session_minutes \
-  five_hour_percent five_hour_reset weekly_percent weekly_reset current_epoch < <(
-  jq -r '[
+  five_hour_percent five_hour_reset weekly_percent weekly_reset \
+  cache_is_warm cache_time_left cache_minutes_left cache_reload_tokens \
+  cache_reload_token_count current_epoch < <(
+  jq -r '
+    # Seconds until a Unix-epoch reset time, as "6d-4h", "2h-27m", "45m" or "<1m"
+    # (the dash keeps each duration visually one item).
+    def time_left:
+      ([. - now, 0] | max | floor) as $seconds_left
+      | ($seconds_left / 86400 | floor) as $days
+      | ($seconds_left % 86400 / 3600 | floor) as $hours
+      | ($seconds_left % 3600 / 60 | floor) as $minutes
+      | if $days > 0 then "\($days)d-\($hours)h"
+        elif $hours > 0 then "\($hours)h-\($minutes)m"
+        elif $minutes > 0 then "\($minutes)m"
+        else "<1m" end;
+    [
       .model.display_name // "?",
       .workspace.current_dir // .cwd // "",
       (.context_window.used_percentage // 0 | floor),
@@ -27,9 +48,16 @@ IFS=$'\x1f' read -r model_name current_dir context_percent effort_level \
       .cost.total_lines_removed // 0,
       (.cost.total_duration_ms // 0 | . / 60000 | floor),
       (.rate_limits.five_hour.used_percentage // "" | if . == "" then . else floor end),
-      (.rate_limits.five_hour.resets_at // "" | if . == "" then . else strflocaltime("%H:%M") end),
+      (.rate_limits.five_hour.resets_at // "" | if . == "" then . else time_left end),
       (.rate_limits.seven_day.used_percentage // "" | if . == "" then . else floor end),
-      (.rate_limits.seven_day.resets_at // "" | if . == "" then . else strflocaltime("%a %H:%M") end),
+      (.rate_limits.seven_day.resets_at // "" | if . == "" then . else time_left end),
+      # Prompt cache (absent until the first reply): warm while expires_at is ahead.
+      ((.prompt_cache.warm // false) and ((.prompt_cache.expires_at // 0) > now)),
+      (.prompt_cache.expires_at // "" | if . == "" then . else time_left end),
+      (.prompt_cache.expires_at // 0 | [. - now, 0] | max / 60 | floor),
+      (.prompt_cache.recache_tokens_if_cold // "" | if . == "" then .
+        elif . >= 1000 then "\(. / 1000 | floor)k" else tostring end),
+      (.prompt_cache.recache_tokens_if_cold // 0),
       (now | floor)
     ] | map(tostring) | join("\u001f")')   # reads the session JSON from our stdin
 
@@ -79,9 +107,9 @@ if [[ -n "$git_branch" ]]; then
         (( changed_file_count++ ))
       fi
     done < <(git -C "$current_dir" --no-optional-locks status --porcelain=v1 --branch 2>/dev/null)
-    (( changed_file_count > 0 )) && git_state+=" ●$changed_file_count"
-    (( commits_ahead > 0 )) && git_state+=" ↑$commits_ahead"
-    (( commits_behind > 0 )) && git_state+=" ↓$commits_behind"
+    (( changed_file_count > 0 )) && git_state+="●$changed_file_count"
+    (( commits_ahead > 0 )) && git_state+="↑$commits_ahead"
+    (( commits_behind > 0 )) && git_state+="↓$commits_behind"
     printf '%s\x1f%s\x1f%s\n' "$current_epoch" "$current_dir" "$git_state" > "$git_cache_file"
   fi
 fi
@@ -118,7 +146,7 @@ if (( ${#ide_lock_files[@]} > 0 )); then
   if [[ -n "$cached_line" ]] && (( current_epoch - ${cached_line%% *} < ide_cache_seconds )); then
     ide_status="${cached_line#* }"
   else
-    ide_status="IDE ✗"
+    ide_status="IDE✗"
     claude_pid=$(find_claude_pid)
     if [[ -n "$claude_pid" ]]; then
       established_ports=$(lsof -a -p "$claude_pid" -iTCP -sTCP:ESTABLISHED -nP 2>/dev/null \
@@ -126,7 +154,7 @@ if (( ${#ide_lock_files[@]} > 0 )); then
       for lock_file in "${ide_lock_files[@]}"; do
         ide_port="${lock_file##*/}"; ide_port="${ide_port%.lock}"
         if grep -qx "$ide_port" <<<"$established_ports"; then
-          ide_status="IDE ✓"   # the lock file's ideName says which IDE (IntelliJ IDEA)
+          ide_status="IDE✓"   # the lock file's ideName says which IDE (IntelliJ IDEA)
           break
         fi
       done
@@ -136,11 +164,11 @@ if (( ${#ide_lock_files[@]} > 0 )); then
 fi
 
 # --- Subscription usage (claude.ai Pro/Max; absent until the first reply) ---
-# jq already formatted the reset times ("00:40", "Thu 02:13").
+# jq already formatted the time left ("2h-27m", "6d-4h").
 five_hour_usage=""
-[[ -n "$five_hour_percent" ]] && five_hour_usage="${five_hour_percent}%${five_hour_reset:+ ↻$five_hour_reset}"
+[[ -n "$five_hour_percent" ]] && five_hour_usage="${five_hour_percent}%${five_hour_reset:+ ⏳$five_hour_reset}"
 weekly_usage=""
-[[ -n "$weekly_percent" ]] && weekly_usage="${weekly_percent}%${weekly_reset:+ ↻$weekly_reset}"
+[[ -n "$weekly_percent" ]] && weekly_usage="${weekly_percent}%${weekly_reset:+ ⏳$weekly_reset}"
 
 # Session duration: "42m", "1h12m".
 if (( session_minutes >= 60 )); then
@@ -153,11 +181,11 @@ fi
 # Empty parts are skipped. CONDA_DEFAULT_ENV is inherited from the shell that
 # started claude, so it shows the env that session's commands run in.
 row_parts=()
-[[ -n "$CONDA_DEFAULT_ENV" ]] && row_parts+=("🐍 $CONDA_DEFAULT_ENV")
+[[ -n "$CONDA_DEFAULT_ENV" ]] && row_parts+=("🐍$CONDA_DEFAULT_ENV")
 [[ -n "$git_branch" ]] && row_parts+=("${git_branch}${git_state}")
-(( lines_added + lines_removed > 0 )) && row_parts+=("+${lines_added} −${lines_removed}")
+(( lines_added + lines_removed > 0 )) && row_parts+=("edits +${lines_added} −${lines_removed}")
 row_parts+=("ctx ${context_percent}%")
-row_parts+=("⏱ $session_duration")
+row_parts+=("🕒$session_duration")
 [[ -n "$ide_status" ]] && row_parts+=("$ide_status")
 editing_row=""
 for row_part in "${row_parts[@]}"; do
@@ -165,17 +193,32 @@ for row_part in "${row_parts[@]}"; do
   editing_row+="$row_part"
 done
 
-# Row 1: model · effort, then the two quota windows joined by a comma
-# ("53% ↻00:40, 8% ↻Thu 02:13").
+# Row 1: prompt cache first, then model + effort, then the two quota windows
+# joined by a comma ("53% ⏳2h-27m, 8% ⏳6d-4h").
 model_text="$model_name"
-[[ -n "$effort_level" ]] && model_text+=" · $effort_level"
-[[ "$fast_mode_enabled" == "true" ]] && model_text+=" · fast"
+[[ -n "$effort_level" ]] && model_text+=" $effort_level"
+[[ "$fast_mode_enabled" == "true" ]] && model_text+=" fast"
 
 quota_text="$five_hour_usage"
 [[ -n "$quota_text" && -n "$weekly_usage" ]] && quota_text+=", "
 quota_text+="$weekly_usage"
 
+# Prompt cache (absent until the first reply), thresholds in the header.
+cache_text=""
+if [[ "$cache_is_warm" == "true" ]]; then
+  if (( cache_minutes_left >= 30 )); then urgency_icon="🟢"
+  elif (( cache_minutes_left >= 10 )); then urgency_icon="🟡"
+  else urgency_icon="🔴"; fi
+  cache_text="${urgency_icon}cache $cache_time_left"
+elif [[ -n "$cache_reload_tokens" ]]; then
+  if (( cache_reload_token_count > 150000 )); then cost_icon="💸"
+  elif (( cache_reload_token_count >= 50000 )); then cost_icon="💰"
+  else cost_icon="🧊"; fi
+  cache_text="${cost_icon}cache cold $cache_reload_tokens"
+fi
+
 usage_row="$model_text"
+[[ -n "$cache_text" ]] && usage_row="$cache_text | $usage_row"
 [[ -n "$quota_text" ]] && usage_row+=" | $quota_text"
 
 echo "$usage_row"
