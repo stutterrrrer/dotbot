@@ -8,7 +8,7 @@ brew "fzf"
 brew "gh"
 # Git Large File Storage, referenced by ~/.gitconfig
 brew "git-lfs"
-# JSON processor, used by the Codex helper
+# JSON processor
 brew "jq"
 # Command-line interface for installing and updating Mac App Store apps
 brew "mas"

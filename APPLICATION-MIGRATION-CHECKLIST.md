@@ -28,13 +28,9 @@ After `chezmoi apply`, these user-level files and settings are restored:
 - **CHEZMOI** `~/.vimrc` and `~/.ideavimrc`, including Vim and IdeaVim settings
   and key mappings.
 - **CHEZMOI** `~/.tmux.conf`.
-- **CHEZMOI** `~/.local/bin/idea` and
-  `~/.local/bin/codex_thread_lock_status`.
+- **CHEZMOI** `~/.local/bin/idea`.
 - **CHEZMOI** `~/.config/ian/proxy.zsh` only when the machine-local chezmoi
   setting enables the proxy.
-- **CHEZMOI** the portable Codex preferences: `~/.codex/AGENTS.md`,
-  `~/.codex/keybindings.json`, and the reviewed general values merged into
-  `~/.codex/config.toml`.
 - **CHEZMOI** the machine-local chezmoi configuration itself, generated from
   `home/.chezmoi.toml.tmpl`; it asks the new Mac whether the proxy should be
   enabled.
@@ -45,11 +41,6 @@ macOS privacy permissions, licenses, accounts, or window/display state.
 
 ## Homebrew casks
 
-- [ ] **BREW ONLY + ACCOUNT SIGN-IN — ChatGPT/Codex** — the Brewfile now
-  installs the official `chatgpt` desktop app and `codex` CLI cask. Sign in to
-  ChatGPT, open the Codex surface, and verify `command -v codex`. Portable
-  Codex preferences are merged by chezmoi; credentials, history, sessions,
-  caches, and runtime state remain local and are not migrated.
 - [ ] **BREW ONLY — Dropzone** — install and sign in/configure actions.
 - [ ] **BREW ONLY — KeyCastr** — enable the preferred keystroke display
   options.

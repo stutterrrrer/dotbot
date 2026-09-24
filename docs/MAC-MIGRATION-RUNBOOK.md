@@ -92,7 +92,7 @@ brew bundle install --no-upgrade --file="$HOME/.chezmoi/Brewfile"
 
 The cask adoption step needs an interactive Terminal because Homebrew may ask
 for the administrator password to adjust ownership or permissions on an
-existing `/Applications` app. Run this outside a non-interactive Codex hook if
+existing `/Applications` app. Run this outside a non-interactive agent hook if
 the app is already present:
 
 ```sh
@@ -147,26 +147,9 @@ chezmoi --source "$HOME/.chezmoi" doctor
 brew bundle check --file="$HOME/.chezmoi/Brewfile" --verbose
 zsh -n "$HOME/.zshrc"
 test -x "$HOME/.local/bin/idea"
-test -x "$HOME/.local/bin/codex_thread_lock_status"
 ```
 
 Then complete [APPLICATION-MIGRATION-CHECKLIST.md](../APPLICATION-MIGRATION-CHECKLIST.md), including app sign-in, terminal profile import, IntelliJ setup, and Accessibility permissions for BetterTouchTool and Moom. For the native keyboard, input, Dock, hot-corner, accessibility, and display settings that are intentionally outside chezmoi, use [the system-settings inventory](MAC-SYSTEM-SETTINGS-MIGRATION.md).
-
-Codex preferences are handled separately from Codex runtime state:
-
-```sh
-chezmoi --source "$HOME/.chezmoi" source-path ~/.codex/AGENTS.md
-chezmoi --source "$HOME/.chezmoi" source-path ~/.codex/keybindings.json
-chezmoi --source "$HOME/.chezmoi" verify
-```
-
-The repository syncs the reviewed portable values from
-`home/.chezmoidata/codex.toml` into `~/.codex/config.toml`, as well as
-`~/.codex/AGENTS.md` and `~/.codex/keybindings.json`. Do not copy
-`~/.codex/config.toml` wholesale: it contains machine-specific paths, local MCP
-endpoints/commands, project trust, and plugin/runtime state. Never migrate
-`auth.json`, history, sessions, databases, caches, locks, or browser/plugin
-state through this repository.
 
 ## Future maintenance
 
@@ -229,33 +212,6 @@ chezmoi --source "$HOME/.chezmoi" state delete-bucket --bucket=scriptState
 Usually it is safer to rerun the specific underlying command directly—for
 example, `brew bundle install --no-upgrade ...`—than to clear all once-script
 state.
-
-### Change Codex preferences
-
-Edit only the reviewed source files under `home/dot_codex/`:
-
-```sh
-vim home/dot_codex/AGENTS.md
-vim home/dot_codex/keybindings.json
-chezmoi --source "$HOME/.chezmoi" diff -- ~/.codex/AGENTS.md ~/.codex/keybindings.json
-chezmoi --source "$HOME/.chezmoi" apply
-```
-
-If a new Codex setting appears in `~/.codex/config.toml`, classify it before
-adding it to chezmoi. Portable preferences belong in
-`home/.chezmoidata/codex.toml`; absolute paths, local commands, project trust,
-plugin locations, credentials, and generated state should remain machine-local.
-Do not run `chezmoi re-add ~/.codex/config.toml`, because that would try to
-capture the whole mixed file instead of updating the portable preference list.
-
-If you change one of the managed files directly in `~/.codex/`, capture only
-that file after reviewing it:
-
-```sh
-chezmoi --source "$HOME/.chezmoi" re-add ~/.codex/AGENTS.md
-chezmoi --source "$HOME/.chezmoi" re-add ~/.codex/keybindings.json
-git diff -- home/dot_codex
-```
 
 ### Publish a migration update
 
