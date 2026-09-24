@@ -2,3 +2,4 @@ Brewfile.lock.json
 .DS_Store
 .idea/
 *.swp
+*.iml

@@ -1,0 +1,27 @@
+# Portable base-environment history exported from the old Mac.
+# The old Mac's absolute prefix was intentionally omitted.
+name: base
+channels:
+  - defaults
+dependencies:
+  - _anaconda_depends
+  - python==3.12.11
+  - setuptools
+  - pip
+  - wheel
+  - anaconda-anon-usage
+  - anaconda-catalogs
+  - conda
+  - conda-anaconda-telemetry[version='>=0.2.0']
+  - conda-anaconda-tos[version='>=0.2.1']
+  - conda-build
+  - conda-content-trust
+  - conda-libmamba-solver
+  - conda-pack
+  - conda-package-handling
+  - conda-package-streaming
+  - anaconda-auth
+  - python.app
+  - pymysql==1.1.1
+  - pandas-stubs~=2.2.3
+  - torchvision
