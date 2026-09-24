@@ -92,11 +92,6 @@ export EDITOR=vim
 
 # functions to shorten commands: {{{
 
-# Show which Codex threads are currently being written by a live process.
-codex_thread_lock_status() {
-  zsh "$HOME/.local/bin/codex_thread_lock_status"
-}
-
 # fixes: "idea ..." fails in a chinese-named directory
 # when using relative path: resolve to absolute path
 # for all absolute paths: cd to home before calling bare "idea"
