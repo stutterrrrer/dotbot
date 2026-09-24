@@ -15,6 +15,8 @@ The active setup is:
 - `home/dot_claude/modify_settings.json` — pins Claude Code's Vim prompt mode
   and native `jk`/`kj` → Escape in `~/.claude/settings.json`; all other keys
   Claude Code writes there are left untouched.
+- `home/dot_claude/CLAUDE.md` — Ian's global Claude Code preferences and
+  IntelliJ workflow, loaded by every Claude Code session on every Mac.
 - `Brewfile` — formulas and casks installed by the chezmoi hook.
 - `README.md` and `APPLICATION-MIGRATION-CHECKLIST.md` — setup and migration
   instructions.
