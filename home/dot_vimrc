@@ -122,13 +122,12 @@ nnoremap <leader>w :set wrap!<CR>
 
 
 " repeatable window resize:
-" use \n instead of \r, because \r moves the cursor one line down for some
-" reason other than executing the command
+" Append carriage return character 13 so the macro submits the command in Vim and IdeaVim.
 " set e register to the resize command first (then run the command in e), so that you can repeat it with ! in normal mode
-nnoremap <C-w>- :let @e=":resize -5\n"<CR>@e
-nnoremap <C-w>+ :let @e=":resize +5\n"<CR>@e
-nnoremap <C-w>< :let @e=":vertical resize -5\n"<CR>@e
-nnoremap <C-w>> :let @e=":vertical resize +5\n"<CR>@e
+nnoremap <C-w>- :let @e=":resize -5" . nr2char(13)<CR>@e
+nnoremap <C-w>+ :let @e=":resize +5" . nr2char(13)<CR>@e
+nnoremap <C-w>< :let @e=":vertical resize -5" . nr2char(13)<CR>@e
+nnoremap <C-w>> :let @e=":vertical resize +5" . nr2char(13)<CR>@e
 
 " jump to a line that isn't empty and doesn't start with white-space:
 " Top-level line (especially for python where [m doesn't work)

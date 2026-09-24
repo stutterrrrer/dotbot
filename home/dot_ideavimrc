@@ -91,19 +91,7 @@ map <C-w>T <Action>(Unsplit)
 " nnoremap <C-w>W :action MoveEditorToOppositeTabGroup<Enter>
 
 " resize splits (windows in vim)
-"nmap <C-w>+ <Action>(StretchSplitToBottom)
-"nmap <C-w>- <Action>(StretchSplitToTop)
-"nmap <C-w>< <Action>(StretchSplitToLeft)
-"nmap <C-w>> <Action>(StretchSplitToRight)
-"
-" use the ex-command instead of action, so that you can @@ to redo
-" but script-run ex-commands can't be recorded into the : register: so set it here
-" and since the : can't be set, use the e register instead; e for ex-command
-" @@ is mapped to @e in vimrc
-" "\r" places a carriage return in the register
-" write to register first, then execute register e, so @@ can actually repeat the last executed register
-" apparently ideavim supports vim native on these too now?
-" nmap <C-w>+ :let @e=":action StretchSplitToBottom\r"<CR>@e
+" see vimrc - window resizing mappings for more details
 
 " replicate vim q: to see command history
 map q: :history<Enter>
