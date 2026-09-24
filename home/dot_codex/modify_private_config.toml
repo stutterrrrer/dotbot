@@ -25,6 +25,7 @@ plugin marketplace paths, and generated state stay local to each Mac.
   | setValueAtPath "features.memories" .codex.features.memories
   | setValueAtPath "memories.generate_memories" .codex.memories.generate_memories
   | setValueAtPath "memories.use_memories" .codex.memories.use_memories
+  | setValueAtPath "tui.vim_mode_default" .codex.tui.vim_mode_default
   | setValueAtPath "plugins.codex-app-tools@openai-bundled.enabled" (index (index .codex.plugins "codex-app-tools@openai-bundled") "enabled")
   | setValueAtPath "plugins.browser@openai-bundled.enabled" (index (index .codex.plugins "browser@openai-bundled") "enabled")
   | setValueAtPath "plugins.visualize@openai-bundled.enabled" (index (index .codex.plugins "visualize@openai-bundled") "enabled")

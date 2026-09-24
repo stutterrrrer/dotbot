@@ -16,12 +16,32 @@ codex_thread_lock_directory="$HOME/.codex/thread-writer-locks"
 # JSONL file containing Codex session metadata, including thread names.
 codex_session_index_file="$HOME/.codex/session_index.jsonl"
 
+# Directory containing per-task rollout metadata. User-visible tasks are listed
+# in session_index.jsonl; short-lived internal subtasks may only have a rollout
+# file here.
+codex_session_directory="$HOME/.codex/sessions"
+
 # In Zsh, make an unmatched glob expand to no files rather than failing the
 # script before the loop begins.
 setopt local_options null_glob
 
 # Inspect every lock file currently present in Codex's lock directory.
 codex_lock_status_rows=()
+
+# Keep long task names from pushing the OWNER and PID columns to the right.
+codex_format_thread_name() {
+  local codex_thread_name="$1"
+  local codex_task_column_width=40
+  local codex_truncation_suffix='...'
+
+  if (( ${#codex_thread_name} > codex_task_column_width )); then
+    printf '%s%s' \
+      "${codex_thread_name[1,$((codex_task_column_width - ${#codex_truncation_suffix}))]}" \
+      "$codex_truncation_suffix"
+  else
+    printf '%s' "$codex_thread_name"
+  fi
+}
 
 # Convert the ISO-8601 UTC timestamp in session_index.jsonl to local time.
 # If a record cannot be parsed, preserve the original timestamp.
@@ -44,25 +64,161 @@ codex_format_updated_at() {
     printf '%s' "$codex_timestamp"
 }
 
+# Look up a user-visible task title by its complete thread ID. Internal
+# subtasks often have no entry in the normal session index.
+codex_lookup_thread_name() {
+  local codex_thread_identifier="$1"
+
+  [ -r "$codex_session_index_file" ] || return
+
+  jq -r --arg thread_identifier "$codex_thread_identifier" \
+    'select(.id == $thread_identifier) | .thread_name // empty' \
+    "$codex_session_index_file" |
+    head -1
+}
+
+# Find the rollout metadata file for an unindexed thread, if it has already
+# been persisted. This is intentionally best-effort: active transient tasks
+# may not have a JSONL file yet.
+codex_find_session_file() {
+  local codex_thread_identifier="$1"
+
+  [ -d "$codex_session_directory" ] || return
+
+  find "$codex_session_directory" -type f \
+    -name "*-${codex_thread_identifier}.jsonl" \
+    -print -quit 2>/dev/null
+}
+
+# Replace the old "unknown task" label with the most specific explanation
+# available. Guardian reviews are internal, short-lived authorization checks;
+# other unindexed locks are reported as transient internal locks rather than as
+# if they were ordinary user-facing tasks.
+codex_describe_unindexed_thread() {
+  local codex_thread_identifier="$1"
+  local codex_thread_identifier_prefix="$2"
+  local codex_session_file
+  local codex_session_metadata
+  local codex_thread_source
+  local codex_subagent_type
+  local codex_parent_thread_identifier
+  local codex_parent_thread_name
+
+  codex_session_file=$(codex_find_session_file "$codex_thread_identifier")
+
+  if [ -n "$codex_session_file" ]; then
+    codex_session_metadata=$(
+      sed -n '1p' "$codex_session_file" |
+        jq -r '
+          .payload as $payload |
+          [
+            ($payload.thread_source // ""),
+            ($payload.source.subagent.other // ""),
+            ($payload.parent_thread_id // "")
+          ] | @tsv
+        ' 2>/dev/null
+    )
+
+    IFS=$'\t' read -r \
+      codex_thread_source \
+      codex_subagent_type \
+      codex_parent_thread_identifier <<< "$codex_session_metadata"
+
+    if [[ "$codex_thread_source" == 'guardian_review' ||
+          "$codex_subagent_type" == 'guardian' ]]; then
+      if [ -n "$codex_parent_thread_identifier" ]; then
+        codex_parent_thread_name=$(codex_lookup_thread_name \
+          "$codex_parent_thread_identifier")
+      fi
+
+      if [ -n "$codex_parent_thread_name" ]; then
+        printf 'transient guardian review -> %s' "$codex_parent_thread_name"
+      else
+        printf 'transient guardian review (%s)' \
+          "$codex_thread_identifier_prefix"
+      fi
+      return
+    fi
+  fi
+
+  printf 'transient internal lock (%s)' "$codex_thread_identifier_prefix"
+}
+
+# Classify the interface that owns a lock by walking the process ancestry.
+# The lock holder is often a shared `codex app-server`, so its executable name
+# alone cannot distinguish the ChatGPT desktop app, Chrome extension, IntelliJ
+# ACP/tool window, or a standalone CLI invocation.
+codex_classify_lock_owner() {
+  local codex_process_id="$1"
+  local codex_ancestor_process_id="$codex_process_id"
+  local codex_ancestor_command
+  local codex_process_ancestry=''
+
+  while [[ "$codex_ancestor_process_id" == <-> ]] &&
+    (( codex_ancestor_process_id > 1 )); do
+    codex_ancestor_command=$(
+      ps -p "$codex_ancestor_process_id" -o command= 2>/dev/null
+    )
+    codex_process_ancestry+="$codex_ancestor_command"$'\n'
+    codex_ancestor_process_id=$(
+      ps -p "$codex_ancestor_process_id" -o ppid= 2>/dev/null |
+        tr -d ' '
+    )
+  done
+
+  # Chrome's extension host is the process that owns the ChatGPT-for-Chrome
+  # task, even though its child is also named `codex app-server`.
+  if [[ "$codex_process_ancestry" == *'ChatGPT for Chrome'* ||
+        "$codex_process_ancestry" == *'chrome-extension://'* ]]; then
+    printf 'Chrome ext'
+    return
+  fi
+
+  # This also catches a plain `codex` launched from IntelliJ's integrated
+  # terminal because IntelliJ remains in its parent process ancestry.
+  if [[ "$codex_process_ancestry" == *'IntelliJ IDEA.app'* ||
+        "$codex_process_ancestry" == *'codex-acp'* ]]; then
+    printf 'IntelliJ tool'
+    return
+  fi
+
+  if [[ "$codex_process_ancestry" == *'ChatGPT.app'* ]]; then
+    printf 'ChatGPT GUI'
+    return
+  fi
+
+  if [[ "$codex_process_ancestry" == *'/codex'* ||
+        "$codex_process_ancestry" == *' codex '* ]]; then
+    printf 'CLI'
+    return
+  fi
+
+  printf 'other'
+}
+
 for codex_thread_lock_path in "$codex_thread_lock_directory"/*.lock; do
-  # Extract the filename, remove its .lock suffix, then keep the identifier
-  # prefix before the first dash. The prefix is enough to query the index.
+  # Extract the filename and remove its .lock suffix. Keep both the complete
+  # ID (for rollout metadata) and its prefix (for the compact display).
   codex_thread_lock_filename="${codex_thread_lock_path##*/}"
   codex_thread_lock_identifier="${codex_thread_lock_filename%.lock}"
   codex_thread_identifier_prefix="${codex_thread_lock_identifier%%-*}"
 
   # Find the first matching session record, including its update timestamp.
   codex_thread_record=$(
-    jq -r --arg thread_identifier_prefix "$codex_thread_identifier_prefix" \
-      'select(.id | startswith($thread_identifier_prefix)) | [.updated_at, .thread_name] | @tsv' \
+    jq -r \
+      --arg thread_identifier "$codex_thread_lock_identifier" \
+      --arg thread_identifier_prefix "$codex_thread_identifier_prefix" \
+      'select(.id == $thread_identifier or (.id | startswith($thread_identifier_prefix))) |
+       [.updated_at, .thread_name] | @tsv' \
       "$codex_session_index_file" |
-      head -1
+    head -1
   )
 
   if [ -n "$codex_thread_record" ]; then
     IFS=$'\t' read -r codex_thread_updated_at codex_thread_name <<< "$codex_thread_record"
   else
-    codex_thread_name="unknown task ($codex_thread_identifier_prefix)"
+    codex_thread_name=$(codex_describe_unindexed_thread \
+      "$codex_thread_lock_identifier" "$codex_thread_identifier_prefix")
     codex_thread_updated_at=$(stat -f '%m' "$codex_thread_lock_path")
   fi
 
@@ -73,8 +229,7 @@ for codex_thread_lock_path in "$codex_thread_lock_directory"/*.lock; do
   # `lsof -t` returns the process IDs of processes that currently have this
   # lock file open. An empty result means the file is stale or unowned.
   codex_lock_owner_process_ids=$(
-    lsof -t -- "$codex_thread_lock_path" 2>/dev/null |
-      tr '\n' ' '
+    lsof -t -- "$codex_thread_lock_path" 2>/dev/null
   )
 
   if [ -z "$codex_lock_owner_process_ids" ]; then
@@ -86,22 +241,10 @@ for codex_thread_lock_path in "$codex_thread_lock_directory"/*.lock; do
 
   # A lock can be open by more than one process, so classify and print each
   # process separately.
-  for codex_lock_owner_process_id in $codex_lock_owner_process_ids; do
-    codex_lock_owner_command=$(
-      ps -p "$codex_lock_owner_process_id" -o command=
+  for codex_lock_owner_process_id in ${(f)codex_lock_owner_process_ids}; do
+    codex_lock_owner_type=$(
+      codex_classify_lock_owner "$codex_lock_owner_process_id"
     )
-
-    case "$codex_lock_owner_command" in
-      *ChatGPT.app*)
-        codex_lock_owner_type="GUI"
-        ;;
-      *JetBrains*|*codex-acp*|*app-server*)
-        codex_lock_owner_type="IntelliJ/CLI"
-        ;;
-      *)
-        codex_lock_owner_type="CLI/other"
-        ;;
-    esac
 
     codex_lock_status_rows+=(
       "$codex_thread_updated_at"$'\t'"LOCKED"$'\t'"$codex_thread_name"$'\t'"$codex_lock_owner_type"$'\t'"$codex_lock_owner_process_id"
@@ -109,7 +252,7 @@ for codex_thread_lock_path in "$codex_thread_lock_directory"/*.lock; do
   done
 done
 
-printf 'LAST CHANGE           STATE    TASK                                     OWNER        PID\n'
+printf 'LAST CHANGE           STATE    TASK                                     OWNER          PID\n'
 printf '%s\n' "${codex_lock_status_rows[@]}" |
   sort -r -t $'\t' -k1,1 |
   while IFS=$'\t' read -r \
@@ -118,10 +261,10 @@ printf '%s\n' "${codex_lock_status_rows[@]}" |
     codex_sorted_thread_name \
     codex_sorted_owner \
     codex_sorted_pid; do
-    printf '%-21s %-8s %-40s %-12s %s\n' \
+    printf '%-21s %-8s %-40s %-14s %s\n' \
       "$(codex_format_updated_at "$codex_sorted_updated_at")" \
       "$codex_sorted_state" \
-      "$codex_sorted_thread_name" \
+      "$(codex_format_thread_name "$codex_sorted_thread_name")" \
       "$codex_sorted_owner" \
       "$codex_sorted_pid"
   done

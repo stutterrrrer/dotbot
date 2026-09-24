@@ -58,12 +58,7 @@ vnoremap <C-i> :action Forward<cr>
 " replace the custom function call in vimrc - delete bookmark on current line
 nnoremap m- :action ToggleBookmark<CR>
 
-" git diff view - doesn't work for some reason
-" even when typing in intellij vim normal mode: ":action PreviousDiff" doesn't work
-" even though when tracking action id, that's the action ID that shows up
-" see https://youtrack.jetbrains.com/issue/VIM-1611/actions-related-to-resolving-conflicts-doesnt-seem-to-work
-" so just modify the "Next/Previous Difference" in intellij settings keymap
-" mapped to command + [ + c and command + ] + c
+" git diff view: follow vim native mappings
 nnoremap [c :action PreviousDiff<Enter>
 nnoremap ]c :action NextDiff<Enter>
 

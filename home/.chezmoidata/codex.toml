@@ -25,6 +25,9 @@ memories = true
 generate_memories = true
 use_memories = true
 
+[codex.tui]
+vim_mode_default = true
+
 # These are user-level enablement choices. The marketplace source paths and
 # plugin caches remain machine-local and are intentionally not copied.
 [codex.plugins."codex-app-tools@openai-bundled"]

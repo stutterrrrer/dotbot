@@ -1,15 +1,25 @@
-# Preference persistence
+# **Machine-Specific Codex Instructions — Not Account-Wide Preferences**
 
-- Save future user preferences and durable instructions in this file rather
-  than standalone note files, unless I explicitly request a different
-  location.
+> This field shows the contents of this Mac's `AGENTS.md`. It contains
+> machine-specific and local-agent workflow rules; it is not the account-wide
+> ChatGPT preference field. For account-wide preferences, open **Custom
+> For account-wide preferences, in ChatGPT on iPhone or in ChatGPT Web,  open **Custom instructions**  under
+> **Settings → Personalization → Custom instructions**.
+> Account-wide preferences are not accessible from ChatGPT Mac app.
 
-## Preference and instruction ownership
+# Machine-specific and local-agent workflow
 
-- Account-wide ChatGPT Memory owns durable personal preferences that should
-  follow the user across devices. Do not duplicate personal shopping/style
-  preferences or personal background in this file.
-- This file owns machine-specific and agent-specific working instructions.
+## Account-preference bridge for Codex tasks
+
+- The account-level source of truth is ChatGPT's Custom instructions field.
+- Before responding to each user message, read `/Users/ian/.codex/account-preferences.md` and apply its account-level response preferences when relevant.
+- This file is a local mirror, not a replacement for account Custom instructions; system, developer, and current user instructions take precedence.
+- When a preference is saved or amended, refresh the mirror from the verified ChatGPT Custom instructions field before claiming that Codex is synchronized.
+- Task continuity safeguard: if a new user message arrives while an earlier task is unfinished, treat the new message as a follow-up or addition and resume the earlier task first. Do not replace the unfinished task unless the user clearly says to switch tasks.
+- Keep only this bridge rule in `AGENTS.md`; do not paste the full account preference text here.
+
+- Keep account-level ChatGPT response preferences in Custom instructions;
+  this file contains only machine-specific and local-agent workflow rules.
 - Manage this file through the existing chezmoi configuration so it
   participates in Mac configuration and migration. The active source is
   `/Users/ian/.chezmoi/home/dot_codex/AGENTS.md`; inspect the active chezmoi
@@ -17,8 +27,6 @@
 - Verify machine-specific facts locally before documenting them. Scope facts
   that differ between Macs to the correct host using the existing
   configuration conventions.
-- If account-wide Memory is unavailable in an agent session, say so when a
-  missing preference matters; do not assume this file grants access to it.
 
 ## Current Mac migration constraints
 
@@ -45,26 +53,10 @@ When writing or modifying code:
 - Use verbose, descriptive variable names rather than cryptic abbreviations.
 - Leave clear, concise comments where they explain intent, non-obvious logic, or important tradeoffs.
 
-Communication preferences:
+## Agent and machine-specific workflow
 
-- Respond in English by default unless I ask for another language.
-- When a task takes meaningful time or involves substantial work, provide a sufficiently detailed, well-organized explanation rather than an overly terse answer.
-- Because English is my second language, begin responses with a brief language note when useful: point out important grammatical errors, suggest clearer phrasing, and identify likely intended meaning. Keep this section short and secondary to the main answer.
-- For programming and AI topics, point out discrepancies between my wording and standard industry terminology, and suggest the standard English terms.
-
-Personal preferences:
-
-- When a new user message arrives while an earlier request is unfinished, continue and complete the earlier request first unless the new message clearly replaces it. Treat follow-up questions as additions when possible, and answer both in a coherent order.
 - After modifying files, directly open the changed file or files in Codex's side-by-side panel when practical.
-- When explaining code or commands, explain what each line, flag, symbol, and important term does instead of providing unexplained snippets.
-- When the user says "intelligence" in a software-development or IDE context, infer that they mean IntelliJ, because they commonly use dictation.
 - For macOS Space/Desktop indicators, use WhichSpace; do not suggest or install Spaceman.
-
-- When comparing applications, always consider objective adoption and
-  maintenance signals, including download counts, latest release or update
-  date, release cadence, current maintenance activity, open issues, platform
-  compatibility, and relevant security or distribution details such as
-  notarization.
 - For keyboard shortcut and input problems, use the user's KeyCastr setup
   first to verify the exact key event before diagnosing or changing Vim,
   iTerm, BetterTouchTool, or other mappings.

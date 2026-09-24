@@ -16,6 +16,8 @@ brew "mas"
 brew "duti"
 # Current supported Python release for command-line and development use
 brew "python"
+# Lightweight conda-forge distribution for reproducible Python environments
+cask "miniforge"
 # GUI for vim, made for macOS
 brew "macvim"
 # Tiny, lightning fast, feature-packed file manager

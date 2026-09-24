@@ -56,10 +56,11 @@ vmap <Leader>. <Plug>(easymotion-repeat)
 
 Plug 'preservim/nerdtree'
 " autocmd FileType nerdtree setlocal relativenumber
-" start nerd tree automatically and focus od it
-autocmd VimEnter * NERDTree
-" switch focus to the edited file
-autocmd VimEnter * wincmd w
+" Open NERDTree at startup and return focus to the previously active window.
+autocmd VimEnter * NERDTree | wincmd p
+" Quit Vim when NERDTree is the only window left in the only tab.
+" feedkeys() defers :quit until the BufEnter autocmd has finished.
+autocmd BufEnter * if tabpagenr('$') == 1 && winnr('$') == 1 && exists('b:NERDTree') && b:NERDTree.isTabTree() | call feedkeys(":quit\<CR>:\<BS>") | endif
 
 Plug 'kshenoy/vim-signature'
 
@@ -99,15 +100,19 @@ let g:surround_{char2nr("\<CR>")} = "\n\r\n"
 " @@ = @" which makes no sense
 " since you can't set the : (colon) register, use the e(ex-command) register
 " instead
-" use case: repeat the window resize action with @@
-" nnoremap @@ @e
+" use case: repeat the window resize action with !
 " vim's normal mode ! just accepts a motion and opens ex-command input with
 " the selection appended by '!', which is easily done with V (visual mode) :
 " then type '!'; so override that
+" essentially: use ! to repeat last ex-command, instead of @@
 nnoremap ! @e
 
 " yank to system clipboard by shift-y on the selection (instead of 3 keys: "+y)
 xnoremap <silent> Y "+y
+
+" delete to system clipboard by shift-d on the selection
+" this overrides the default "delete whole line in selection"
+xnoremap <silent> D "+d
 
 " delete a bookmark - see custom function below
 nnoremap m- :<c-u>call DeleteMarksOnCurrentLine()<CR>
@@ -119,10 +124,11 @@ nnoremap <leader>w :set wrap!<CR>
 " repeatable window resize:
 " use \n instead of \r, because \r moves the cursor one line down for some
 " reason other than executing the command
-nnoremap <C-w>- :resize -10<CR>:let @e=":resize-10\n"<CR>
-nnoremap <C-w>+ :resize +10<CR>:let @e=":resize+10\n"<CR>
-nnoremap <C-w>< :vertical resize -10<CR>:let @e=":vertical resize-10\n"<CR>
-nnoremap <C-w>> :vertical resize +10<CR>:let @e=":vertical resize+10\n"<CR>
+" set e register to the resize command first (then run the command in e), so that you can repeat it with ! in normal mode
+nnoremap <C-w>- :let @e=":resize -5\n"<CR>@e
+nnoremap <C-w>+ :let @e=":resize +5\n"<CR>@e
+nnoremap <C-w>< :let @e=":vertical resize -5\n"<CR>@e
+nnoremap <C-w>> :let @e=":vertical resize +5\n"<CR>@e
 
 " jump to a line that isn't empty and doesn't start with white-space:
 " Top-level line (especially for python where [m doesn't work)

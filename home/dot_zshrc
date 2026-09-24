@@ -168,10 +168,12 @@ javar-alg()
 
 #}}}
 
-# Conda is optional. Initialize the first standard installation found.
-for conda_base in "$HOME/anaconda3" "$HOME/miniconda3" "/opt/anaconda3" "/opt/miniconda3"; do
-  if [[ -x "$conda_base/bin/conda" ]]; then
-    __conda_setup="$($conda_base/bin/conda shell.zsh hook 2>/dev/null)"
+# Conda is managed by the Brewfile. Initialize the first supported installation.
+for conda_base in "$HOME/anaconda3" "$HOME/miniconda3" "/opt/anaconda3" "/opt/miniconda3" "/opt/homebrew/Caskroom/miniforge/base" "/opt/homebrew/Caskroom/miniconda/base"; do
+  conda_executable_path="$conda_base/bin/conda"
+  [[ -x "$conda_executable_path" ]] || conda_executable_path="$conda_base/condabin/conda"
+  if [[ -x "$conda_executable_path" ]]; then
+    __conda_setup="$("$conda_executable_path" shell.zsh hook 2>/dev/null)"
     if [[ $? -eq 0 ]]; then
       eval "$__conda_setup"
     fi
