@@ -6,9 +6,15 @@ and leaves every other key untouched. The existing target content arrives
 through .chezmoi.stdin. Pinned:
 - Vim prompt mode and jk / kj -> <Esc>
 - Remote Control at startup (every CLI session can be driven from the phone)
-- statusLine -> ~/.claude/statusline.sh (model | folder | branch | context %)
+- statusLine -> ~/.claude/statusline.sh (2 rows: model · effort | 5-hour %,
+  weekly %; conda | branch + dirty state | lines changed | context | duration
+  | IDE). Edit the
+  rows in home/dot_claude/executable_statusline.sh
 - Notification hook -> ~/.claude/hooks/notify.sh (macOS banner when the CLI
   waits for me; silent in the desktop app)
+- UserPromptSubmit hook -> ~/.claude/hooks/session-title.py (retitle the CLI
+  session from its rolling topic, EWMA of keyword weights; silent in the
+  desktop app)
 
 jk / kj -> <Esc> is native in Claude Code >= 2.1.208: exactly two printable
 characters, INSERT mode only, second key within one second. It is read only
@@ -26,4 +32,5 @@ No wrapper is needed.
   | setValueAtPath "remoteControlAtStartup" true
   | setValueAtPath "statusLine" (dict "type" "command" "command" "~/.claude/statusline.sh")
   | setValueAtPath "hooks.Notification" (list (dict "hooks" (list (dict "type" "command" "command" "~/.claude/hooks/notify.sh"))))
+  | setValueAtPath "hooks.UserPromptSubmit" (list (dict "hooks" (list (dict "type" "command" "command" "~/.claude/hooks/session-title.py"))))
   | toPrettyJson }}

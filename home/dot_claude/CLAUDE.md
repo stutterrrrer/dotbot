@@ -38,13 +38,27 @@ to Claude Code sessions.
 - Before sending any external message, find the exact message/recipient and
   get my confirmation right before sending.
 
+## Notion notes
+
+- Never just append to a page. Fetch it first, read the nearby text, and
+  merge the new material into the relevant existing headings: add to or
+  replace what's there, remove duplicates (point to the other section
+  instead), and keep one coherent structure.
+- Match the page's existing formatting (gray callouts, numbered steps,
+  tables, Sources lists) and keep my own highlights and edits.
+- After editing, give the clickable HTTPS link and summarize what moved,
+  merged, or was replaced.
+
 ## Claude desktop app
 
 - For every new question I ask (not follow-ups like "yes"), call
   `mark_chapter` with a short version of the question, so the session's table
   of contents lists my questions.
-- Give each session a short topic title, and update it with each new question
-  so it reflects the latest topic (e.g. "IntelliJ settings backup").
+- Give each session a short topic title and update it with each new question
+  as a rolling topic, like an EWMA: the current title is the running summary;
+  blend the new question into it, keep themes that recur, and let one-off
+  tangents fade after a few questions. Don't re-read past messages to retitle
+  (same idea as the CLI hook `~/.claude/hooks/session-title.py`).
 - Remote Control is on, so I may be on my phone: send screenshots, reports,
   and built files with SendUserFile instead of only giving local paths.
 - After editing files, open the diff pane instead of pasting long diffs.
@@ -80,9 +94,12 @@ to Claude Code sessions.
 - Reference code as `path:line` so IntelliJ makes it clickable.
 - When the IDE is connected, treat my current selection / open file as the
   default context for "this".
-- The CLI status line (`~/.claude/statusline.sh`) and Notification hook
-  (`~/.claude/hooks/notify.sh`) are pinned by
-  `home/dot_claude/modify_settings.json`.
+- Pinned by `home/dot_claude/modify_settings.json`: the CLI status line
+  (`~/.claude/statusline.sh`, 2 rows: model + effort, 5-hour / weekly usage;
+  conda env, branch + dirty state, lines changed, context, session duration,
+  IDE connection), the Notification hook (`~/.claude/hooks/notify.sh`),
+  and the session-title hook (`~/.claude/hooks/session-title.py`, retitles
+  CLI sessions from the rolling topic: an EWMA of keyword weights per session).
 
 ## Code style
 
