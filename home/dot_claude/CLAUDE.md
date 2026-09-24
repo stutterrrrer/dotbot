@@ -68,6 +68,11 @@ to Claude Code sessions.
   my logged-in session.
 - Answer in chat; publish an Artifact page only when I ask or when the result
   is meant to be shared.
+- Prompt cache warning (the app has no status line, so warn ahead of time):
+  when this session's context reaches ~150k tokens (check with `get_usage`),
+  end the reply with one line like `💸 context ~240k: after a break of 1 h+,
+  the next message re-processes all of it — consider a fresh session`.
+  Repeat only when it grows by another ~100k.
 
 ## Dotfiles (chezmoi)
 

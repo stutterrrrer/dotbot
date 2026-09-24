@@ -2,14 +2,37 @@
 # Claude Code CLI status line, two rows (each echo is one row):
 #   1: prompt cache | model effort (fast) | 5-hour % ⏳left, weekly % ⏳left
 #      e.g. "🟢cache 47m | Opus 5.5 high | 53% ⏳2h-27m, 8% ⏳6d-4h"
+#      Cache state leads because it's the one thing that actually swings the
+#      price of the *next* message. A big context is not itself expensive: a
+#      warm cache reads back at a small fraction of fresh-input price, however
+#      large the conversation is, so size alone never makes one message
+#      costlier than the last. The only genuinely expensive event is the cache
+#      going cold — a full-price re-read, once, proportional to whatever the
+#      context had grown to. Auto-compact (see row 2's ctx%) is a separate,
+#      usually-cheap event: while the cache is warm going in, it just re-reads
+#      the huge prefix from cache and writes a short summary, i.e. one more
+#      normal cached turn, not a full re-read. It's only expensive on the rare
+#      case where the cache had *already* gone cold before it fired (a
+#      long-idle resume of a huge session).
 #      - cache warm: time until it expires; emoji = how urgent it is to send
 #        the next message: 🟢 30m+  🟡 10-29m  🔴 under 10m
 #      - cache cold: tokens the next reply re-processes at full price; emoji =
-#        how expensive that is: 🧊 under 50k  💰 50-150k  💸 over 150k
+#        how much of the window that is: 🧊 under 60%  💰 60-84%  💸 85%+
+#      - resumed session, before its first reply: Claude Code has no cache info
+#        yet, so it's estimated from the transcript's last reply:
+#        🚨cache cold 87k (last reply 1 h+ ago: the next message re-processes
+#        everything) or 🟠cache 23m? (maybe still warm, unless CLAUDE.md,
+#        settings or tools changed since)
+#      - brand-new session: 🆕new chat (nothing cached, nothing to reload)
 #      - quota: no "5h"/"wk" labels, the time left tells them apart
 #        (hours = 5-hour window, days = weekly)
-#   2: 🐍conda env | branch●changed↑ahead↓behind | edits +added −removed | ctx % |
+#   2: ctx % | 🐍conda env | branch●changed↑ahead↓behind | edits +added −removed |
 #      🕒session duration | IDE✓/✗        (row 2 = this session's own state)
+#      ctx is informational, not a cost alarm: % of THIS model's real context
+#      window (200k by default, or 1M for extended-context models — a fixed
+#      token count would mean different things on different windows, so only a
+#      percentage generalizes). It mainly tells you how close the *automatic,
+#      usually-cheap* compaction is: 🟢 under 60%  🟡 60-84%  🔴 85%+ (imminent)
 # Icons sit directly against their text, with no space.
 # The session title is already shown above the prompt, and the vim mode by
 # Claude Code's own instant "-- INSERT --" indicator, so neither is repeated.
@@ -25,7 +48,7 @@ IFS=$'\x1f' read -r model_name current_dir context_percent effort_level \
   fast_mode_enabled lines_added lines_removed session_minutes \
   five_hour_percent five_hour_reset weekly_percent weekly_reset \
   cache_is_warm cache_time_left cache_minutes_left cache_reload_tokens \
-  cache_reload_token_count current_epoch < <(
+  has_cache_info transcript_path current_epoch < <(
   jq -r '
     # Seconds until a Unix-epoch reset time, as "6d-4h", "2h-27m", "45m" or "<1m"
     # (the dash keeps each duration visually one item).
@@ -57,7 +80,8 @@ IFS=$'\x1f' read -r model_name current_dir context_percent effort_level \
       (.prompt_cache.expires_at // 0 | [. - now, 0] | max / 60 | floor),
       (.prompt_cache.recache_tokens_if_cold // "" | if . == "" then .
         elif . >= 1000 then "\(. / 1000 | floor)k" else tostring end),
-      (.prompt_cache.recache_tokens_if_cold // 0),
+      (.prompt_cache != null),
+      .transcript_path // "",
       (now | floor)
     ] | map(tostring) | join("\u001f")')   # reads the session JSON from our stdin
 
@@ -177,14 +201,21 @@ else
   session_duration="${session_minutes}m"
 fi
 
-# Row 2: conda env | branch + dirty state | lines changed | ctx | duration | IDE.
+# Context badge: leads row 2. Informational (see header) — how close to
+# auto-compact, not a cost alarm, so it sits with this session's own state
+# rather than with the cache badge that actually predicts next-message price.
+if (( context_percent >= 85 )); then ctx_icon="🔴"
+elif (( context_percent >= 60 )); then ctx_icon="🟡"
+else ctx_icon="🟢"; fi
+ctx_text="${ctx_icon}ctx ${context_percent}%"
+
+# Row 2: ctx | conda env | branch + dirty state | lines changed | duration | IDE.
 # Empty parts are skipped. CONDA_DEFAULT_ENV is inherited from the shell that
 # started claude, so it shows the env that session's commands run in.
-row_parts=()
+row_parts=("$ctx_text")
 [[ -n "$CONDA_DEFAULT_ENV" ]] && row_parts+=("🐍$CONDA_DEFAULT_ENV")
 [[ -n "$git_branch" ]] && row_parts+=("${git_branch}${git_state}")
 (( lines_added + lines_removed > 0 )) && row_parts+=("edits +${lines_added} −${lines_removed}")
-row_parts+=("ctx ${context_percent}%")
 row_parts+=("🕒$session_duration")
 [[ -n "$ide_status" ]] && row_parts+=("$ide_status")
 editing_row=""
@@ -211,14 +242,57 @@ if [[ "$cache_is_warm" == "true" ]]; then
   else urgency_icon="🔴"; fi
   cache_text="${urgency_icon}cache $cache_time_left"
 elif [[ -n "$cache_reload_tokens" ]]; then
-  if (( cache_reload_token_count > 150000 )); then cost_icon="💸"
-  elif (( cache_reload_token_count >= 50000 )); then cost_icon="💰"
+  if (( context_percent >= 85 )); then cost_icon="💸"
+  elif (( context_percent >= 60 )); then cost_icon="💰"
   else cost_icon="🧊"; fi
   cache_text="${cost_icon}cache cold $cache_reload_tokens"
+elif [[ "$has_cache_info" == "false" && -f "$transcript_path" ]]; then
+  # A resumed session has no prompt_cache data until its first reply, which is
+  # exactly when a cold cache is most likely. Estimate from the last reply in
+  # the transcript: its time, and its prompt size (input + cache read + cache
+  # write = what the next message will send again). The transcript format is
+  # internal to Claude Code, so any parsing failure just shows nothing.
+  # Only the tail is read, and only until the first reply, so it stays cheap.
+  # Cached per transcript file + modification time: before the first reply
+  # the file rarely changes, and parsing it on every refresh would be slow.
+  transcript_cache_file="${TMPDIR:-/tmp}/claude-statusline-transcript-$PPID"
+  transcript_stamp="$transcript_path:$(stat -f %m "$transcript_path" 2>/dev/null)"
+  cached_stamp="" ; last_reply_epoch="" ; last_prompt_tokens=""
+  [[ -f "$transcript_cache_file" ]] &&
+    IFS=$'\x1f' read -r cached_stamp last_reply_epoch last_prompt_tokens < "$transcript_cache_file"
+  if [[ "$cached_stamp" != "$transcript_stamp" ]]; then
+    # grep finds the last real assistant line fast; jq then parses only that
+    # line. Resuming writes a placeholder assistant entry ("<synthetic>" model,
+    # 0 tokens, timestamped now) that must be skipped, or the cache looks warm.
+    IFS=$'\x1f' read -r last_reply_epoch last_prompt_tokens < <(
+      tail -n 400 "$transcript_path" 2>/dev/null \
+        | grep '"type":"assistant"' | grep '"usage"' \
+        | grep -v '"model":"<synthetic>"' | tail -n 1 \
+        | jq -r '[ (.timestamp | sub("\\.[0-9]+Z$"; "Z") | fromdateiso8601),
+                  (.message.usage | (.input_tokens // 0) + (.cache_read_input_tokens // 0)
+                                    + (.cache_creation_input_tokens // 0)) ]
+                 | map(tostring) | join("\u001f")' 2>/dev/null)
+    printf '%s\x1f%s\x1f%s\n' "$transcript_stamp" "$last_reply_epoch" "$last_prompt_tokens" \
+      > "$transcript_cache_file"
+  fi
+  last_reply_minutes_ago=$(( (current_epoch - ${last_reply_epoch:-$current_epoch}) / 60 ))
+  if [[ -n "$last_prompt_tokens" ]]; then
+    if (( last_prompt_tokens >= 1000 )); then
+      last_prompt_size="$(( last_prompt_tokens / 1000 ))k"
+    else
+      last_prompt_size="$last_prompt_tokens"
+    fi
+    if (( last_reply_minutes_ago >= 60 )); then
+      cache_text="🚨cache cold $last_prompt_size"
+    else
+      cache_text="🟠cache $(( 60 - last_reply_minutes_ago ))m?"
+    fi
+  fi
 fi
+# No cache info and no earlier reply to reload: say so, instead of a blank.
+[[ -z "$cache_text" ]] && cache_text="🆕new chat"
 
-usage_row="$model_text"
-[[ -n "$cache_text" ]] && usage_row="$cache_text | $usage_row"
+usage_row="$cache_text | $model_text"
 [[ -n "$quota_text" ]] && usage_row+=" | $quota_text"
 
 echo "$usage_row"
