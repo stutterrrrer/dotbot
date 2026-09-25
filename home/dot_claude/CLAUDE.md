@@ -60,12 +60,9 @@ to Claude Code sessions.
   my logged-in session.
 - Answer in chat; publish an Artifact page only when I ask or when the result
   is meant to be shared.
-- No per-reply chapter/retitle/cache-badge checklist here (tried it; it
-  didn't hold up once a session got tool-heavy — dropped after a couple of
-  exchanges instead of running every reply). `~/.claude/cache-status.sh` and
-  `mark_chapter`/retitle are still fine to use when actually useful (e.g. a
-  long session that's clearly shifting topic), just not as a standing
-  every-reply rule.
+- No standing per-reply chapter/retitle/cache-badge checklist (didn't hold up
+  in tool-heavy sessions). Use `mark_chapter`/`cache-status.sh` occasionally,
+  not every reply.
 
 ## Dotfiles (chezmoi)
 
@@ -79,26 +76,16 @@ to Claude Code sessions.
 
 ## IntelliJ + Claude workflow
 
-- Run the `claude` CLI inside IntelliJ's built-in terminal so Claude Code's
-  Vim prompt mode works (`editorMode: vim`, `jk`/`kj` → Esc, pinned by
-  `home/dot_claude/modify_settings.json`).
 - Use the official **Claude Code [Beta]** JetBrains plugin
-  (`com.anthropic.code.plugin`) for live selection / active-file context and
-  IDE diffs. Use `/ide` if it isn't connected.
-- Don't use JetBrains AI Assistant / AI Chat for this.
-- For Vim-mode Esc, IntelliJ's Settings → Tools → Terminal → "Move focus to the
-  editor with Escape" must be off.
+  (`com.anthropic.code.plugin`), not JetBrains AI Assistant/AI Chat, for live
+  selection/active-file context and IDE diffs. Use `/ide` if it isn't
+  connected; treat my current selection/open file as default context for
+  "this".
 - In the terminal, keep tables to ≤4 narrow columns; otherwise use lists.
 - Reference code as `path:line` so IntelliJ makes it clickable.
-- When the IDE is connected, treat my current selection / open file as the
-  default context for "this".
-- Pinned by `home/dot_claude/modify_settings.json`: the CLI status line
-  (`~/.claude/statusline.sh`, 2 rows: prompt cache, model + effort, 5-hour / weekly usage;
-  conda env, branch + dirty state, lines changed, context, session duration,
-  IDE connection), the Notification hook (`~/.claude/hooks/notify.sh`),
-  and the session-title hook (`~/.claude/hooks/session-title.py`: natural
-  rolling CLI titles; every question Haiku blends it into the current
-  title in the background, shown from the next question).
+- Status line, notification hook, session-title hook, and Vim Esc behavior
+  are all pinned in `home/dot_claude/modify_settings.json` — read it if the
+  details matter rather than asking me to restate them.
 
 ## Code style
 
