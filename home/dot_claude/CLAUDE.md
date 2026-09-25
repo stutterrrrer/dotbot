@@ -51,14 +51,6 @@ to Claude Code sessions.
 
 ## Claude desktop app
 
-- For every new question I ask (not follow-ups like "yes"), call
-  `mark_chapter` with a short version of the question, so the session's table
-  of contents lists my questions.
-- Give each session a short topic title at the first question, then update it
-  every 3rd new question as a rolling topic, like an EWMA: the current title is
-  the running summary; blend the last 3 questions into it, keep themes that
-  recur, and let one-off tangents fade. Don't re-read past messages to retitle
-  (the CLI hook `~/.claude/hooks/session-title.py` does the same with Haiku).
 - Remote Control is on, so I may be on my phone: send screenshots, reports,
   and built files with SendUserFile instead of only giving local paths.
 - After editing files, open the diff pane instead of pasting long diffs.
@@ -68,11 +60,32 @@ to Claude Code sessions.
   my logged-in session.
 - Answer in chat; publish an Artifact page only when I ask or when the result
   is meant to be shared.
-- Prompt cache warning (the app has no status line, so warn ahead of time):
-  when this session's context reaches ~150k tokens (check with `get_usage`),
-  end the reply with one line like `💸 context ~240k: after a break of 1 h+,
-  the next message re-processes all of it — consider a fresh session`.
-  Repeat only when it grows by another ~100k.
+- End-of-reply checklist (the app has no status line and no auto-retitle
+  hook — `~/.claude/hooks/session-title.py` is silent here on purpose — so I
+  am the only thing keeping these current; do all three together, every
+  reply, as one habit, not three separate rules to remember):
+  1. For a new question (not a follow-up like "yes"), call `mark_chapter`
+     with a short version of it.
+  2. Retitle: give the session a short topic title at the first question,
+     then update it after every new question as a rolling topic, like an
+     EWMA — the current title is the running summary; blend the newest
+     question into it, keep themes that recur, let one-off tangents fade.
+     Don't re-read past messages to do this.
+  3. Cache-cost badge — mirror both rows of the CLI status line:
+     a. Run `~/.claude/cache-status.sh <this session's transcript path>` and
+        append its one line verbatim, e.g. `🟢cache 47m left — next message
+        is cheap` or `🧊cache cold — next message re-reads 240k tokens at
+        full price`. Find the transcript path from the running session's
+        cliSessionId under `~/.claude/projects/<encoded-cwd>/<cliSessionId>.jsonl`
+        (or the newest-modified `.jsonl` there matching this conversation).
+     b. Call `get_usage` (session "self") and add a second line `{icon}ctx
+        {tokensUsed} {percentUsed}%` — tokens abbreviated as e.g. `74k`, icon
+        by absolute tokens (running per-message cache-read cost, not
+        closeness to auto-compact — compaction is cheap while the cache is
+        warm): 🟢 under 300k, 🟡 300k-699k, 🔴 700k+ — same thresholds as
+        `ctx_icon` in `statusline.sh`.
+     Skip the badge lines (only these two) on very short replies, e.g. a
+     single tool call with no prose, to avoid clutter — still do 1 and 2.
 
 ## Dotfiles (chezmoi)
 
@@ -104,7 +117,7 @@ to Claude Code sessions.
   conda env, branch + dirty state, lines changed, context, session duration,
   IDE connection), the Notification hook (`~/.claude/hooks/notify.sh`),
   and the session-title hook (`~/.claude/hooks/session-title.py`: natural
-  rolling CLI titles; every 3 questions Haiku blends them into the current
+  rolling CLI titles; every question Haiku blends it into the current
   title in the background, shown from the next question).
 
 ## Code style

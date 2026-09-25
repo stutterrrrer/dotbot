@@ -14,7 +14,7 @@ How it works (a rolling summary, like an EWMA: the current title IS the state):
    title from the question itself.
 
 Cost: one Haiku call (thinking off) is ~2.6k input + ~10 output tokens,
-about $0.0026 at API prices, so every 3 questions keeps it small.
+about $0.0026 at API prices, run once per question.
 
 Past messages are never re-read. Short follow-ups ("yes", "continue") and
 slash commands change nothing. The desktop app titles sessions itself, so
@@ -31,7 +31,7 @@ import time
 from pathlib import Path
 
 MIN_WORDS_FOR_NEW_TOPIC = 4
-QUESTIONS_PER_UPDATE = 3          # one Haiku call per this many new questions
+QUESTIONS_PER_UPDATE = 1          # one Haiku call per this many new questions
 MAX_QUESTION_CHARS = 600          # what Haiku sees of each question
 MAX_TITLE_LENGTH = 60
 STATE_DIRECTORY = Path.home() / ".cache" / "claude-session-titles"

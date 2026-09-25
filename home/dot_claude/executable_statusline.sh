@@ -22,17 +22,22 @@
 #        yet, so it's estimated from the transcript's last reply:
 #        🚨cache cold 87k (last reply 1 h+ ago: the next message re-processes
 #        everything) or 🟠cache 23m? (maybe still warm, unless CLAUDE.md,
-#        settings or tools changed since)
+#        settings or tools changed since — the trailing ? flags that this is
+#        a guess, not live data, on purpose, so it's not mistaken for a glitch)
 #      - brand-new session: 🆕new chat (nothing cached, nothing to reload)
 #      - quota: no "5h"/"wk" labels, the time left tells them apart
 #        (hours = 5-hour window, days = weekly)
-#   2: ctx % | 🐍conda env | branch●changed↑ahead↓behind | edits +added −removed |
+#   2: ctx tokens % | 🐍conda env | branch●changed↑ahead↓behind | edits +added −removed |
 #      🕒session duration | IDE✓/✗        (row 2 = this session's own state)
-#      ctx is informational, not a cost alarm: % of THIS model's real context
-#      window (200k by default, or 1M for extended-context models — a fixed
-#      token count would mean different things on different windows, so only a
-#      percentage generalizes). It mainly tells you how close the *automatic,
-#      usually-cheap* compaction is: 🟢 under 60%  🟡 60-84%  🔴 85%+ (imminent)
+#      ctx is informational, not an auto-compact alarm — compaction itself is
+#      cheap while the cache is warm (one more ordinary cached turn: the old
+#      history reads back at cache rate, only the short new summary is
+#      full-price). What ctx's color actually flags is the *running per-message
+#      cost* of a warm cache read, which scales with raw tokens in context, not
+#      with % of the window (a 200k-window session at 100% is still cheap; a
+#      1M-window session at 30% already isn't) — so it's bucketed by absolute
+#      token count: 🟢 under 300k (~$0.06/msg)  🟡 300k-699k (~$0.06-0.14/msg)
+#      🔴 700k+ (~$0.14+/msg), at Sonnet 5's $0.20/MTok cache-read rate.
 # Icons sit directly against their text, with no space.
 # The session title is already shown above the prompt, and the vim mode by
 # Claude Code's own instant "-- INSERT --" indicator, so neither is repeated.
@@ -44,7 +49,7 @@
 # field, formats the time left until each quota resets, and returns the
 # current time. Fields are
 # joined by the ASCII unit separator so empty values survive `read`.
-IFS=$'\x1f' read -r model_name current_dir context_percent effort_level \
+IFS=$'\x1f' read -r model_name current_dir context_percent context_tokens context_tokens_raw effort_level \
   fast_mode_enabled lines_added lines_removed session_minutes \
   five_hour_percent five_hour_reset weekly_percent weekly_reset \
   cache_is_warm cache_time_left cache_minutes_left cache_reload_tokens \
@@ -65,6 +70,9 @@ IFS=$'\x1f' read -r model_name current_dir context_percent effort_level \
       .model.display_name // "?",
       .workspace.current_dir // .cwd // "",
       (.context_window.used_percentage // 0 | floor),
+      ((.context_window.total_input_tokens // 0) + (.context_window.total_output_tokens // 0)
+        | if . >= 1000 then "\(. / 1000 | floor)k" else tostring end),
+      ((.context_window.total_input_tokens // 0) + (.context_window.total_output_tokens // 0) | floor),
       .effort.level // "",                      # low … max
       .fast_mode // false,
       .cost.total_lines_added // 0,
@@ -201,13 +209,14 @@ else
   session_duration="${session_minutes}m"
 fi
 
-# Context badge: leads row 2. Informational (see header) — how close to
-# auto-compact, not a cost alarm, so it sits with this session's own state
-# rather than with the cache badge that actually predicts next-message price.
-if (( context_percent >= 85 )); then ctx_icon="🔴"
-elif (( context_percent >= 60 )); then ctx_icon="🟡"
+# Context badge: leads row 2. Bucketed by raw tokens (see header) — the
+# running per-message cache-read cost — not % of window, so it sits with this
+# session's own state rather than with the cache badge that predicts the
+# next *cold-reload* price.
+if (( context_tokens_raw >= 700000 )); then ctx_icon="🔴"
+elif (( context_tokens_raw >= 300000 )); then ctx_icon="🟡"
 else ctx_icon="🟢"; fi
-ctx_text="${ctx_icon}ctx ${context_percent}%"
+ctx_text="${ctx_icon}ctx ${context_tokens} ${context_percent}%"
 
 # Row 2: ctx | conda env | branch + dirty state | lines changed | duration | IDE.
 # Empty parts are skipped. CONDA_DEFAULT_ENV is inherited from the shell that
