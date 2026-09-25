@@ -98,11 +98,11 @@ map q: :history<Enter>
 
 " maximize current split
 " | _ in vim: width; height respectively
-nmap <C-w>\| :action MaximizeEditorInSplit<CR>:let @e=":action MaximizeEditorInSplit\r"<CR>
-nmap <C-w>_ :action MaximizeEditorInSplit<CR>:let @e=":action MaximizeEditorInSplit\r"<CR>
+nmap <C-w>\| :action MaximizeEditorInSplit<CR>:let @e=":action MaximizeEditorInSplit" . nr2char(13)<CR>
+nmap <C-w>_ :action MaximizeEditorInSplit<CR>:let @e=":action MaximizeEditorInSplit" . nr2char(13)<CR>
 " set split sizes to equal
 " but uses the same toggle action in intellij
-nmap <C-w>= :action MaximizeEditorInSplit<CR>:let @e=":action MaximizeEditorInSplit\r"<CR>
+nmap <C-w>= :action MaximizeEditorInSplit<CR>:let @e=":action MaximizeEditorInSplit" . nr2char(13)<CR>
 
 " next error: https://stackoverflow.com/a/13097329; replicating :lnext and :lprevious
 nnoremap ]e :action GotoNextError<CR>
