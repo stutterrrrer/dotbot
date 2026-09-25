@@ -123,11 +123,12 @@ nnoremap <leader>w :set wrap!<CR>
 
 " repeatable window resize:
 " Append carriage return character 13 so the macro submits the command in Vim and IdeaVim.
+" <C-u> clears the range a count inserts; v:count1 * 5 scales the step (3<C-w>+ = +15), and ! repeats it.
 " set e register to the resize command first (then run the command in e), so that you can repeat it with ! in normal mode
-nnoremap <C-w>- :let @e=":resize -5" . nr2char(13)<CR>@e
-nnoremap <C-w>+ :let @e=":resize +5" . nr2char(13)<CR>@e
-nnoremap <C-w>< :let @e=":vertical resize -5" . nr2char(13)<CR>@e
-nnoremap <C-w>> :let @e=":vertical resize +5" . nr2char(13)<CR>@e
+nnoremap <C-w>- :<C-u>let @e = ':resize -' . (v:count1 * 5) . nr2char(13)<CR>@e
+nnoremap <C-w>+ :<C-u>let @e = ':resize +' . (v:count1 * 5) . nr2char(13)<CR>@e
+nnoremap <C-w>< :<C-u>let @e = ':vertical resize -' . (v:count1 * 5) . nr2char(13)<CR>@e
+nnoremap <C-w>> :<C-u>let @e = ':vertical resize +' . (v:count1 * 5) . nr2char(13)<CR>@e
 
 " jump to a line that isn't empty and doesn't start with white-space:
 " Top-level line (especially for python where [m doesn't work)
@@ -138,8 +139,20 @@ xnoremap ]t /^\S<CR>
 onoremap [t ?^\S<CR>
 onoremap ]t /^\S<CR>
 
-" 'Q' in normal mode enters Ex mode. You almost never want this.
-nmap Q <Nop> 
+" 'Q' in normal mode enters Ex mode by default - you almost never want that,
+" so repurpose it instead: Q = write & quit the current buffer (:wq), mnemonic Q = Quit.
+" (previously used Ctrl-Q for :q, but IntelliJ's keymap binds ctrl+q globally to
+" HideActiveWindow - see macOS - ian.xml - which swallows the keystroke before
+" IdeaVim sees it, hiding the terminal tool window instead. Bare Q has no IDE-level
+" conflict: IntelliJ's default keymap never binds an unmodified single letter in
+" the editor context, since normal typing needs it.)
+" <expr> instead of a function: IdeaVim can't parse function definitions (see
+" "ideaVim ignore" note near the bottom of this file), but <expr> mappings work fine.
+" editable buffer -> write & quit; read-only buffer -> quit without trying to write (avoids E45)
+" use or() instead of || : an unescaped | inside a :map command's expr is parsed as the
+" Ex command separator, silently truncating the mapping (confirmed by testing - the same
+" bug already existed pre-session in the unrelated "nnoremap \| g," line further down).
+nnoremap <expr> Q or(&readonly, !&modifiable) ? ":q!\<CR>" : ":wq\<CR>"
 " to pair up with control W / U / H, and also stay consistent with Mac's default forward delete:
 inoremap <C-d> <Del>
 " escapes
