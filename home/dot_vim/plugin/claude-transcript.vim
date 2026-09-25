@@ -39,23 +39,8 @@ function! s:DefineQuestionHighlights() abort
   highlight ClaudeQuestionContinued cterm=bold ctermfg=214 gui=bold guifg=#ffaf00
 endfunction
 
-" Closed folds are drawn with the global Folded group, which can't be set per
-" buffer: borrow the question colors while a transcript is the current buffer
-" and put the original back on leaving it.
-function! s:UseQuestionColorsForFolds() abort
-  if !exists('s:original_folded_highlight')
-    let s:original_folded_highlight = hlget('Folded')
-  endif
-  highlight! link Folded ClaudeQuestionFirstLine
-endfunction
-
-function! s:RestoreFoldColors() abort
-  if exists('s:original_folded_highlight')
-    call hlset(s:original_folded_highlight)
-    unlet s:original_folded_highlight
-  endif
-endfunction
-
+" Closed folds use vimrc's global Folded highlight (dark indigo/purple) —
+" no per-buffer override needed here anymore.
 function! s:SetUpClaudeTranscript() abort
   setlocal readonly nomodified
 
@@ -64,10 +49,6 @@ function! s:SetUpClaudeTranscript() abort
   " still claim the "❯" line inside it.
   syntax region ClaudeQuestionContinued start=/^\%u276f /me=s end=/^\s*$/ contains=ClaudeQuestionFirstLine
   syntax match ClaudeQuestionFirstLine /^\%u276f .*$/ contained
-  call s:UseQuestionColorsForFolds()
-  autocmd! claude_transcript * <buffer>
-  autocmd claude_transcript BufEnter <buffer> call s:UseQuestionColorsForFolds()
-  autocmd claude_transcript BufLeave <buffer> call s:RestoreFoldColors()
 
   setlocal foldmethod=expr foldexpr=ClaudeTranscriptFoldLevel(v:lnum)
   setlocal foldlevel=0 foldtext=ClaudeTranscriptFoldText()
