@@ -148,11 +148,13 @@ onoremap ]t /^\S<CR>
 " the editor context, since normal typing needs it.)
 " <expr> instead of a function: IdeaVim can't parse function definitions (see
 " "ideaVim ignore" note near the bottom of this file), but <expr> mappings work fine.
-" editable buffer -> write & quit; read-only buffer -> quit without trying to write (avoids E45)
+" editable buffer -> write & quit; read-only buffer -> quit without trying to write (avoids E45);
+" unnamed buffer (scrap paper, e.g. bare `vim` with no file argument) -> quit without writing
+" too, since :wq there just fails with E32: No file name and leaves you stuck in Vim.
 " use or() instead of || : an unescaped | inside a :map command's expr is parsed as the
 " Ex command separator, silently truncating the mapping (confirmed by testing - the same
 " bug already existed pre-session in the unrelated "nnoremap \| g," line further down).
-nnoremap <expr> Q or(&readonly, !&modifiable) ? ":q!\<CR>" : ":wq\<CR>"
+nnoremap <expr> Q or(or(&readonly, !&modifiable), expand('%') ==# '') ? ":q!\<CR>" : ":wq\<CR>"
 " to pair up with control W / U / H, and also stay consistent with Mac's default forward delete:
 inoremap <C-d> <Del>
 " escapes

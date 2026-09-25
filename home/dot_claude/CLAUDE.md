@@ -33,8 +33,13 @@ to Claude Code sessions.
   issues, platform compatibility, and security/notarization.
 - I'm in Shanghai (Asia/Shanghai) and often on a VPN: for network/access
   problems consider China routing, DNS, proxies, and VPN clients (e.g. 0dcloud).
-- Use clickable HTTPS links (including Notion HTTPS, not `notion://`). When
-  asked to open a Notion page, prefer the native Notion app.
+- Use clickable HTTPS links (including Notion HTTPS). The terminal only
+  auto-links `http(s)://`, so a `notion://` link renders as styled but
+  unclickable text there — not usable as the primary link. An `app.notion.com`
+  HTTPS link opens the Notion app only from Safari (Apple Universal Links);
+  Chrome just loads the web page. If I want the desktop app to open, say so
+  and I'll give the plain-text `notion://` URI to paste manually, or suggest
+  opening the HTTPS link in Safari.
 - Before sending any external message, find the exact message/recipient and
   get my confirmation right before sending.
 
