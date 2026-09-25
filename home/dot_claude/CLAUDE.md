@@ -60,32 +60,12 @@ to Claude Code sessions.
   my logged-in session.
 - Answer in chat; publish an Artifact page only when I ask or when the result
   is meant to be shared.
-- End-of-reply checklist (the app has no status line and no auto-retitle
-  hook — `~/.claude/hooks/session-title.py` is silent here on purpose — so I
-  am the only thing keeping these current; do all three together, every
-  reply, as one habit, not three separate rules to remember):
-  1. For a new question (not a follow-up like "yes"), call `mark_chapter`
-     with a short version of it.
-  2. Retitle: give the session a short topic title at the first question,
-     then update it after every new question as a rolling topic, like an
-     EWMA — the current title is the running summary; blend the newest
-     question into it, keep themes that recur, let one-off tangents fade.
-     Don't re-read past messages to do this.
-  3. Cache-cost badge — mirror both rows of the CLI status line:
-     a. Run `~/.claude/cache-status.sh <this session's transcript path>` and
-        append its one line verbatim, e.g. `🟢cache 47m left — next message
-        is cheap` or `🧊cache cold — next message re-reads 240k tokens at
-        full price`. Find the transcript path from the running session's
-        cliSessionId under `~/.claude/projects/<encoded-cwd>/<cliSessionId>.jsonl`
-        (or the newest-modified `.jsonl` there matching this conversation).
-     b. Call `get_usage` (session "self") and add a second line `{icon}ctx
-        {tokensUsed} {percentUsed}%` — tokens abbreviated as e.g. `74k`, icon
-        by absolute tokens (running per-message cache-read cost, not
-        closeness to auto-compact — compaction is cheap while the cache is
-        warm): 🟢 under 300k, 🟡 300k-699k, 🔴 700k+ — same thresholds as
-        `ctx_icon` in `statusline.sh`.
-     Skip the badge lines (only these two) on very short replies, e.g. a
-     single tool call with no prose, to avoid clutter — still do 1 and 2.
+- No per-reply chapter/retitle/cache-badge checklist here (tried it; it
+  didn't hold up once a session got tool-heavy — dropped after a couple of
+  exchanges instead of running every reply). `~/.claude/cache-status.sh` and
+  `mark_chapter`/retitle are still fine to use when actually useful (e.g. a
+  long session that's clearly shifting topic), just not as a standing
+  every-reply rule.
 
 ## Dotfiles (chezmoi)
 
