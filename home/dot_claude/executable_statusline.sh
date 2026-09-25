@@ -230,12 +230,13 @@ else ctx_icon="🟢"; fi
 ctx_text="${ctx_icon}ctx ${context_tokens} ${context_percent}%"
 
 # Row 2: ctx | cwd | branch + dirty state | lines changed | IDE. Empty parts
-# are skipped. cwd shows the git repo's own folder name when inside one
-# (git_root, found above), since a nested cwd's own leaf name is often a
-# meaningless scratch/subfolder; otherwise it falls back to cwd's leaf name.
+# are skipped. cwd shows the current directory's own leaf name. Truncated to
+# 10 chars so long names don't crowd out whatever comes after it on the row.
 row_parts=("$ctx_text")
-cwd_label="${git_root:-$current_dir}"
-[[ -n "$cwd_label" ]] && row_parts+=("📁${cwd_label##*/}")
+cwd_label="${current_dir##*/}"
+cwd_max_chars=10
+(( ${#cwd_label} > cwd_max_chars )) && cwd_label="${cwd_label:0:cwd_max_chars}…"
+[[ -n "$cwd_label" ]] && row_parts+=("📁${cwd_label}")
 [[ -n "$git_branch" ]] && row_parts+=("${git_branch}${git_state}")
 (( lines_added + lines_removed > 0 )) && row_parts+=("edits +${lines_added} −${lines_removed}")
 [[ -n "$ide_status" ]] && row_parts+=("$ide_status")
