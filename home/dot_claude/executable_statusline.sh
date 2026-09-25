@@ -27,8 +27,8 @@
 #      - brand-new session: 🆕new chat (nothing cached, nothing to reload)
 #      - quota: no "5h"/"wk" labels, the time left tells them apart
 #        (hours = 5-hour window, days = weekly)
-#   2: ctx tokens % | 🐍conda env | branch●changed↑ahead↓behind | edits +added −removed |
-#      🕒clock time | IDE✓/✗ | ␣=talk (voice mode hint, only if voice is on)
+#   2: ctx tokens % | 📁cwd (leaf folder) | branch●changed↑ahead↓behind |
+#      edits +added −removed | IDE✓/✗ | ␣=talk (voice mode hint, only if voice is on)
 #      (row 2 = this session's own state)
 #      ctx is informational, not an auto-compact alarm — compaction itself is
 #      cheap while the cache is warm (one more ordinary cached turn: the old
@@ -214,9 +214,6 @@ five_hour_usage=""
 weekly_usage=""
 [[ -n "$weekly_percent" ]] && weekly_usage="${weekly_percent}%${weekly_reset:+ ⏳$weekly_reset}"
 
-# Wall-clock time, e.g. "14:32".
-clock_time=$(date +%H:%M)
-
 # Context badge: leads row 2. Bucketed by raw tokens (see header) — the
 # running per-message cache-read cost — not % of window, so it sits with this
 # session's own state rather than with the cache badge that predicts the
@@ -226,14 +223,13 @@ elif (( context_tokens_raw >= 300000 )); then ctx_icon="🟡"
 else ctx_icon="🟢"; fi
 ctx_text="${ctx_icon}ctx ${context_tokens} ${context_percent}%"
 
-# Row 2: ctx | conda env | branch + dirty state | lines changed | clock | IDE.
-# Empty parts are skipped. CONDA_DEFAULT_ENV is inherited from the shell that
-# started claude, so it shows the env that session's commands run in.
+# Row 2: ctx | cwd | branch + dirty state | lines changed | IDE. Empty parts
+# are skipped. cwd is just the leaf folder name — the full path is already
+# visible in the terminal/IDE title bar.
 row_parts=("$ctx_text")
-[[ -n "$CONDA_DEFAULT_ENV" ]] && row_parts+=("🐍$CONDA_DEFAULT_ENV")
+[[ -n "$current_dir" ]] && row_parts+=("📁${current_dir##*/}")
 [[ -n "$git_branch" ]] && row_parts+=("${git_branch}${git_state}")
 (( lines_added + lines_removed > 0 )) && row_parts+=("edits +${lines_added} −${lines_removed}")
-row_parts+=("🕒$clock_time")
 [[ -n "$ide_status" ]] && row_parts+=("$ide_status")
 [[ "$voice_enabled" == "true" ]] && row_parts+=("␣=talk")
 editing_row=""
