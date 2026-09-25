@@ -299,11 +299,12 @@ hi Normal guibg=NONE ctermbg=NONE
 " must be placed after colorscheme setting, otherwise overriden
 highlight StatusLine ctermfg=black  guifg=#ffffff ctermbg=green guibg=#4e4e4e
 
-" closed folds: dark indigo/purple, chosen to stand out from other things
-" that also grab your eye in this setup without being mistaken for them —
-" tmux's active-pane border (orange), git diff (red/green), search (yellow),
-" and the blue used by MatchParen/Visual/DiffChange.
-highlight Folded cterm=NONE ctermfg=255 ctermbg=55 gui=NONE guifg=#ffffff guibg=#5f00af
+" closed folds: bold indigo/purple foreground, no background — visible but
+" not a solid highlight block, since most folds (marker folds in this file,
+" .zshrc, .tmux.conf) don't need to grab the eye the way Claude transcript
+" folds do. claude-transcript.vim swaps in a stronger background variant of
+" this same color while that buffer is active.
+highlight Folded cterm=bold ctermfg=55 ctermbg=NONE gui=bold guifg=#5f00af guibg=NONE
 
 set guifont=MesloLGS-NF-Regular:h13
 set linespace=3

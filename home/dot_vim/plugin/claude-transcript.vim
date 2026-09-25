@@ -39,12 +39,23 @@ function! s:DefineQuestionHighlights() abort
   highlight ClaudeQuestionContinued cterm=bold ctermfg=214 gui=bold guifg=#ffaf00
 endfunction
 
-" Closed folds use vimrc's global Folded highlight (dark indigo/purple) —
-" no per-buffer override needed here anymore.
+" Closed folds get a stronger background version of vimrc's subtle indigo
+" Folded highlight while a transcript buffer is active — these folds are the
+" whole point of the file (one per question), so they should stand out more
+" than an ordinary code fold. Swapped back to vimrc's default on BufLeave.
+function! s:ApplyTranscriptFoldHighlight() abort
+  highlight Folded cterm=NONE ctermfg=255 ctermbg=55 gui=NONE guifg=#ffffff guibg=#5f00af
+endfunction
+
+function! s:RestoreDefaultFoldHighlight() abort
+  highlight Folded cterm=bold ctermfg=55 ctermbg=NONE gui=bold guifg=#5f00af guibg=NONE
+endfunction
+
 function! s:SetUpClaudeTranscript() abort
   setlocal readonly nomodified
 
   call s:DefineQuestionHighlights()
+  call s:ApplyTranscriptFoldHighlight()
   " me=s makes the region's start zero-width, so the first-line match can
   " still claim the "❯" line inside it.
   syntax region ClaudeQuestionContinued start=/^\%u276f /me=s end=/^\s*$/ contains=ClaudeQuestionFirstLine
@@ -73,6 +84,10 @@ endfunction
 augroup claude_transcript
   autocmd!
   autocmd BufReadPost */cc-transcript-*.txt call s:SetUpClaudeTranscript()
+  " Swap Folded to the stronger transcript variant only while a transcript
+  " buffer is actually focused, so other buffers keep vimrc's subtle default.
+  autocmd BufEnter */cc-transcript-*.txt call s:ApplyTranscriptFoldHighlight()
+  autocmd BufLeave */cc-transcript-*.txt call s:RestoreDefaultFoldHighlight()
   " A :colorscheme change clears custom groups; define them again.
   autocmd ColorScheme * call s:DefineQuestionHighlights()
 augroup END
