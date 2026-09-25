@@ -30,6 +30,11 @@
 #   2: ctx tokens % | 📁cwd (leaf folder) | branch●changed↑ahead↓behind |
 #      edits +added −removed | IDE✓/✗ | ␣=talk (voice mode hint, only if voice is on)
 #      (row 2 = this session's own state)
+#      % is tokens used ÷ the auto-compact threshold (not ÷ the model's raw
+#      window) — i.e. how close to the next compaction, computed from the
+#      pinned autoCompactWindow setting and the live model's own window, so
+#      it stays correct whatever model the session is on (see
+#      compact_threshold below).
 #      ctx is informational, not an auto-compact alarm — compaction itself is
 #      cheap while the cache is warm (one more ordinary cached turn: the old
 #      history reads back at cache rate, only the short new summary is
@@ -50,7 +55,7 @@
 # field, formats the time left until each quota resets, and returns the
 # current time. Fields are
 # joined by the ASCII unit separator so empty values survive `read`.
-IFS=$'\x1f' read -r model_name current_dir context_percent context_tokens context_tokens_raw effort_level \
+IFS=$'\x1f' read -r model_name current_dir context_window_size context_tokens context_tokens_raw effort_level \
   fast_mode_enabled lines_added lines_removed session_minutes \
   five_hour_percent five_hour_reset weekly_percent weekly_reset \
   cache_is_warm cache_time_left cache_minutes_left cache_reload_tokens \
@@ -70,7 +75,7 @@ IFS=$'\x1f' read -r model_name current_dir context_percent context_tokens contex
     [
       .model.display_name // "?",
       .workspace.current_dir // .cwd // "",
-      (.context_window.used_percentage // 0 | floor),
+      (.context_window.context_window_size // 200000 | floor),
       ((.context_window.total_input_tokens // 0) + (.context_window.total_output_tokens // 0)
         | if . >= 1000 then "\(. / 1000 | floor)k" else tostring end),
       ((.context_window.total_input_tokens // 0) + (.context_window.total_output_tokens // 0) | floor),
@@ -212,6 +217,29 @@ else
   [[ "$voice_enabled" != "true" ]] && voice_enabled="false"
   echo "$voice_enabled" > "$voice_cache_file"
 fi
+
+# autoCompactWindow: also not in the session JSON (only context_window_size,
+# the *model's* raw max, is), so read the pinned setting the same way as
+# voice above. If it's unset, fall back to Claude Code's own untuned default:
+# the full window for a 200k model, or ~96.7% of it for a 1M-window model
+# (see model-config docs — 1M-window models compact at ~967k, not at 1M).
+compact_window_cache_file="${TMPDIR:-/tmp}/claude-statusline-compactwindow-$PPID"
+if [[ -f "$compact_window_cache_file" ]]; then
+  read -r auto_compact_window < "$compact_window_cache_file"
+else
+  auto_compact_window=$(jq -r '.autoCompactWindow // empty' "$HOME/.claude/settings.json" 2>/dev/null)
+  echo "$auto_compact_window" > "$compact_window_cache_file"
+fi
+if [[ "$auto_compact_window" =~ ^[0-9]+$ ]]; then
+  compact_threshold=$auto_compact_window
+elif (( context_window_size >= 900000 )); then
+  compact_threshold=$(( context_window_size * 967 / 1000 ))
+else
+  compact_threshold=$context_window_size
+fi
+(( compact_threshold > context_window_size )) && compact_threshold=$context_window_size
+(( compact_threshold < 1 )) && compact_threshold=$context_window_size
+context_percent=$(( context_tokens_raw * 100 / compact_threshold ))
 
 # --- Subscription usage (claude.ai Pro/Max; absent until the first reply) ---
 # jq already formatted the time left ("2h-27m", "6d-4h").
