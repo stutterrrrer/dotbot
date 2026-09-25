@@ -57,7 +57,9 @@ to Claude Code sessions.
 - For tasks longer than ~5 minutes, send a push notification when done or
   blocked.
 - Use the built-in browser by default; use Chrome only for sites where I need
-  my logged-in session.
+  my logged-in session — including shopping sites like Taobao. Claude in
+  Chrome has no site-wide allowlist, so remind me up front that I'll need to
+  approve each action (click/type/navigate) one by one.
 - Answer in chat; publish an Artifact page only when I ask or when the result
   is meant to be shared.
 - No standing per-reply chapter/retitle/cache-badge checklist (didn't hold up
