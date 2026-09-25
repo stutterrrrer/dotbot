@@ -28,7 +28,8 @@
 #      - quota: no "5h"/"wk" labels, the time left tells them apart
 #        (hours = 5-hour window, days = weekly)
 #   2: ctx tokens % | 🐍conda env | branch●changed↑ahead↓behind | edits +added −removed |
-#      🕒session duration | IDE✓/✗        (row 2 = this session's own state)
+#      🕒session duration | IDE✓/✗ | ␣=talk (voice mode hint, only if voice is on)
+#      (row 2 = this session's own state)
 #      ctx is informational, not an auto-compact alarm — compaction itself is
 #      cheap while the cache is warm (one more ordinary cached turn: the old
 #      history reads back at cache rate, only the short new summary is
@@ -195,6 +196,17 @@ if (( ${#ide_lock_files[@]} > 0 )); then
   fi
 fi
 
+# Voice mode: not in the session JSON, so read the user settings file once
+# and cache the result per claude process (it can't change mid-session).
+voice_cache_file="${TMPDIR:-/tmp}/claude-statusline-voice-$PPID"
+if [[ -f "$voice_cache_file" ]]; then
+  read -r voice_enabled < "$voice_cache_file"
+else
+  voice_enabled=$(jq -r '.voice.enabled // .voiceEnabled // false' "$HOME/.claude/settings.json" 2>/dev/null)
+  [[ "$voice_enabled" != "true" ]] && voice_enabled="false"
+  echo "$voice_enabled" > "$voice_cache_file"
+fi
+
 # --- Subscription usage (claude.ai Pro/Max; absent until the first reply) ---
 # jq already formatted the time left ("2h-27m", "6d-4h").
 five_hour_usage=""
@@ -227,6 +239,7 @@ row_parts=("$ctx_text")
 (( lines_added + lines_removed > 0 )) && row_parts+=("edits +${lines_added} −${lines_removed}")
 row_parts+=("🕒$session_duration")
 [[ -n "$ide_status" ]] && row_parts+=("$ide_status")
+[[ "$voice_enabled" == "true" ]] && row_parts+=("␣=talk")
 editing_row=""
 for row_part in "${row_parts[@]}"; do
   [[ -n "$editing_row" ]] && editing_row+=" | "
