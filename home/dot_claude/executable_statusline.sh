@@ -96,7 +96,11 @@ IFS=$'\x1f' read -r model_name current_dir context_percent context_tokens contex
 
 # Git branch without launching git: find the nearest .git/HEAD and read it.
 # Falls back to `git` for worktrees/submodules, where .git is a file.
+# git_root is also reused below for the cwd badge, so a deeply nested cwd
+# (e.g. a scratch subfolder several levels under the repo) still shows the
+# repo's own name instead of a meaningless leaf directory.
 git_branch=""
+git_root=""
 search_dir="$current_dir"
 while [[ -n "$search_dir" && "$search_dir" != "/" ]]; do
   if [[ -f "$search_dir/.git/HEAD" ]]; then
@@ -106,9 +110,11 @@ while [[ -n "$search_dir" && "$search_dir" != "/" ]]; do
     else
       git_branch="${head_ref:0:7}"   # detached HEAD: short commit hash
     fi
+    git_root="$search_dir"
     break
   elif [[ -f "$search_dir/.git" ]]; then
     git_branch=$(git -C "$current_dir" branch --show-current 2>/dev/null)
+    git_root="$search_dir"
     break
   fi
   search_dir="${search_dir%/*}"
@@ -224,10 +230,12 @@ else ctx_icon="🟢"; fi
 ctx_text="${ctx_icon}ctx ${context_tokens} ${context_percent}%"
 
 # Row 2: ctx | cwd | branch + dirty state | lines changed | IDE. Empty parts
-# are skipped. cwd is just the leaf folder name — the full path is already
-# visible in the terminal/IDE title bar.
+# are skipped. cwd shows the git repo's own folder name when inside one
+# (git_root, found above), since a nested cwd's own leaf name is often a
+# meaningless scratch/subfolder; otherwise it falls back to cwd's leaf name.
 row_parts=("$ctx_text")
-[[ -n "$current_dir" ]] && row_parts+=("📁${current_dir##*/}")
+cwd_label="${git_root:-$current_dir}"
+[[ -n "$cwd_label" ]] && row_parts+=("📁${cwd_label##*/}")
 [[ -n "$git_branch" ]] && row_parts+=("${git_branch}${git_state}")
 (( lines_added + lines_removed > 0 )) && row_parts+=("edits +${lines_added} −${lines_removed}")
 [[ -n "$ide_status" ]] && row_parts+=("$ide_status")
