@@ -53,6 +53,10 @@ unsetopt LIST_BEEP
 # Side effect: ^ ~ # become glob characters, so quote them in args, e.g. git reset 'HEAD^'
 setopt EXTENDED_GLOB
 
+# Don't let a stray Ctrl-D at an empty prompt exit the shell (and, inside
+# tmux, silently kill the pane with no warning). Type `exit` instead.
+setopt IGNORE_EOF
+
 # history {{{
 # sync history between all zsh sessions
 setopt share_history

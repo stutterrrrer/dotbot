@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+# claude-search — search across all local Claude Code session transcripts
+# (CLI + desktop-app-driven Claude Code sessions under ~/.claude/projects/)
+# for a keyword, matching what you typed and Claude's final text replies —
+# not tool calls or tool results/output — plus the session's auto-generated
+# title. Title matches are ranked above body-only matches, since the title
+# hook already distills what the session is about. Does NOT cover plain
+# claude.ai GUI chat sessions — those are cloud-only.
+#
+# Shows the 5 most recent matching sessions (time, title, snippet, resume).
+#
+# Usage: claude-search <keyword> [-i]
+# Example: claude-search "0dcloud" -i
+
+set -euo pipefail
+
+if [[ $# -lt 1 ]]; then
+    echo "Usage: $(basename "$0") <keyword> [-i]" >&2
+    exit 1
+fi
+
+keyword=$1
+shift
+
+ignore_case=0
+for flag in "$@"; do
+    [[ "$flag" == "-i" ]] && ignore_case=1
+done
+
+projects_dir="$HOME/.claude/projects"
+
+# Shared python: scan a transcript for keyword matches in (a) the session's
+# current auto-generated title (the session-title hook keeps overwriting a
+# 'custom-title' entry as the conversation evolves — only the last one is
+# live), (b) genuine user-typed messages (type=="user", plain string or
+# text-only content, no tool_result blocks / toolUseResult — those are tool
+# output being fed back to Claude, not something the person typed), and
+# (c) Claude's final text replies (type=="assistant", "text" content blocks
+# only — skips "tool_use" and "thinking" blocks, which aren't reply text).
+find_matches() {
+    python3 - "$1" "$keyword" "$ignore_case" <<'PYEOF'
+import json, re, sys
+
+path, keyword, ignore_case = sys.argv[1], sys.argv[2], sys.argv[3] == "1"
+flags = re.IGNORECASE if ignore_case else 0
+pattern = re.compile(re.escape(keyword), flags)
+
+cwd = ts = title = ""
+snippet = None
+
+with open(path) as fh:
+    for line in fh:
+        try:
+            d = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+
+        if d.get("cwd") and d.get("timestamp"):
+            cwd, ts = d["cwd"], d["timestamp"]
+
+        if d.get("type") == "custom-title":
+            title = d.get("customTitle", title)
+            continue
+
+        msg_type = d.get("type")
+        if msg_type == "user":
+            if d.get("toolUseResult") is not None:
+                continue
+            content = d.get("message", {}).get("content")
+            if isinstance(content, str):
+                text = content
+            elif isinstance(content, list):
+                if any(c.get("type") == "tool_result" for c in content if isinstance(c, dict)):
+                    continue
+                text = " ".join(c.get("text", "") for c in content if isinstance(c, dict))
+            else:
+                continue
+        elif msg_type == "assistant":
+            content = d.get("message", {}).get("content")
+            if not isinstance(content, list):
+                continue
+            text = " ".join(c.get("text", "") for c in content if isinstance(c, dict) and c.get("type") == "text")
+            if not text:
+                continue
+        else:
+            continue
+
+        m = pattern.search(text)
+        if m and snippet is None:
+            start = max(0, m.start() - 60)
+            snippet = text[start:m.end() + 60].replace("\n", " ")
+
+title_match = bool(title and pattern.search(title))
+if title_match or snippet is not None:
+    print(f"{1 if title_match else 0}\t{cwd}\t{ts}\t{title}\t{snippet or ''}")
+PYEOF
+}
+
+results=()
+for f in "$projects_dir"/*/*.jsonl; do
+    [[ -e "$f" ]] || continue
+    out=$(find_matches "$f")
+    [[ -n "$out" ]] && results+=("$(stat -f %m "$f" 2>/dev/null || stat -c %Y "$f")|$f|$out")
+done
+
+if [[ ${#results[@]} -eq 0 ]]; then
+    echo "No matches for: $keyword"
+    exit 0
+fi
+
+# Rank title matches first, then by recency within each group.
+printf '%s\n' "${results[@]}" | \
+    awk -F'|' '{split($3,a,"\t"); print a[1]"\t"$1"\t"$2"\t"$3}' | \
+    sort -t$'\t' -k1,1rn -k2,2rn | \
+    head -5 | \
+while IFS=$'\t' read -r _title_match _mtime file rest; do
+    session_id=$(basename "$file" .jsonl)
+    IFS=$'\t' read -r _tm cwd ts title snippet <<<"$rest"
+
+    ts_readable=$(python3 -c "
+from datetime import datetime, timezone
+try:
+    dt = datetime.strptime('$ts', '%Y-%m-%dT%H:%M:%S.%fZ').replace(tzinfo=timezone.utc)
+    print(dt.astimezone().strftime('%a %Y-%m-%d %H:%M'))
+except ValueError:
+    print('$ts')
+")
+
+    echo "──────────────────────────────────────────"
+    echo "Time:     $ts_readable"
+    [[ -n "$title" ]] && echo "Title:    $title"
+    [[ -n "$snippet" ]] && echo "Snippet:  $snippet"
+    echo "Resume:   cd '$cwd' && claude --resume $session_id"
+done
