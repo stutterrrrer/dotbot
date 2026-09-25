@@ -17,6 +17,11 @@ through .chezmoi.stdin. Pinned:
   CLI session titles: every 3 questions Haiku blends them into the current
   title in the background; shown from the next question; silent in the
   desktop app)
+- permissions.allow: "mcp__idea__*" (JetBrains IntelliJ MCP Server tools,
+  from the "idea" MCP server registered in ~/.claude.json) auto-approved,
+  never prompts, across every session/project. Appended to whatever's
+  already in the array from stdin rather than overwritten, so "always
+  allow" choices made in the UI survive re-apply.
 
 jk / kj -> <Esc> is native in Claude Code >= 2.1.208: exactly two printable
 characters, INSERT mode only, second key within one second. It is read only
@@ -27,6 +32,12 @@ No wrapper is needed.
 {{- if ne .chezmoi.stdin "" -}}
   {{- $claudeSettings = fromJson .chezmoi.stdin -}}
 {{- end -}}
+{{- $existingAllow := dig "permissions" "allow" (list) $claudeSettings -}}
+{{- $mcpIdeaRule := "mcp__idea__*" -}}
+{{- $allow := $existingAllow -}}
+{{- if not (has $mcpIdeaRule $existingAllow) -}}
+  {{- $allow = append $existingAllow $mcpIdeaRule -}}
+{{- end -}}
 {{- $claudeSettings
   | setValueAtPath "editorMode" "vim"
   | setValueAtPath "vimInsertModeRemaps.jk" "<Esc>"
@@ -35,4 +46,5 @@ No wrapper is needed.
   | setValueAtPath "statusLine" (dict "type" "command" "command" "~/.claude/statusline.sh" "refreshInterval" 60)
   | setValueAtPath "hooks.Notification" (list (dict "hooks" (list (dict "type" "command" "command" "~/.claude/hooks/notify.sh"))))
   | setValueAtPath "hooks.UserPromptSubmit" (list (dict "hooks" (list (dict "type" "command" "command" "~/.claude/hooks/session-title.py"))))
+  | setValueAtPath "permissions.allow" $allow
   | toPrettyJson }}
