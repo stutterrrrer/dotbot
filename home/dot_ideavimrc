@@ -85,6 +85,10 @@ nnoremap m- :action ToggleBookmark<CR>
 nnoremap [c :action PreviousDiff<Enter>
 nnoremap ]c :action NextDiff<Enter>
 
+" mimic vimrc's GitDiffAgainstHead(): open a diff of the current file against
+" the last commit (HEAD), IntelliJ-native equivalent
+nnoremap <Leader>d :action Diff.ShowDiff<CR>
+
 " note that doing :action GotoNextBookmark<Enter> in IntelliJ won't set the automatic mark ` where you're jumping from,
 " so you can't do `` to go back after doing ]` like you can in vim, if you just did GoTo... 
 " and that m` in normal mode won't override the automatic ` -- but the ex-command `:mark <>` can.

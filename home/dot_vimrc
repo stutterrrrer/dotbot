@@ -254,7 +254,28 @@ o```
 	:g/\v^\s*```(\s|\S)+```/s/NEWLINE/
 /g
 	" remove the last newline after the end of each code fence: with the join `:j` command
-	:g/\v^\s*```$/j 
+	:g/\v^\s*```$/j
+endfunction
+
+" mimic ideavim's Diff.ShowDiff action: open a 2-pane diff of the current
+" buffer against the last commit (HEAD), since Vim/Neovim has no built-in
+" equivalent. Diffs against HEAD (not the index) so it matches IntelliJ's
+" behavior even when part of the file is staged.
+function! GitDiffAgainstHead()
+  let l:relpath = trim(system('git ls-files --full-name -- ' . shellescape(expand('%:p'))))
+  if v:shell_error || empty(l:relpath)
+    echo 'Not a tracked file in a git repo'
+    return
+  endif
+  let l:filetype = &filetype
+  diffthis
+  vertical new
+  execute 'read !git show HEAD:' . shellescape(l:relpath)
+  normal! ggdd  " :read leaves a blank line 1 above the fetched content; drop it
+  execute 'file HEAD:' . fnameescape(l:relpath)
+  let &filetype = l:filetype
+  setlocal buftype=nofile bufhidden=wipe noswapfile nomodifiable readonly
+  diffthis
 endfunction
 " }}}
 
@@ -388,6 +409,10 @@ xnoremap <silent> D "+d
 
 " delete a bookmark - see DeleteMarksOnCurrentLine in the IdeaVim-skip block at the top
 nnoremap m- :<c-u>call DeleteMarksOnCurrentLine()<CR>
+
+" show diff vs last commit - see GitDiffAgainstHead in the IdeaVim-skip block
+" at the top; ideavimrc overrides this with :action Diff.ShowDiff
+nnoremap <leader>d :call GitDiffAgainstHead()<CR>
 
 " toggle wrap lines
 nnoremap <leader>w :set wrap!<CR>
@@ -600,8 +625,7 @@ highlight StatusLineNC ctermfg=250 guifg=#888888 ctermbg=22 guibg=#1a3524
 " closed folds: bold indigo/purple foreground, no background — visible but
 " not a solid highlight block, since most folds (marker folds in this file,
 " .zshrc, .tmux.conf) don't need to grab the eye the way Claude transcript
-" folds do. claude-transcript.vim swaps in a stronger background variant of
-" this same color while that buffer is active.
+" folds do.
 highlight Folded cterm=bold ctermfg=55 ctermbg=NONE gui=bold guifg=#5f00af guibg=NONE
 
 set guifont=MesloLGS-NF-Regular:h13
