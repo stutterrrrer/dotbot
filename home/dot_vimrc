@@ -543,10 +543,11 @@ syntax on
 " Disable the default Vim startup message.
 set shortmess+=I
 
-" Show line numbers.
-" Line motions (5j) are replaced by easymotion n-char search - it's a jump
-" saved to the jump list, unlike count + j/k.
+" Show line numbers: hybrid - absolute on the cursor line, relative elsewhere,
+" so counted motions like 5j can be read off the gutter. Easymotion n-char
+" search is still there for jumps that should land in the jump list.
 set number
+set relativenumber
 "
 " status line at the bottom, even if you only have one window open.
 set laststatus=2
