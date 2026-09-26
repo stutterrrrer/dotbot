@@ -33,13 +33,14 @@ to Claude Code sessions.
   issues, platform compatibility, and security/notarization.
 - I'm in Shanghai (Asia/Shanghai) and often on a VPN: for network/access
   problems consider China routing, DNS, proxies, and VPN clients (e.g. 0dcloud).
-- Use clickable HTTPS links (including Notion HTTPS). The terminal only
-  auto-links `http(s)://`, so a `notion://` link renders as styled but
-  unclickable text there — not usable as the primary link. An `app.notion.com`
-  HTTPS link opens the Notion app only from Safari (Apple Universal Links);
-  Chrome just loads the web page. If I want the desktop app to open, say so
-  and I'll give the plain-text `notion://` URI to paste manually, or suggest
-  opening the HTTPS link in Safari.
+- Give links as markdown links with a short label, e.g.
+  `[Notion: "Inside tmux" section](https://…)`, not bare URLs. Claude Code
+  emits them as real terminal hyperlinks (OSC 8), which tmux passes through
+  (`terminal-features … hyperlinks` in `~/.tmux.conf`), so they stay clickable
+  even when wrapped. A long bare URL that wraps breaks: IntelliJ's own URL
+  detection grabs the cut-off first line and opens the truncated link. Use
+  HTTPS URLs, not `notion://`. Finicky (the default browser, `~/.finicky.js`)
+  sends Notion links straight to the Notion app.
 - Before sending any external message, find the exact message/recipient and
   get my confirmation right before sending.
 
@@ -63,8 +64,10 @@ to Claude Code sessions.
   blocked.
 - Use the built-in browser by default; use Chrome only for sites where I need
   my logged-in session — including shopping sites like Taobao. Claude in
-  Chrome has no site-wide allowlist, so remind me up front that I'll need to
-  approve each action (click/type/navigate) one by one.
+  Chrome asks per action unless I picked "Always allow actions on this site"
+  at its prompt (Notion is already allowed). Purchases, deletes, permission
+  changes, and account creation always ask, so remind me up front on
+  shopping sites.
 - Answer in chat; publish an Artifact page only when I ask or when the result
   is meant to be shared.
 - No standing per-reply chapter/retitle/cache-badge checklist (didn't hold up
