@@ -1,5 +1,5 @@
 #!/bin/bash
-# Claude Code CLI status line, two rows (each echo is one row):
+# Claude Code CLI status line, three rows (each echo is one row):
 #   1: prompt cache | model effort (fast) | 5-hour % ⏳left, weekly % ⏳left
 #      e.g. "🟢cache 47m | Opus 5.5 high | 53% ⏳2h-27m, 8% ⏳6d-4h"
 #      Cache state leads because it's the one thing that actually swings the
@@ -44,6 +44,25 @@
 #      1M-window session at 30% already isn't) — so it's bucketed by absolute
 #      token count: 🟢 under 300k (~$0.06/msg)  🟡 300k-699k (~$0.06-0.14/msg)
 #      🔴 700k+ (~$0.14+/msg), at Sonnet 5's $0.20/MTok cache-read rate.
+#   3: tokens of the current/last question (everything since my last typed
+#      prompt, all tool-call round trips summed), each with its $/MTok price
+#      for the live model and that part's cost, then Σ = the question's
+#      API-equivalent total:
+#      e.g. "Q: 📥12k·7.8=$0.09 | 🔁850k·0.2=$0.17 | 📤4.1k·20=$0.08 | Σ$0.35"
+#      📥 new input = uncached input + cache writes (the $ is their blended
+#         rate: cache writes cost 1.25x input for 5-min, 2x for 1-hour TTL)
+#      🔁 cache reads (the whole conversation re-read on every tool call —
+#         a big number, but at 1/20 of the input price)
+#      📤 output (incl. thinking)
+#      Only emoji that are wide on their own (📥🔁📤): ones that need the
+#      U+FE0F emoji selector (♻️) are drawn 2 cells wide but counted as 1 by
+#      the terminal, so the next character overlaps them. The "·" multiply
+#      dot has an ambiguous width (2 cells in some CJK terminal settings), so
+#      it's only used inside a part and "|" separates parts; if it ever
+#      overlaps, swap it for a plain "*".
+#      Prices are Claude Code's own table (model catalog in the claude
+#      binary, same as /cost). On a subscription it's what the question
+#      would cost on the API, not a bill. Subagent tokens aren't included.
 # Icons sit directly against their text, with no space.
 # The session title is already shown above the prompt, and the vim mode by
 # Claude Code's own instant "-- INSERT --" indicator, so neither is repeated.
@@ -59,7 +78,7 @@ IFS=$'\x1f' read -r model_name current_dir context_window_size context_tokens co
   fast_mode_enabled lines_added lines_removed session_minutes \
   five_hour_percent five_hour_reset weekly_percent weekly_reset \
   cache_is_warm cache_time_left cache_minutes_left cache_reload_tokens \
-  has_cache_info transcript_path current_epoch < <(
+  has_cache_info transcript_path model_id current_epoch < <(
   jq -r '
     # Seconds until a Unix-epoch reset time, as "6d-4h", "2h-27m", "45m" or "<1m"
     # (the dash keeps each duration visually one item).
@@ -96,6 +115,7 @@ IFS=$'\x1f' read -r model_name current_dir context_window_size context_tokens co
         elif . >= 1000 then "\(. / 1000 | floor)k" else tostring end),
       (.prompt_cache != null),
       .transcript_path // "",
+      .model.id // "",
       (now | floor)
     ] | map(tostring) | join("\u001f")')   # reads the session JSON from our stdin
 
@@ -346,5 +366,86 @@ fi
 usage_row="$cache_text | $model_text"
 [[ -n "$quota_text" ]] && usage_row+=" | $quota_text"
 
+# --- Row 3: this question's tokens and prices (see header) ----------------
+# $/MTok as [input, output, 5-min cache write, 1-hour cache write, cache read],
+# copied from Claude Code's model catalog (pricing_tiers in the claude
+# binary). Most specific ids first: "opus-5-5" must match before "opus-5".
+# Fast mode bills Opus 5.5 at 2x. Unknown models: no prices, tokens only.
+case "$model_id" in
+  *opus-5-5*)
+    if [[ "$fast_mode_enabled" == "true" ]]; then model_prices="[8,40,10,16,0.4]"
+    else model_prices="[4,20,5,8,0.2]"; fi ;;
+  *opus-5*|*opus-4-[5-8]*) model_prices="[5,25,6.25,10,0.5]" ;;
+  *opus-4*)               model_prices="[15,75,18.75,30,1.5]" ;;
+  *sonnet-5*)             model_prices="[2,10,2.5,4,0.2]" ;;
+  *sonnet*)               model_prices="[3,15,3.75,6,0.3]" ;;
+  *fable-5-1*|*mythos-5-1*) model_prices="[10,50,12.5,20,0.25]" ;;
+  *fable-5*|*mythos-5*)   model_prices="[10,50,12.5,20,1]" ;;
+  *haiku-4-5*)            model_prices="[1,5,1.25,2,0.1]" ;;
+  *)                      model_prices="null" ;;
+esac
+
+# Read the transcript backwards up to my last typed prompt (the only user
+# entries with a "promptSource" key; tool results and injected messages lack
+# it), keeping this conversation's own assistant replies. Each API reply is
+# logged once per content block with the same usage, so jq keeps one per
+# message id. Cached per transcript size + mtime, since the status line
+# re-runs on every vim mode change.
+question_row=""
+if [[ -f "$transcript_path" ]]; then
+  question_cache_file="${TMPDIR:-/tmp}/claude-statusline-question-$PPID"
+  question_stamp="$transcript_path:$(stat -f %z:%m "$transcript_path" 2>/dev/null):$model_prices"
+  cached_question_line=""
+  [[ -f "$question_cache_file" ]] && IFS= read -r cached_question_line < "$question_cache_file"
+  if [[ "${cached_question_line%%$'\x1f'*}" == "$question_stamp" ]]; then
+    question_row="${cached_question_line#*$'\x1f'}"
+  else
+    question_row=$(
+      tail -r "$transcript_path" 2>/dev/null \
+        | awk '/"promptSource":/ { exit }
+               /"type":"assistant"/ && /"usage"/ && !/"isSidechain":true/' \
+        | jq -rs --argjson prices "$model_prices" '
+          # 950 -> "950", 4130 -> "4.1k", 12400 -> "12k", 1.2e6 -> "1.2M"
+          def short_count:
+            if . >= 1e6 then "\(. / 1e5 | round / 10)M"
+            elif . >= 1e4 then "\(. / 1e3 | round)k"
+            elif . >= 1e3 then "\(. / 1e2 | round / 10)k"
+            else tostring end;
+          # $/MTok without the "$" (the "=$…" cost after it carries it):
+          # 0.2 -> "0.2", 7.8125 -> "7.8", 20 -> "20"
+          def short_price: "\(if . >= 1 then (. * 10 | round / 10) else (. * 100 | round / 100) end)";
+          # Dollar amounts: cents, but a tenth of a cent below $0.10 so small
+          # parts do not all read "$0": 0.0063 -> "$0.006", 0.84 -> "$0.84"
+          def short_cost: "$\(if . >= 0.1 then (. * 100 | round / 100) else (. * 1000 | round / 1000) end)";
+          [ .[] | select(.message.model != "<synthetic>") ]
+          | group_by(.message.id) | map(last.message.usage)
+          | if length == 0 then "" else
+              (map(.input_tokens // 0) | add) as $uncached_input
+              | (map(.cache_creation_input_tokens // 0) | add) as $cache_write
+              | (map([.cache_creation.ephemeral_1h_input_tokens // 0, .cache_creation_input_tokens // 0] | min) | add) as $cache_write_1h
+              | (map(.cache_read_input_tokens // 0) | add) as $cache_read
+              | (map(.output_tokens // 0) | add) as $output
+              | ($uncached_input + $cache_write) as $new_input
+              | if $prices == null then
+                  "Q: 📥\($new_input | short_count) | 🔁\($cache_read | short_count) | 📤\($output | short_count)"
+                else
+                  ($uncached_input * $prices[0] + ($cache_write - $cache_write_1h) * $prices[2]
+                    + $cache_write_1h * $prices[3]) as $new_input_cost_micro_dollars
+                  | ($new_input_cost_micro_dollars / 1e6) as $new_input_cost
+                  | ($cache_read * $prices[4] / 1e6) as $cache_read_cost
+                  | ($output * $prices[1] / 1e6) as $output_cost
+                  | (if $new_input > 0 then $new_input_cost_micro_dollars / $new_input else $prices[0] end) as $new_input_rate
+                  | "Q: 📥\($new_input | short_count)·\($new_input_rate | short_price)=\($new_input_cost | short_cost)"
+                    + " | 🔁\($cache_read | short_count)·\($prices[4] | short_price)=\($cache_read_cost | short_cost)"
+                    + " | 📤\($output | short_count)·\($prices[1] | short_price)=\($output_cost | short_cost)"
+                    + " | Σ\($new_input_cost + $cache_read_cost + $output_cost | short_cost)"
+                end
+            end' 2>/dev/null
+    )
+    printf '%s\x1f%s\n' "$question_stamp" "$question_row" > "$question_cache_file"
+  fi
+fi
+
 echo "$usage_row"
 [[ -n "$editing_row" ]] && echo "$editing_row"
+[[ -n "$question_row" ]] && echo "$question_row"

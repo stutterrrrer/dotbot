@@ -6,9 +6,10 @@ and leaves every other key untouched. The existing target content arrives
 through .chezmoi.stdin. Pinned:
 - Vim prompt mode and jk / kj -> <Esc>
 - Remote Control at startup (every CLI session can be driven from the phone)
-- statusLine -> ~/.claude/statusline.sh (2 rows: prompt cache | model ·
-  effort | 5-hour %, weekly %; conda | branch + dirty state | lines changed |
-  context | duration | IDE). refreshInterval 60 re-runs it every minute so the
+- statusLine -> ~/.claude/statusline.sh (3 rows: prompt cache | model ·
+  effort | 5-hour %, weekly %; context | cwd | branch + dirty state | lines
+  changed | IDE; last question's new-input / cache-read / output tokens with
+  $/MTok and total). refreshInterval 60 re-runs it every minute so the
   cache and quota countdowns stay current while idle. Edit the
   rows in home/dot_claude/executable_statusline.sh
 - Notification hook -> ~/.claude/hooks/notify.sh (macOS banner when the CLI
