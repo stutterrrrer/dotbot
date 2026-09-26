@@ -9,7 +9,13 @@
 hook_json=$(cat)
 command=$(jq -r '.tool_input.command // ""' <<<"$hook_json")
 
-if grep -qE '\bbrew[[:space:]]+(install|uninstall|remove|rm|reinstall|tap|untap)\b' <<<"$command"; then
+# Only match brew in command position: at the start of a line or after a
+# shell separator (; & | or a "(" from $(...)), optionally behind sudo/env,
+# VAR=value prefixes, or a full path. Plain text like a commit message or
+# `echo "brew install x"` mentioning brew mid-line doesn't count.
+brew_command_pattern='(^|[;&|(])[[:space:]]*((sudo|env)[[:space:]]+)?([A-Za-z_][A-Za-z0-9_]*=[^[:space:]]*[[:space:]]+)*([^[:space:];&|()]*/)?brew[[:space:]]+(install|uninstall|remove|rm|reinstall|tap|untap)([[:space:]]|$)'
+
+if grep -qE "$brew_command_pattern" <<<"$command"; then
   jq -n '{
     hookSpecificOutput: {
       hookEventName: "PostToolUse",
