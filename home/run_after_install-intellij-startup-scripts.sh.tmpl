@@ -1,0 +1,34 @@
+#!/bin/bash
+{{ if ne .chezmoi.os "darwin" }}
+exit 0
+{{ else }}
+set -euo pipefail
+
+# Copy IntelliJ startup scripts into every IntelliJ config dir.
+# chezmoi can't target IntelliJ's config dir directly because its name
+# carries the IDE version (IntelliJIdea2026.2, IntelliJIdea2026.3, ...), and
+# chezmoi source paths can't be templated. So the scripts live at a fixed
+# path under ~/.tmux-config/ and this run_after_ script (which runs on every
+# `chezmoi apply`, not only when it changes) copies them into each existing
+# config dir, picking up a new IDE version on the first apply after upgrading.
+# Copies rather than symlinks so nothing depends on how IntelliJ lists files.
+
+startup_script_sources=(
+  "$HOME/.tmux-config/tmux-focus-border.groovy"
+)
+
+shopt -s nullglob
+# IntelliJIdea* = Ultimate, IdeaIC* = Community
+for ide_config_dir in "$HOME/Library/Application Support/JetBrains/"{IntelliJIdea,IdeaIC}*/; do
+  startup_dir="${ide_config_dir}extensions/com.intellij/startup"
+  mkdir -p "$startup_dir"
+  for source_path in "${startup_script_sources[@]}"; do
+    target_path="$startup_dir/$(basename "$source_path")"
+    # skip unchanged copies so apply stays quiet
+    if ! cmp -s "$source_path" "$target_path"; then
+      cp "$source_path" "$target_path"
+      echo "IntelliJ startup script updated: $target_path (restart IntelliJ or run it in the IDE Scripting Console)"
+    fi
+  done
+done
+{{ end }}
