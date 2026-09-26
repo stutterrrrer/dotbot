@@ -17,6 +17,15 @@ through .chezmoi.stdin. Pinned:
   CLI session titles: every 3 questions Haiku blends them into the current
   title in the background; shown from the next question; silent in the
   desktop app)
+- PostToolUse (Bash) hook -> ~/.claude/hooks/brew-chezmoi-reminder.sh (fires
+  in every project, not just ~/.chezmoi: after `brew install`/`uninstall`/
+  `tap`/etc., reminds the assistant to ask whether the change should also be
+  tracked in ~/.chezmoi's Brewfile/APPLICATION-MIGRATION-CHECKLIST.md;
+  silent for brew list/info/search/update/upgrade/bundle and non-brew
+  commands). hooks.PostToolUse already carries an unrelated matcherless
+  iterm2 cc-status entry, so this is appended as a second array entry
+  rather than overwriting the key, the same append-if-missing approach used
+  for permissions.allow below.
 - permissions.allow: "mcp__idea__*" (JetBrains IntelliJ MCP Server tools,
   from the "idea" MCP server registered in ~/.claude.json) auto-approved,
   never prompts, across every session/project. Appended to whatever's
@@ -44,6 +53,12 @@ No wrapper is needed.
 {{- if not (has $mcpIdeaRule $existingAllow) -}}
   {{- $allow = append $existingAllow $mcpIdeaRule -}}
 {{- end -}}
+{{- $existingPostToolUse := dig "hooks" "PostToolUse" (list) $claudeSettings -}}
+{{- $brewReminderEntry := dict "matcher" "Bash" "hooks" (list (dict "type" "command" "command" "~/.claude/hooks/brew-chezmoi-reminder.sh")) -}}
+{{- $postToolUse := $existingPostToolUse -}}
+{{- if not (has $brewReminderEntry $existingPostToolUse) -}}
+  {{- $postToolUse = append $existingPostToolUse $brewReminderEntry -}}
+{{- end -}}
 {{- $claudeSettings
   | setValueAtPath "editorMode" "vim"
   | setValueAtPath "vimInsertModeRemaps.jk" "<Esc>"
@@ -52,6 +67,7 @@ No wrapper is needed.
   | setValueAtPath "statusLine" (dict "type" "command" "command" "~/.claude/statusline.sh" "refreshInterval" 60)
   | setValueAtPath "hooks.Notification" (list (dict "hooks" (list (dict "type" "command" "command" "~/.claude/hooks/notify.sh"))))
   | setValueAtPath "hooks.UserPromptSubmit" (list (dict "hooks" (list (dict "type" "command" "command" "~/.claude/hooks/session-title.py"))))
+  | setValueAtPath "hooks.PostToolUse" $postToolUse
   | setValueAtPath "permissions.allow" $allow
   | setValueAtPath "autoCompactWindow" 500000
   | toPrettyJson }}
