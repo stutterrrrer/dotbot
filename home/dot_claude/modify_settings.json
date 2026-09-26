@@ -22,13 +22,12 @@ through .chezmoi.stdin. Pinned:
   never prompts, across every session/project. Appended to whatever's
   already in the array from stdin rather than overwritten, so "always
   allow" choices made in the UI survive re-apply.
-- autoCompactWindow: 150000. Sonnet 5's real window is 1M, but "auto" lets
+- autoCompactWindow: 500000. Sonnet 5's real window is 1M, but "auto" lets
   context grow close to that before summarizing, which meant watching it
   pile up turn after turn and paying for a huge cached context on every
-  request. 150k compacts sooner and keeps cost/behavior predictable; the CLI
-  won't accept anything below 100k, so this is close to the floor — expect
-  more frequent compaction on tool-heavy work than at 200k. Equivalent to
-  `/autocompact 150000` or `--autocompact 150000`.
+  request. 500k compacts well before that ceiling while giving long
+  tool-heavy sessions more headroom than the previous 150k floor-adjacent
+  value. Equivalent to `/autocompact 500000` or `--autocompact 500000`.
 
 jk / kj -> <Esc> is native in Claude Code >= 2.1.208: exactly two printable
 characters, INSERT mode only, second key within one second. It is read only
@@ -54,5 +53,5 @@ No wrapper is needed.
   | setValueAtPath "hooks.Notification" (list (dict "hooks" (list (dict "type" "command" "command" "~/.claude/hooks/notify.sh"))))
   | setValueAtPath "hooks.UserPromptSubmit" (list (dict "hooks" (list (dict "type" "command" "command" "~/.claude/hooks/session-title.py"))))
   | setValueAtPath "permissions.allow" $allow
-  | setValueAtPath "autoCompactWindow" 150000
+  | setValueAtPath "autoCompactWindow" 500000
   | toPrettyJson }}
