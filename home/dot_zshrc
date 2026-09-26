@@ -142,6 +142,33 @@ ta ()
 	fi
 }
 
+# Claude Code links to IntelliJ only if IntelliJ is a parent process, which tmux
+# breaks (the tmux server's parent is launchd). Passing the IDE's port in
+# CLAUDE_CODE_SSE_PORT skips that check, so pick the running IDE whose open
+# projects contain the current directory. Always look it up inside tmux: panes
+# can inherit a CLAUDE_CODE_SSE_PORT from the IntelliJ terminal that started the
+# tmux server, and that port is stale after an IntelliJ restart (the plugin
+# picks a new port each start; after one, `/exit` then `claude -c` relinks).
+claude ()
+{
+	if [[ -n $TMUX ]]; then
+		setopt local_options null_glob
+		local lock_file ide_port
+		for lock_file in ~/.claude/ide/*.lock; do
+			kill -0 "$(jq -r .pid "$lock_file")" 2>/dev/null || continue
+			if jq -e --arg cwd "$PWD" 'any(.workspaceFolders[]; $cwd == . or ($cwd | startswith(. + "/")))' "$lock_file" >/dev/null; then
+				ide_port=${lock_file:t:r}
+				break
+			fi
+		done
+		if [[ -n $ide_port ]]; then
+			CLAUDE_CODE_SSE_PORT=$ide_port command claude "$@"
+			return
+		fi
+	fi
+	command claude "$@"
+}
+
 # brew wrapper: after a successful install/tap, warn if the package isn't in
 # ~/.chezmoi/Brewfile; after uninstall/untap, warn if it's still listed. So
 # hand-typed installs don't silently drift from what a new Mac would get.
