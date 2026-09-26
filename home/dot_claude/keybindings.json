@@ -1,0 +1,44 @@
+{
+  "$schema": "https://www.schemastore.org/claude-code-keybindings.json",
+  "$docs": "https://code.claude.com/docs/en/keybindings",
+  "bindings": [
+    {
+      "context": "Select",
+      "bindings": {
+        "o": "select:accept",
+        "l": "select:accept",
+        "g g": "select:first",
+        "shift+g": "select:last",
+        "ctrl+d": "select:pageDown",
+        "ctrl+u": "select:pageUp"
+      }
+    },
+    {
+      "context": "Confirmation",
+      "bindings": {
+        "j": "confirm:next",
+        "k": "confirm:previous"
+      }
+    },
+    {
+      "context": "ModelPicker",
+      "bindings": {
+        "h": "modelPicker:decreaseEffort",
+        "l": "modelPicker:increaseEffort"
+      }
+    },
+    {
+      "context": "Tabs",
+      "bindings": {
+        "h": "tabs:previous",
+        "l": "tabs:next"
+      }
+    },
+    {
+      "context": "Chat",
+      "bindings": {
+        "escape": null
+      }
+    }
+  ]
+}
