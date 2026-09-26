@@ -2,13 +2,21 @@
 let mapleader = " "
 map <Bslash> <nop>
 
-" set custom folding for .vimrc, .ideavimrc, .zshrc, and .tmux.conf - use default markers: triple{ and triple} {{{
-autocmd FileType vim,zsh,tmux :setlocal foldmethod=marker
+" default fold method: markers (triple{ and triple}) for all filetypes.
+" override per-filetype below with `autocmd FileType <ft> setlocal foldmethod=...` {{{
+set foldmethod=marker
 "}}}
 
-" plugins and related keymaps {{{
-
+" Vim/Neovim-only block: IdeaVim skips everything from the marker below down
+" to its end marker. Keep this the ONLY such block in the file - put anything
+" IdeaVim must not parse or run (plugins, functions, terminal-only autocmds)
+" inside it instead of opening another one. IdeaVim treats a double quote
+" followed by the two words ideaVim + ignore as a marker ANYWHERE on a line
+" (even mid-comment), so never quote that phrase inside another comment: one
+" did (Sep 2026) and IdeaVim silently lost jk/kj and most keymaps.
 "ideaVim ignore
+" Vim/Neovim only: plugins, functions, terminal-only autocmds {{{
+
 " the plug-in themselves that need to be ideavim ignored: {{{
 " the built-in matchit plugin:
 :filetype plugin on
@@ -39,11 +47,33 @@ Plug 'kana/vim-surround'
 
 Plug 'easymotion/vim-easymotion'
 
+" Neovim-only: gives <Leader>s IdeaVim's actual AceJump-style behavior (see
+" the ideaVim-default-maps comment below) - unbounded search length with
+" jump-label overlays rendered live via Neovim's extmarks, something plain
+" terminal Vim/vim-easymotion can't do.
+if has('nvim')
+  Plug 'folke/flash.nvim'
+endif
+
 " ideavim default maps: search / find n-char {{{
-" but need to press return to show highlights, so is an annoying discrepancy
-" therefore only use leader-s for multi-char searches, not f / t
-nmap <Leader>s <Plug>(easymotion-sn)
-vmap <Leader>s <Plug>(easymotion-sn)
+" real vim-easymotion can't show jump labels until you press <CR> on an
+" unbounded-length (sn) search - it has no way to tell "next search char"
+" from "jump label key" while still accepting more input. IdeaVim's version
+" avoids this because it's built on AceJump, which renders labels as
+" separate on-screen overlays (an IDE rendering trick, not available in
+" terminal Vim). Neovim CAN do the same trick (extmarks/floating windows),
+" so under Neovim use flash.nvim (configured below, near plug#end()) for the
+" real unbounded-length, immediate-overlay behavior. Plain Vim can't, so it
+" falls back to easymotion-sn: still unbounded length (preferred over the
+" fixed-length s2/s1 variants), but labels only appear after <CR> confirms
+" the search - an accepted annoyance in exchange for not fixing the length.
+if has('nvim')
+  nnoremap <silent> <Leader>s <Cmd>lua require('flash').jump()<CR>
+  xnoremap <silent> <Leader>s <Cmd>lua require('flash').jump()<CR>
+else
+  nmap <Leader>s <Plug>(easymotion-sn)
+  vmap <Leader>s <Plug>(easymotion-sn)
+endif
 " map <Leader>f <Plug>(easymotion-fn)
 " map <Leader>F <Plug>(easymotion-Fn)
 " map <Leader>t <Plug>(easymotion-tn)
@@ -66,139 +96,27 @@ Plug 'kshenoy/vim-signature'
 
 call plug#end()
 
-" }}}
-" ideaVim ignore end
-
-" plugin configurations (ideavim compatible) {{{
-" meant for ideavim -> the autocommand that sets the color can't be called in
-" ideavim
-" quickscope: configure color of letter that will be found after f then ;
-let g:qs_secondary_color = '#ff00ff'
-" to configure accepted characters to be used when highlighting
-" let g:qs_accepted_chars = ['a', 'b', ... ] 
-
-" nerdtree
-" don't use n/N - that's for easymotion next search
-nnoremap <leader>o :NERDTree<CR>
-nnoremap <leader>O :NERDTreeToggle<CR>
-" vim style splits (s & v) won't work because nerdtree is still vim and v
-" enters visual mode
-
-" easymotion: ?
-let g:EasyMotion_skipfoldedline = 0
-
-" for surround with new line by enter key: see "https://github.com/tpope/vim-surround/issues/140#issuecomment-1012773520"
-" but didn't work
-let g:surround_{char2nr("\<CR>")} = "\n\r\n"
-
+if has('nvim')
+  " flash.nvim's defaults also auto-enhance plain `/` search and `f`/`F`/
+  " `t`/`T` motions with the same label-overlay behavior as <Leader>s below.
+  " Disabled: keep those at plain default Vim/IdeaVim behavior (see the
+  " matching revert in dot_ideavimrc) - only <Leader>s opts into flash.
+  lua << EOF
+  require('flash').setup({
+    modes = {
+      char = { enabled = false },
+      search = { enabled = false },
+    },
+  })
+EOF
+endif
 
 " }}}
-" }}}
 
-" ian's own keymaps {{{
-"
-" @@ = @" which makes no sense
-" since you can't set the : (colon) register, use the e(ex-command) register
-" instead
-" use case: repeat the window resize action with !
-" vim's normal mode ! just accepts a motion and opens ex-command input with
-" the selection appended by '!', which is easily done with V (visual mode) :
-" then type '!'; so override that
-" essentially: use ! to repeat last ex-command, instead of @@
-nnoremap ! @e
+" ideavim can't parse function and emojis (and plugins?)
+" functions {{{
 
-" yank to system clipboard by shift-y on the selection (instead of 3 keys: "+y)
-xnoremap <silent> Y "+y
-
-" delete to system clipboard by shift-d on the selection
-" this overrides the default "delete whole line in selection"
-xnoremap <silent> D "+d
-
-" delete a bookmark - see custom function below
-nnoremap m- :<c-u>call DeleteMarksOnCurrentLine()<CR>
-
-" toggle wrap lines
-nnoremap <leader>w :set wrap!<CR>
-
-
-" repeatable window resize:
-" Append carriage return character 13 so the macro submits the command in Vim and IdeaVim.
-" <C-u> clears the range a count inserts; v:count1 * 5 scales the step (3<C-w>+ = +15), and ! repeats it.
-" set e register to the resize command first (then run the command in e), so that you can repeat it with ! in normal mode
-nnoremap <C-w>- :<C-u>let @e = ':resize -' . (v:count1 * 5) . nr2char(13)<CR>@e
-nnoremap <C-w>+ :<C-u>let @e = ':resize +' . (v:count1 * 5) . nr2char(13)<CR>@e
-nnoremap <C-w>< :<C-u>let @e = ':vertical resize -' . (v:count1 * 5) . nr2char(13)<CR>@e
-nnoremap <C-w>> :<C-u>let @e = ':vertical resize +' . (v:count1 * 5) . nr2char(13)<CR>@e
-
-" jump to a line that isn't empty and doesn't start with white-space:
-" Top-level line (especially for python where [m doesn't work)
-nnoremap [t ?^\S<CR>
-nnoremap ]t /^\S<CR>
-xnoremap [t ?^\S<CR>
-xnoremap ]t /^\S<CR>
-onoremap [t ?^\S<CR>
-onoremap ]t /^\S<CR>
-
-" 'Q' in normal mode enters Ex mode by default - you almost never want that,
-" so repurpose it instead: Q = write & quit the current buffer (:wq), mnemonic Q = Quit.
-" (previously used Ctrl-Q for :q, but IntelliJ's keymap binds ctrl+q globally to
-" HideActiveWindow - see macOS - ian.xml - which swallows the keystroke before
-" IdeaVim sees it, hiding the terminal tool window instead. Bare Q has no IDE-level
-" conflict: IntelliJ's default keymap never binds an unmodified single letter in
-" the editor context, since normal typing needs it.)
-" <expr> instead of a function: IdeaVim can't parse function definitions (see
-" "ideaVim ignore" note near the bottom of this file), but <expr> mappings work fine.
-" editable buffer -> write & quit; read-only buffer -> quit without trying to write (avoids E45);
-" unnamed buffer (scrap paper, e.g. bare `vim` with no file argument) -> quit without writing
-" too, since :wq there just fails with E32: No file name and leaves you stuck in Vim.
-" use or() instead of || : an unescaped | inside a :map command's expr is parsed as the
-" Ex command separator, silently truncating the mapping (confirmed by testing - the same
-" bug already existed pre-session in the unrelated "nnoremap \| g," line further down).
-nnoremap <expr> Q or(or(&readonly, !&modifiable), expand('%') ==# '') ? ":q!\<CR>" : ":wq\<CR>"
-" to pair up with control W / U / H, and also stay consistent with Mac's default forward delete:
-inoremap <C-d> <Del>
-" escapes
-inoremap jk <Esc>
-inoremap kj <Esc>
-cnoremap jk <C-C>
-cnoremap kj <C-C>
-" uncomment to always start (ex-command) search with `very magic` setting enabled: consistent regex 
-" (disabled now because it causes the ex-command line input dialog to show up with a significant delay)
-nnoremap / /\v
-vnoremap / /\v
-onoremap / /\v
-" cnoremap %s/ %smagic/
-" cnoremap \>s/ \>smagic/
-" nnoremap :g/ :g/\v
-
-" map \(backslash: the default leader key) and shift-\ to jump through change list
-nnoremap \ g;
-" the first backslash is to escape the | char.
-nnoremap \| g,
-
-" Try to prevent bad habits like using the arrow keys for movement.
-" use `echo` instead of `echoe` for compatibility issues with intelliJ
-
-nnoremap <Left>  :echo "Use h"<CR>
-nnoremap <Right> :echo "Use l"<CR>
-nnoremap <Up>    :echo "Use k"<CR>
-nnoremap <Down>  :echo "Use j"<CR>
-
-inoremap <Left>  <ESC>:echo "Use ^O-h"<CR>
-inoremap <Right> <ESC>:echo "Use ^O-l"<CR>
-inoremap <Up>    <ESC>:echo "Use ^O-k"<CR>
-inoremap <Down>  <ESC>:echo "Use ^O-j"<CR>
-
-" (Control L) -> initially clears/redraws screen: map to :nohlsearch
-" also do leader (space) - h
-" for normal mode
-nnoremap <C-l> :nohlsearch<cr>
-nnoremap <leader>h :nohlsearch<cr>
-" for visual / select mode: <C-u> to remove the range automatically added to command line
-vnoremap <C-l> :<C-u>nohlsearch<cr>
-
-
-" note: only macvim recognizes D and M as command and option key;terminal vim doesn't 
+" note: only macvim recognizes D and M as command and option key;terminal vim doesn't
 " also these mappings just won't happen automatically so needs to be called as a function; see notion map keys page for the MacVim GitHub open issue.
 function! MapMacModifierShortcuts()
 	inoremap <D-Left> <ESC>:echo "use jkI"<CR>
@@ -213,125 +131,6 @@ function! MapMacModifierShortcuts()
 endfunction
 autocmd VimEnter * call MapMacModifierShortcuts()
 
-" https://stackoverflow.com/a/13097329 : go to next error
-nnoremap ]e :lnext
-nnoremap [e :lprevious
-
-" chrome vimium style tab switching;
-" bumps the original J (do :join) instead, since it's rarer
-" J for next, because j is down in vim
-" note: gt supports count
-nnoremap J gt
-nnoremap K gT
-"}}}
-
-" other recommended settings (mostly "set"s and "let"s{{{
-" be iMproved
-set nocompatible
-" (uncomment to) Enable mouse support. You should avoid relying on this too much, but it can
-" sometimes be convenient.
-" set mouse+=a
-" Turn on syntax highlighting.
-syntax on
-" Disable the default Vim startup message.
-set shortmess+=I
-
-" Show line numbers.
-" experiment to replace line motions with easymotion -
-" better because that would count as a jump and saved to jump list, but doing
-" count + j / k doesn't.
-set number
-set relativenumber
-"
-" status line at the bottom, even if you only have one window open.
-set laststatus=2
-
-" backspace over anything.
-set backspace=indent,eol,start
-" See `:help hidden` for more information on this. (uncomment to disable
-" protection against unsaved buffer )
-" set hidden
-
-" case-insensitive search when entering all lower-case pattern.
-" search becomes case-sensitive if it contains any capital letters.
-set ignorecase
-set smartcase
-" enable highlight search to show all matches, 
-" `:noh` to turn off the hilighting until next search (but a hassle if you want to use search to navigate within a line)
-" mapped control-l to :nol - see the keymap section
-set hlsearch
-" Enable searching as you type, rather than waiting till you press enter.
-set incsearch
-" Disable audible bell because it's annoying.
-set noerrorbells visualbell t_vb=
-" auto-indent tells vim to apply the indentation of the current line to the next
-set autoindent
-set smartindent
-" set tab size to 4;
-" meaning that 1 `\t` character will be displayed as 4 columns on the screen.
-" so that's what you get when pressisng the tab key in insert mode
-set tabstop=4
-" set shift size to 4 too;
-" meaning the indent level will be 4 columns wide.
-" so that's what you get when you do '>>' in normal mode.
-" but there's no `\t` character when you do this. right?
-set shiftwidth=4
-" }}}
-
-" ian's own preferences - mostly graphical {{{
-let &t_SI="\033[5 q" " start insert mode, vertical cursor
-let &t_EI="\033[1 q" " end insert mode, blinking block
-let &t_SR.="\e[4 q" "SR = REPLACE mode
-
-" show "c" on the bottom right for operator-pending mode
-set showcmd
-
-
-colorscheme industry
-" transparency variable only works for MacVim
-" if has("gui_running")
-" 	set transparency=18
-" endif
-
-" hide terminal Vim's background, effectively making it transparent if you have the terminal background set as transparent.
-" but enabling it reduces the contrast
-hi Normal guibg=NONE ctermbg=NONE
-
-" highlight status bar of active window
-" must be placed after colorscheme setting, otherwise overriden
-highlight StatusLine ctermfg=black  guifg=#ffffff ctermbg=green guibg=#4e4e4e
-
-" closed folds: bold indigo/purple foreground, no background — visible but
-" not a solid highlight block, since most folds (marker folds in this file,
-" .zshrc, .tmux.conf) don't need to grab the eye the way Claude transcript
-" folds do. claude-transcript.vim swaps in a stronger background variant of
-" this same color while that buffer is active.
-highlight Folded cterm=bold ctermfg=55 ctermbg=NONE gui=bold guifg=#5f00af guibg=NONE
-
-set guifont=MesloLGS-NF-Regular:h13
-set linespace=3
-
-"default split position:
-set splitbelow
-set splitright
-
-" customize tab completion behavior - to like zsh ( practical vim tip 32 )
-" provides a navigatable list of suggestions. ( tab, C-n, right  to scroll forward
-set wildmenu
-set wildmode=full
-
-" status line:
-" display window number - then <window number> - C-w w: switch to that window
-set statusline=win-
-set statusline+=%{winnr()}\  
-" display file full path
-set statusline+=%F
-"}}}
-
-"ideaVim ignore 
-" ideavim can't parse function and emojis (and plugins?)
-" functions {{{
-
 " other functions {{{
 function! DeleteMarksOnCurrentLine()
 	    let l:m = join(filter(
@@ -345,6 +144,54 @@ function! DeleteMarksOnCurrentLine()
 			endif
 endfunction
 " mapped to m- in keymap section
+" }}}
+
+" quit the current buffer, falling back to another loaded buffer in the same
+" window instead of closing the window when one exists. Mapped to Q in the
+" keymap section below. {{{
+function! QuitBufferOrWindow() abort
+  " read-only/unmodifiable/unnamed buffer: nothing to write, just close
+  " (avoids E45/E32 that :wq would hit here)
+  if &readonly || !&modifiable || expand('%') ==# ''
+    quit!
+    return
+  endif
+  try
+    write
+  catch /E212:/
+    " vim's own &readonly/&modifiable checks above both passed, but the
+    " underlying filesystem still refused the write (E212: can't open file
+    " for writing) - e.g. macOS's read-only synthetic system root (/,
+    " /System, ...), which vim has no buffer-option flag for. Same intent as
+    " the readonly-buffer branch above: nothing we can actually save, so
+    " just quit without writing instead of erroring out. Needs `abort` on
+    " this function - without it, a caught-but-unhandled write error used to
+    " let execution fall through to the bdelete/quit below anyway, which
+    " then hit a second error (E89: no write since last change) trying to
+    " close a buffer with unsaved changes.
+    quit!
+    return
+  endtry
+  let l:bufnr = bufnr('%')
+  " if another listed buffer exists, fall back to it in the current window
+  " instead of closing the window.
+  if !empty(filter(getbufinfo({'buflisted': 1}), {_, buf -> buf.bufnr != l:bufnr}))
+    " switch the current window away from this buffer *before* deleting it.
+    " Deleting first (plain :bdelete) lets Vim pick the replacement buffer
+    " itself, and if that buffer is already shown in another split, Vim
+    " closes this window instead of duplicating the display there - which
+    " looks like the wrong split just quit. Moving first keeps this window
+    " open no matter what.
+    if buflisted(bufnr('#')) && bufnr('#') != l:bufnr
+      buffer #
+    else
+      bnext
+    endif
+    execute 'bdelete' l:bufnr
+  else
+    quit
+  endif
+endfunction
 " }}}
 
 " function to call when pasting from Algorithm course's PDF slides.
@@ -409,5 +256,372 @@ o```
 	" remove the last newline after the end of each code fence: with the join `:j` command
 	:g/\v^\s*```$/j 
 endfunction
+" }}}
 
-"ideaVim ignore end
+" terminal Vim/Neovim-only autocmds {{{
+" IdeaVim (checked 2.47.1) runs FocusGained/FocusLost/BufEnter autocmds too,
+" but has no :checktime or :highlight - outside this block these threw E492
+" into a hit-enter panel on every IntelliJ app switch (e.g. Cmd-. for
+" Dropzone), which grabbed focus and swallowed the next keys (jk, <Space>s).
+
+" reload buffers changed on disk by something else (another vim/nvim
+" instance, a shell append, iCloud sync) instead of silently overwriting
+" them on save with a stale in-memory copy. {{{
+" `autoread` alone only takes effect at specific trigger points, not
+" continuously - it doesn't retroactively cover a buffer that's just been
+" sitting open. `checktime` forces that check on focus/idle so autoread
+" actually gets exercised in practice, not just when you happen to run a
+" command that triggers it. {{{
+set autoread
+augroup checktime_on_focus
+  autocmd!
+  autocmd FocusGained,BufEnter,CursorHold,CursorHoldI * if mode() != 'c' | checktime | endif
+augroup END
+" }}}
+" }}}
+
+" gray out the status bar(s) when this tmux pane loses focus (e.g. switching
+" tmux panes - requires the tmux-side setup in dot_tmux.conf and
+" dot_tmux-config/executable_sync-pane-focus.sh, which push FocusLost/
+" FocusGained escape codes to whichever pane is running vim on every tmux
+" pane switch; tmux's own `focus-events` only covers the outer terminal
+" losing/gaining OS-level window focus, not an internal pane switch).
+" ctermbg=NONE (the first version of this) left the cterm side unset, so
+" nothing visibly changed here: this vimrc never sets 'termguicolors', so a
+" plain terminal renders StatusLine from ctermbg, not guibg - the gui*
+" fields alone were invisible.
+"
+" On FocusLost, StatusLineNC must match StatusLine exactly (not just get a
+" separate dim treatment): with the tmux pane itself unfocused, no :split
+" inside it is "more current" than another from the user's point of view, so
+" showing two different grays (STATUS's dark gray vs StatusLineNC's default,
+" lighter one) made the officially-inactive split look MORE highlighted than
+" the active one - the opposite of the intent.
+"
+" Three-way highlight order, brightest to dimmest: (1) tmux pane focused AND
+" vim split focused - the vivid green StatusLine below; (2) tmux pane focused
+" but vim split unfocused - a dim, desaturated-green StatusLineNC; (3) tmux
+" pane unfocused entirely - flat dark gray, dimmer than (2), on both groups,
+" since neither split is "more current" once the pane itself isn't focused.
+" This used to be inverted: FocusLost's ctermbg=238/guibg=#767676 was
+" lighter than FocusGained's inactive-split gray, so switching tmux panes
+" away made the status line MORE eye-catching than staying in the focused
+" pane on an unfocused split - the opposite of the intended hierarchy.
+"
+" `:highlight` only touches the attributes you name - StatusLine's cterm=bold
+" (set once by the colorscheme, never named in any override below) survives
+" every FocusLost/FocusGained switch untouched. That leftover bold on
+" ctermfg=black text over the FocusLost gray was rendering as invisible in
+" iTerm (bold + explicit black is drawn in iTerm's "bright" black, i.e.
+" nearly the same dark gray as the background) while StatusLineNC - never
+" bold - stayed legible right next to it. cterm=NONE/gui=NONE here forces
+" both groups to the same non-bold weight while unfocused, and the
+" FocusGained lines re-assert cterm=bold/gui=bold explicitly (previously
+" implicit/inherited) so this can't silently regress the same way again.
+augroup focus_statusline
+  autocmd!
+  autocmd FocusLost * highlight StatusLine cterm=NONE gui=NONE ctermfg=black guifg=#ffffff ctermbg=234 guibg=#1c1c1c
+        \ | highlight StatusLineNC cterm=NONE gui=NONE ctermfg=black guifg=#ffffff ctermbg=234 guibg=#1c1c1c
+  autocmd FocusGained,VimEnter * highlight StatusLine cterm=bold gui=bold ctermfg=black guifg=#ffffff ctermbg=34 guibg=#1f8a4c
+        \ | highlight StatusLineNC cterm=NONE gui=NONE ctermfg=250 guifg=#888888 ctermbg=22 guibg=#1a3524
+augroup END
+" VimEnter is included above because a vim spawned mid-pane (e.g. Claude
+" Code's transcript viewer, Ctrl+O then v) starts as a new foreground
+" process inside an already-active tmux pane - no pane-switch event fires,
+" so dot_tmux-config/executable_sync-pane-focus.sh never runs and this vim
+" never receives an explicit FocusGained. Without this, its StatusLine sat
+" at colorscheme's raw default indefinitely. A vim you just launched into
+" an active pane is virtually always focused, so applying the "focused"
+" style at startup is a safe assumption.
+" }}}
+" }}}
+" ideaVim ignore end
+
+" plugins and related keymaps {{{
+
+" plugin configurations (ideavim compatible) {{{
+" meant for ideavim -> the autocommand that sets the color can't be called in
+" ideavim
+" quickscope: configure color of letter that will be found after f then ;
+let g:qs_secondary_color = '#ff00ff'
+" to configure accepted characters to be used when highlighting
+" let g:qs_accepted_chars = ['a', 'b', ... ] 
+
+" nerdtree
+" don't use n/N - that's for easymotion next search
+nnoremap <leader>o :NERDTree<CR>
+nnoremap <leader>O :NERDTreeToggle<CR>
+" default window width is 31 columns; narrower leaves more room for code
+let g:NERDTreeWinSize = 20
+" vim style splits (s & v) won't work because nerdtree is still vim and v
+" enters visual mode
+
+" easymotion: ?
+let g:EasyMotion_skipfoldedline = 0
+
+" for surround with new line by enter key: see "https://github.com/tpope/vim-surround/issues/140#issuecomment-1012773520"
+" but didn't work
+let g:surround_{char2nr("\<CR>")} = "\n\r\n"
+
+
+" }}}
+" }}}
+
+" ian's own keymaps {{{
+"
+" @@ = @" which makes no sense
+" since you can't set the : (colon) register, use the e(ex-command) register
+" instead
+" use case: repeat the window resize action with !
+" vim's normal mode ! just accepts a motion and opens ex-command input with
+" the selection appended by '!', which is easily done with V (visual mode) :
+" then type '!'; so override that
+" essentially: use ! to repeat last ex-command, instead of @@
+nnoremap ! @e
+
+" yank to system clipboard by shift-y on the selection (instead of 3 keys: "+y)
+xnoremap <silent> Y "+y
+
+" delete to system clipboard by shift-d on the selection
+" this overrides the default "delete whole line in selection"
+xnoremap <silent> D "+d
+
+" delete a bookmark - see DeleteMarksOnCurrentLine in the IdeaVim-skip block at the top
+nnoremap m- :<c-u>call DeleteMarksOnCurrentLine()<CR>
+
+" toggle wrap lines
+nnoremap <leader>w :set wrap!<CR>
+
+
+" repeatable window resize:
+" Append carriage return character 13 so the macro submits the command in Vim and IdeaVim.
+" <C-u> clears the range a count inserts; v:count1 * 5 scales the step (3<C-w>+ = +15), and ! repeats it.
+" set e register to the resize command first (then run the command in e), so that you can repeat it with ! in normal mode
+nnoremap <C-w>- :<C-u>let @e = ':resize -' . (v:count1 * 5) . nr2char(13)<CR>@e
+nnoremap <C-w>+ :<C-u>let @e = ':resize +' . (v:count1 * 5) . nr2char(13)<CR>@e
+nnoremap <C-w>< :<C-u>let @e = ':vertical resize -' . (v:count1 * 5) . nr2char(13)<CR>@e
+nnoremap <C-w>> :<C-u>let @e = ':vertical resize +' . (v:count1 * 5) . nr2char(13)<CR>@e
+
+" jump to a line that isn't empty and doesn't start with white-space:
+" Top-level line (especially for python where [m doesn't work)
+nnoremap [t ?^\S<CR>
+nnoremap ]t /^\S<CR>
+xnoremap [t ?^\S<CR>
+xnoremap ]t /^\S<CR>
+onoremap [t ?^\S<CR>
+onoremap ]t /^\S<CR>
+
+" 'Q' in normal mode enters Ex mode by default - you almost never want that,
+" so repurpose it instead: Q = write & quit the current buffer, falling back
+" to another loaded buffer instead of closing the window when one is
+" available (e.g. after opening a second file with `:e` in the same window
+" while NERDTree is open) - closing the window there used to trip the "quit
+" vim when NERDTree is the last window" autocmd below, quitting Vim entirely
+" instead of just returning to the previous buffer.
+" (previously used Ctrl-Q for :q, but IntelliJ's keymap binds ctrl+q globally to
+" HideActiveWindow - see macOS - ian.xml - which swallows the keystroke before
+" IdeaVim sees it, hiding the terminal tool window instead. Bare Q has no IDE-level
+" conflict: IntelliJ's default keymap never binds an unmodified single letter in
+" the editor context, since normal typing needs it.)
+" this calls a real function (QuitBufferOrWindow, defined with the other
+" functions in the IdeaVim-skip block at the top of this file) instead of the old <expr> ternary
+" chain, since falling back through the buffer list needs more than a single
+" expression. IdeaVim can't parse function definitions (see the IdeaVim-skip
+" block note at the top of this file), so this mapping is a no-op there;
+" dot_ideavimrc re-declares Q with IntelliJ actions after sourcing this file,
+" since IdeaVim has no buffer-list model to fall back through anyway.
+nnoremap <silent> Q :call QuitBufferOrWindow()<CR>
+" to pair up with control W / U / H, and also stay consistent with Mac's default forward delete:
+inoremap <C-d> <Del>
+" escapes
+inoremap jk <Esc>
+inoremap kj <Esc>
+cnoremap jk <C-C>
+cnoremap kj <C-C>
+" uncomment to always start (ex-command) search with `very magic` setting enabled: consistent regex 
+" (disabled now because it causes the ex-command line input dialog to show up with a significant delay)
+nnoremap / /\v
+vnoremap / /\v
+onoremap / /\v
+" cnoremap %s/ %smagic/
+" cnoremap \>s/ \>smagic/
+" nnoremap :g/ :g/\v
+
+" map \(backslash: the default leader key) and shift-\ to jump through change list
+nnoremap \ g;
+" the first backslash is to escape the | char.
+nnoremap \| g,
+
+" Try to prevent bad habits like using the arrow keys for movement.
+" use `echo` instead of `echoe` for compatibility issues with intelliJ
+
+nnoremap <Left>  :echo "Use h"<CR>
+nnoremap <Right> :echo "Use l"<CR>
+nnoremap <Up>    :echo "Use k"<CR>
+nnoremap <Down>  :echo "Use j"<CR>
+
+inoremap <Left>  <ESC>:echo "Use ^O-h"<CR>
+inoremap <Right> <ESC>:echo "Use ^O-l"<CR>
+inoremap <Up>    <ESC>:echo "Use ^O-k"<CR>
+inoremap <Down>  <ESC>:echo "Use ^O-j"<CR>
+
+" (Control L) -> initially clears/redraws screen: map to :nohlsearch
+" also do leader (space) - h
+" for normal mode
+nnoremap <C-l> :nohlsearch<cr>
+nnoremap <leader>h :nohlsearch<cr>
+" for visual / select mode: <C-u> to remove the range automatically added to command line
+vnoremap <C-l> :<C-u>nohlsearch<cr>
+
+" https://stackoverflow.com/a/13097329 : go to next error
+nnoremap ]e :lnext
+nnoremap [e :lprevious
+
+" chrome vimium style tab switching;
+" bumps the original J (do :join) instead, since it's rarer
+" J for next, because j is down in vim
+" note: gt supports count
+nnoremap J gt
+nnoremap K gT
+
+" move by displayed (wrapped) line, not logical line, by default; gj/gk
+" become the old logical-line motions if ever needed. Counts still work
+" (5j -> 5gj) since gj/gk support counts too.
+nnoremap j gj
+nnoremap k gk
+nnoremap gj j
+nnoremap gk k
+vnoremap j gj
+vnoremap k gk
+vnoremap gj j
+vnoremap gk k
+"}}}
+
+" other recommended settings (mostly "set"s and "let"s{{{
+" be iMproved
+set nocompatible
+" (uncomment to) Enable mouse support. You should avoid relying on this too much, but it can
+" sometimes be convenient.
+" set mouse+=a
+" Turn on syntax highlighting.
+syntax on
+" Disable the default Vim startup message.
+set shortmess+=I
+
+" Show line numbers.
+" experiment to replace line motions with easymotion -
+" better because that would count as a jump and saved to jump list, but doing
+" count + j / k doesn't.
+set number
+set relativenumber
+"
+" status line at the bottom, even if you only have one window open.
+set laststatus=2
+
+" backspace over anything.
+set backspace=indent,eol,start
+" See `:help hidden` for more information on this. (uncomment to disable
+" protection against unsaved buffer )
+" set hidden
+
+" case-insensitive search when entering all lower-case pattern.
+" search becomes case-sensitive if it contains any capital letters.
+set ignorecase
+set smartcase
+" enable highlight search to show all matches, 
+" `:noh` to turn off the hilighting until next search (but a hassle if you want to use search to navigate within a line)
+" mapped control-l to :nol - see the keymap section
+set hlsearch
+" Enable searching as you type, rather than waiting till you press enter.
+set incsearch
+" Disable audible bell because it's annoying.
+set noerrorbells visualbell t_vb=
+" auto-indent tells vim to apply the indentation of the current line to the next
+set autoindent
+set smartindent
+" set tab size to 4;
+" meaning that 1 `\t` character will be displayed as 4 columns on the screen.
+" so that's what you get when pressisng the tab key in insert mode
+set tabstop=4
+" set shift size to 4 too;
+" meaning the indent level will be 4 columns wide.
+" so that's what you get when you do '>>' in normal mode.
+" but there's no `\t` character when you do this. right?
+set shiftwidth=4
+
+" fix the lag on a bare <Esc> press in command-line/normal mode. Vim can't
+" tell a raw <Esc> byte from the start of a longer terminal escape sequence
+" (arrow keys, alt combos) until 'ttimeoutlen' elapses; it defaults to
+" inheriting 'timeoutlen' (1000ms). This only affects that ambiguity check -
+" 'timeoutlen' (still default) is what jk/kj->Esc waits on, so that mapping's
+" already-fast feel is untouched.
+set ttimeoutlen=10
+" }}}
+
+" ian's own preferences - mostly graphical {{{
+let &t_SI="\033[5 q" " start insert mode, vertical cursor
+let &t_EI="\033[1 q" " end insert mode, blinking block
+let &t_SR.="\e[4 q" "SR = REPLACE mode
+
+" show "c" on the bottom right for operator-pending mode
+set showcmd
+
+
+" Neovim's terminal UI (unlike plain Vim's here) renders truecolor
+" faithfully, so let it use the guifg/guibg hex values below instead of
+" being limited to the nearest 256-color cterm approximation - needed for
+" shades (e.g. StatusLineNC's dim green) that have no close match in the
+" 6x6x6 cterm color cube. Scoped to has('nvim') only, so plain terminal Vim
+" keeps rendering from ctermbg as before.
+if has('nvim')
+  set termguicolors
+endif
+
+colorscheme industry
+" transparency variable only works for MacVim
+" if has("gui_running")
+" 	set transparency=18
+" endif
+
+" hide terminal Vim's background, effectively making it transparent if you have the terminal background set as transparent.
+" but enabling it reduces the contrast
+hi Normal guibg=NONE ctermbg=NONE
+
+" highlight status bar of active window
+" must be placed after colorscheme setting, otherwise overriden
+highlight StatusLine ctermfg=black guifg=#ffffff ctermbg=34 guibg=#1f8a4c
+" StatusLineNC = status bar of this vim's OTHER (non-current) :split windows.
+" 'industry' colorscheme's default (ctermbg=242 guibg=#6c6c6c) is a fairly
+" light gray, close in weight to the bright green StatusLine above - barely
+" reads as "inactive" next to it. Dim it further so the current split is
+" unambiguously the one with focus. Give it a faint green tint (rather than
+" plain gray) so it still reads as "one step down from active", not as dim
+" as the FocusLost state (focus_statusline, in the IdeaVim-skip block at the top).
+highlight StatusLineNC ctermfg=250 guifg=#888888 ctermbg=22 guibg=#1a3524
+
+" closed folds: bold indigo/purple foreground, no background — visible but
+" not a solid highlight block, since most folds (marker folds in this file,
+" .zshrc, .tmux.conf) don't need to grab the eye the way Claude transcript
+" folds do. claude-transcript.vim swaps in a stronger background variant of
+" this same color while that buffer is active.
+highlight Folded cterm=bold ctermfg=55 ctermbg=NONE gui=bold guifg=#5f00af guibg=NONE
+
+set guifont=MesloLGS-NF-Regular:h13
+set linespace=3
+
+"default split position:
+set splitbelow
+set splitright
+
+" customize tab completion behavior - to like zsh ( practical vim tip 32 )
+" provides a navigatable list of suggestions. ( tab, C-n, right  to scroll forward
+set wildmenu
+set wildmode=full
+
+" status line:
+" display window number - then <window number> - C-w w: switch to that window
+set statusline=win-
+set statusline+=%{winnr()}\  
+" display file full path
+set statusline+=%F
+"}}}

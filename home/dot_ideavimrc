@@ -4,6 +4,26 @@
 " source ~/.chezmoi/ideavim_temporary_source.vim
 source ~/.vimrc
 
+" vimrc's Q now calls a real function (QuitBufferOrWindow) to fall back
+" through the buffer list, which IdeaVim can't parse - overriding it here
+" instead, since IdeaVim has no vim buffer-list model to fall back through
+" anyway.
+" This used to be an <expr> mapping calling expand('%') to tell an editable
+" buffer (write & quit) from an unnamed one (quit without writing, since :wq
+" there just fails with E32) - but IdeaVim doesn't implement expand(), or
+" the ~600 other vimscript built-in functions, at all: confirmed against the
+" IdeaVim maintainers' own vimscript-support notes. That made every Q throw
+" E117: Unknown function: expand instead of running. (An earlier version
+" also checked &readonly/!&modifiable first, matching real vim's
+" QuitBufferOrWindow, but IdeaVim doesn't implement those options either and
+" referencing &readonly threw E518: Unknown option.)
+" Use IntelliJ actions instead of vimscript functions, since :action calls
+" are the one thing proven reliable elsewhere in this file (m-, [c/]c, etc):
+" save the current file (no-op if unmodified) and close its editor tab.
+" IntelliJ editor tabs are basically never truly unnamed the way vim buffers
+" can be, so this covers the cases the old <expr> version tried to split.
+nnoremap Q :action SaveDocument<CR>:action CloseContent<CR>
+
 " vim-style undo
 set nooldundo
 " plugins (NerdTree) {{{
@@ -25,6 +45,9 @@ vmap <Leader>s <Plug>(easymotion-s)
 " vmap <Leader>. <Plug>(easymotion-repeat)
 
 " replaces default character search with easymotion character search
+" tried AceJump-overlay f/F/t/T (and flash.nvim's f/t/search augmentation in
+" vimrc) - reverted, keeping f/F/t/T and / at their plain default behavior
+" in both IdeaVim and Neovim.
 " nmap f <Plug>(easymotion-f)
 
 " unsupported overwindow motions
