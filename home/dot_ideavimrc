@@ -24,6 +24,14 @@ source ~/.vimrc
 " can be, so this covers the cases the old <expr> version tried to split.
 nnoremap Q :action SaveDocument<CR>:action CloseContent<CR>
 
+" clear search highlights on entering Insert mode (until the next search).
+" vimrc's Vim version uses feedkeys(), which IdeaVim lacks; IdeaVim doesn't
+" undo :nohlsearch after an autocmd the way Vim does, so call it directly.
+augroup nohlsearch_on_insert
+  autocmd!
+  autocmd InsertEnter * nohlsearch
+augroup END
+
 " vim-style undo
 set nooldundo
 " plugins (NerdTree) {{{

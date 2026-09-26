@@ -301,6 +301,16 @@ augroup END
 " }}}
 " }}}
 
+" clear search highlights on entering Insert mode; they stay off until the
+" next search. A plain :nohlsearch in an autocmd is undone when it returns
+" (Vim saves/restores the highlight state around autocmds, :help
+" autocmd-searchpat), so queue it with feedkeys to run after the autocmd.
+" IdeaVim has no feedkeys() - its version lives in dot_ideavimrc.
+augroup nohlsearch_on_insert
+  autocmd!
+  autocmd InsertEnter * call feedkeys("\<Cmd>nohlsearch\<CR>", 'n')
+augroup END
+
 " gray out the status bar(s) when this tmux pane loses focus (e.g. switching
 " tmux panes - requires the tmux-side setup in dot_tmux.conf and
 " dot_tmux-config/executable_sync-pane-focus.sh, which push FocusLost/
