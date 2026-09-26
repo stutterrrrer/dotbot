@@ -257,10 +257,10 @@ o```
 	:g/\v^\s*```$/j
 endfunction
 
-" mimic ideavim's Diff.ShowDiff action: open a 2-pane diff of the current
-" buffer against the last commit (HEAD), since Vim/Neovim has no built-in
-" equivalent. Diffs against HEAD (not the index) so it matches IntelliJ's
-" behavior even when part of the file is staged.
+" mimic ideavim's Compare.SameVersion action: open a 2-pane diff of the
+" current buffer against the last commit (HEAD), since Vim/Neovim has no
+" built-in equivalent. Diffs against HEAD (not the index) so it matches
+" IntelliJ's behavior even when part of the file is staged.
 function! GitDiffAgainstHead()
   let l:relpath = trim(system('git ls-files --full-name -- ' . shellescape(expand('%:p'))))
   if v:shell_error || empty(l:relpath)
@@ -411,7 +411,7 @@ xnoremap <silent> D "+d
 nnoremap m- :<c-u>call DeleteMarksOnCurrentLine()<CR>
 
 " show diff vs last commit - see GitDiffAgainstHead in the IdeaVim-skip block
-" at the top; ideavimrc overrides this with :action Diff.ShowDiff
+" at the top; ideavimrc overrides this with :action Compare.SameVersion
 nnoremap <leader>d :call GitDiffAgainstHead()<CR>
 
 " toggle wrap lines

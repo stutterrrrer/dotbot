@@ -86,8 +86,10 @@ nnoremap [c :action PreviousDiff<Enter>
 nnoremap ]c :action NextDiff<Enter>
 
 " mimic vimrc's GitDiffAgainstHead(): open a diff of the current file against
-" the last commit (HEAD), IntelliJ-native equivalent
-nnoremap <Leader>d :action Diff.ShowDiff<CR>
+" the last commit (HEAD). Diff.ShowDiff is a no-op here - it only fires when
+" the data context already supplies a diff request (e.g. 2 selected files);
+" Compare.SameVersion is the actual "current file vs HEAD" action.
+nnoremap <Leader>d :action Compare.SameVersion<CR>
 
 " note that doing :action GotoNextBookmark<Enter> in IntelliJ won't set the automatic mark ` where you're jumping from,
 " so you can't do `` to go back after doing ]` like you can in vim, if you just did GoTo... 
