@@ -42,8 +42,11 @@
 //    []. If IntelliJ ever starts answering XTVERSION (or supports DECSET 1004
 //    natively), revisit the rule in ~/.tmux.conf.
 
+import com.intellij.openapi.application.ApplicationActivationListener
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.wm.IdeFrame
+import com.intellij.util.messages.MessageBusConnection
 
 import java.awt.Component
 import java.awt.KeyboardFocusManager
@@ -111,20 +114,22 @@ def sendFocusToTmux = { boolean terminalFocused ->
 
 // Only call tmux when the terminal/non-terminal state actually changes.
 Boolean lastSentTerminalFocused = null
-def updateFromCurrentFocus = {
-    boolean terminalFocused = isInsideTerminal(KeyboardFocusManager.currentKeyboardFocusManager.focusOwner)
+def sendIfChanged = { boolean terminalFocused ->
     if (terminalFocused != lastSentTerminalFocused) {
         lastSentTerminalFocused = terminalFocused
         sendFocusToTmux(terminalFocused)
     }
 }
+def updateFromCurrentFocus = {
+    sendIfChanged(isInsideTerminal(KeyboardFocusManager.currentKeyboardFocusManager.focusOwner))
+}
 
 // Focus landing on a real component is acted on immediately (a brief detour
 // through a non-terminal component just costs an extra ~5ms tmux call).
 // Focus going to null is often a transient mid-transfer state, so only that
-// case waits briefly; if focus is still null afterwards, the IDE really lost
-// app focus (e.g. switched to iTerm), which counts as not focused, same as a
-// real terminal.
+// case waits briefly; if focus is still null afterwards, focus really left
+// IntelliJ's components, which counts as not focused. Switching to another
+// app is handled faster by the app-activation listener below.
 final Timer nullFocusTimer = new Timer(100, { updateFromCurrentFocus() } as ActionListener)
 nullFocusTimer.repeats = false
 
@@ -144,6 +149,30 @@ PropertyChangeListener focusOwnerListener = { event ->
 } as PropertyChangeListener
 focusManager.addPropertyChangeListener('focusOwner', focusOwnerListener)
 System.properties.put(listenerKey, focusOwnerListener)
+
+// Switching to another app (e.g. iTerm) counts as not focused, same as a real
+// terminal. IntelliJ's app-deactivation event means "another app is in front"
+// without the null-focus wait, which made this case ~100ms slower than clicking
+// the editor (measured ~200ms vs ~100ms from the app switch to tmux).
+// Reactivation re-reads the focus owner, in case it came back without a
+// focusOwner change event.
+final String activationConnectionKey = 'ian.tmuxFocusBorder.activationConnection'
+def previousActivationConnection = System.properties.get(activationConnectionKey)
+if (previousActivationConnection instanceof MessageBusConnection) previousActivationConnection.disconnect()
+final MessageBusConnection activationConnection = ApplicationManager.application.messageBus.connect()
+activationConnection.subscribe(ApplicationActivationListener.TOPIC, new ApplicationActivationListener() {
+    @Override
+    void applicationActivated(IdeFrame ideFrame) {
+        updateFromCurrentFocus()
+    }
+
+    @Override
+    void applicationDeactivated(IdeFrame ideFrame) {
+        nullFocusTimer.stop()
+        sendIfChanged(false)
+    }
+})
+System.properties.put(activationConnectionKey, activationConnection)
 
 updateFromCurrentFocus() // send the current state right away
 log.info("tracking terminal focus for tmux via $tmuxExecutable")
