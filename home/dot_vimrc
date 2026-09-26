@@ -509,11 +509,9 @@ syntax on
 set shortmess+=I
 
 " Show line numbers.
-" experiment to replace line motions with easymotion -
-" better because that would count as a jump and saved to jump list, but doing
-" count + j / k doesn't.
+" Line motions (5j) are replaced by easymotion n-char search - it's a jump
+" saved to the jump list, unlike count + j/k.
 set number
-set relativenumber
 "
 " status line at the bottom, even if you only have one window open.
 set laststatus=2
