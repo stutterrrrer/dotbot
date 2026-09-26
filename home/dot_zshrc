@@ -91,7 +91,12 @@ alias h='history'
 # environment variables (path, http proxy) {{{
 
 export ICLOUD="$HOME/Library/Mobile Documents/com~apple~CloudDocs"
-export EDITOR=vim
+# -u points at init.vim explicitly (not relying on nvim's default config
+# lookup) so any process spawning $EDITOR with a stripped/non-login
+# environment still gets it, and so config loading here can't silently
+# diverge the way plain "vim" did for Claude Code's transcript viewer.
+export EDITOR='nvim -u ~/.config/nvim/init.vim'
+export VISUAL="$EDITOR"
 # Opt in to the local proxy through ~/.config/chezmoi/chezmoi.toml.
 [[ -r "$HOME/.config/ian/proxy.zsh" ]] && source "$HOME/.config/ian/proxy.zsh"
 # }}}
