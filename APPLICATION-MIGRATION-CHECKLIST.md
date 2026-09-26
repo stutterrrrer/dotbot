@@ -64,6 +64,11 @@ macOS privacy permissions, licenses, accounts, or window/display state.
   chezmoi.
 - [ ] **BREW ONLY — Notion** — install and sign in; workspace content is
   cloud-hosted and not copied by chezmoi.
+- [ ] **CHEZMOI + MANUAL — Finicky** — routing rules (Notion links → Notion
+  app, everything else → Chrome) come from chezmoi as `~/.finicky.js`. Launch
+  Finicky once and accept macOS's "change default browser" prompt so it
+  becomes the default browser; clicking an `app.notion.com` link should then
+  open the Notion app without leaving a Chrome tab.
 - [ ] **BREW ONLY — Spotify** — install and sign in; library and playlists
   sync through the Spotify account and are not copied by chezmoi.
 - [ ] **BREW ONLY — WeChat** — install and sign in; account state is not

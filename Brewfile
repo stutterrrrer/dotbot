@@ -58,6 +58,9 @@ cask "google-chrome"
 cask "jetbrains-toolbox"
 # Notes and project workspace pinned in the Dock.
 cask "notion"
+# Default-browser router: Notion links go straight to the Notion app, all
+# others to Chrome (rules in ~/.finicky.js).
+cask "finicky"
 # Music streaming app pinned in the Dock.
 cask "spotify"
 # Messaging app pinned in the Dock.
