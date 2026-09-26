@@ -141,6 +141,63 @@ ta ()
 		tmux attach-session -t $@
 	fi
 }
+
+# brew wrapper: after a successful install/tap, warn if the package isn't in
+# ~/.chezmoi/Brewfile; after uninstall/untap, warn if it's still listed. So
+# hand-typed installs don't silently drift from what a new Mac would get.
+# Skipped inside Claude Code, which has its own PostToolUse hook for this
+# (~/.claude/hooks/brew-chezmoi-reminder.sh). For a full comparison, run
+# brewfile-check (below).
+brew() {
+	command brew "$@" || return $?
+	[[ -n "$CLAUDECODE" ]] && return 0
+	local brewfile="$HOME/.chezmoi/Brewfile"
+	[[ -r "$brewfile" ]] || return 0
+
+	local subcommand="$1" should_be_listed
+	case "$subcommand" in
+		install|tap) should_be_listed=yes ;;
+		uninstall|remove|rm|untap) should_be_listed=no ;;
+		*) return 0 ;;
+	esac
+
+	# names from lines like: brew "x" / cask "x" / tap "user/repo"
+	local brewfile_line listed_names=()
+	for brewfile_line in "${(@f)$(<$brewfile)}"; do
+		[[ "$brewfile_line" =~ '^[[:space:]]*(brew|cask|tap)[[:space:]]+"([^"]+)"' ]] && listed_names+=("$match[2]")
+	done
+
+	local package_name wanted_name is_listed out_of_sync=()
+	for package_name in "${@:2}"; do
+		[[ "$package_name" == -* ]] && continue
+		# homebrew/cask/foo -> foo; taps are always user/repo
+		[[ "$subcommand" == *tap ]] && wanted_name="$package_name" || wanted_name="${package_name:t}"
+		# Brewfile entries may also be tap-qualified (user/tap/foo)
+		is_listed=no
+		(( ${listed_names[(Ie)$wanted_name]} )) && is_listed=yes
+		[[ -n "${(M)listed_names:#*/$wanted_name}" ]] && is_listed=yes
+		[[ $is_listed != $should_be_listed ]] && out_of_sync+=("$wanted_name")
+	done
+	(( ${#out_of_sync} )) || return 0
+
+	if [[ $should_be_listed == yes ]]; then
+		print -P "%F{yellow}brew: not in ~/.chezmoi/Brewfile: ${out_of_sync[*]}%f"
+		print -P "%F{yellow}  add it if it should come along to a new Mac (plus an APPLICATION-MIGRATION-CHECKLIST.md entry for GUI casks with settings)%f"
+	else
+		print -P "%F{yellow}brew: still listed in ~/.chezmoi/Brewfile: ${out_of_sync[*]}%f"
+		print -P "%F{yellow}  remove it there (and from APPLICATION-MIGRATION-CHECKLIST.md) unless you'll reinstall it%f"
+	fi
+}
+
+# compare this Mac against ~/.chezmoi/Brewfile in both directions. Read-only:
+# `brew bundle cleanup` without --force only lists what it would uninstall.
+brewfile-check() {
+	local brewfile="$HOME/.chezmoi/Brewfile"
+	print -P "%B== In Brewfile but not installed%b"
+	HOMEBREW_NO_AUTO_UPDATE=1 command brew bundle check --verbose --no-upgrade --file="$brewfile"
+	print -P "\n%B== Installed but not in Brewfile (top-level only, dependencies excluded)%b"
+	HOMEBREW_NO_AUTO_UPDATE=1 command brew bundle cleanup --file="$brewfile" || true
+}
 #}}}
 
 # use kj and jk to exit insert mode in zsh-vim-mode
