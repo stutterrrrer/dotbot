@@ -20,10 +20,10 @@ brew "python"
 cask "miniforge"
 # GUI for vim, made for macOS
 brew "macvim"
+# Modern Vim fork used with the dot_config/nvim configuration
+brew "neovim"
 # Tiny, lightning fast, feature-packed file manager
 brew "nnn"
-# Ruby version manager
-brew "rbenv"
 # Console file manager used by the `r` shell helper
 brew "ranger"
 # Static analysis and lint tool, for (ba)sh scripts
@@ -64,9 +64,13 @@ cask "spotify"
 cask "wechat"
 # Container development platform already managed by Homebrew on this Mac.
 cask "docker-desktop"
-# Official ChatGPT desktop app.
-cask "chatgpt"
 # Clipboard history manager for Mac, iPhone, and iPad.
 cask "paste"
+# Menu bar icon organizer.
+cask "bartender"
+# Claude desktop app.
+cask "claude"
+# Claude Code CLI, kept current via its own auto-update channel.
+cask "claude-code@latest"
 # Things 3 is purchased through the Mac App Store and managed through mas.
 mas "Things 3", id: 904280696

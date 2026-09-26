@@ -56,9 +56,27 @@ macOS privacy permissions, licenses, accounts, or window/display state.
   migration reference, manually recreate the settings, and grant Accessibility
   permission. Moom does not provide
   automatic cross-Mac settings sync. The reviewed reference export at
-  `docs/migration-reference/moom/Moom-settings.plist` is for ChatGPT/AI-assisted
+  `docs/migration-reference/moom/Moom-settings.plist` is for AI-assisted
   reconstruction of settings and keymaps only; do not apply it directly with
   chezmoi or import it wholesale on a new Mac.
+- [ ] **BREW ONLY — Google Chrome** — install and sign in; bookmarks, history,
+  and extensions sync through the Google account and are not copied by
+  chezmoi.
+- [ ] **BREW ONLY — Notion** — install and sign in; workspace content is
+  cloud-hosted and not copied by chezmoi.
+- [ ] **BREW ONLY — Spotify** — install and sign in; library and playlists
+  sync through the Spotify account and are not copied by chezmoi.
+- [ ] **BREW ONLY — WeChat** — install and sign in; account state is not
+  copied by chezmoi.
+- [ ] **BREW ONLY — Docker Desktop** — install and sign in; images,
+  containers, and Docker Desktop settings are not copied by chezmoi.
+- [ ] **BREW ONLY — Paste** — install and sign in; the clipboard/snippet
+  library syncs through Paste's own cloud sync and is not copied by chezmoi.
+- [ ] **BREW ONLY — Bartender** — install and reconfigure the menu bar item
+  order and hidden-icon rules; its configuration is not copied by chezmoi.
+- [ ] **BREW ONLY — Claude desktop app** — install and sign in.
+- [ ] **BREW ONLY — Claude Code** — install; sign in with `claude login` and
+  verify project-level settings under each repository's `.claude/` directory.
 
 ### BetterTouchTool transfer
 
@@ -121,7 +139,7 @@ tree: it is repository-tracked documentation data, not a deployable dotfile.
 - [ ] **CHEZMOI — Powerlevel10k** — verify the prompt and `.p10k.zsh`
   appearance.
 - [ ] **CHEZMOI/BREW — Homebrew CLI tools** — verify `brew doctor`,
-  `brew bundle check`, tmux, MacVim, fzf, ranger, nnn, rbenv, git-lfs, and
+  `brew bundle check`, tmux, MacVim, Neovim, fzf, ranger, nnn, git-lfs, and
   shell plugins.
 
 The repository currently contains historical/working terminal plist exports,

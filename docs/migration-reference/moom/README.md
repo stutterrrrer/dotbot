@@ -1,7 +1,7 @@
 # Moom migration reference
 
 `Moom-settings.plist` is a reviewed export of the current Moom settings. It is
-tracked in the chezmoi repository so ChatGPT or another AI tool can inspect it
+tracked in the chezmoi repository so Claude or another AI tool can inspect it
 and help reconstruct the settings and keymaps on a new Mac.
 
 This is reference data, not an active chezmoi-managed target:

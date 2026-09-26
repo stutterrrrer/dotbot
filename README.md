@@ -23,7 +23,7 @@ The active setup is:
   procedure.
 - `docs/MAC-SYSTEM-SETTINGS-MIGRATION.md` — the audited native macOS settings,
   the BTT-versus-native ownership split, and the read-only audit script.
-- `docs/migration-reference/` — reviewed exports that ChatGPT or another AI
+- `docs/migration-reference/` — reviewed exports that Claude or another AI
   tool may read as migration source material. These files are tracked in the
   repository but are outside `home/`, so chezmoi never applies them directly.
 
